@@ -1,0 +1,8 @@
+{
+  "icon": "thatskyinteractions:holding_hands",
+  "interactions": [
+    {
+      "type": "thatskyinteractions:holding_hands"
+    }
+  ]
+}

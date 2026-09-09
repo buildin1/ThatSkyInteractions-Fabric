@@ -1,0 +1,15 @@
+{
+  "icon": "thatskyinteractions:interaction/pat_head",
+  "interactions": [
+    {
+      "type": "thatskyinteractions:animation",
+      "requester": "auto",
+      "receiver": "auto"
+    },
+    {
+      "type": "thatskyinteractions:animation",
+      "requester": "auto",
+      "receiver": "auto"
+    }
+  ]
+}

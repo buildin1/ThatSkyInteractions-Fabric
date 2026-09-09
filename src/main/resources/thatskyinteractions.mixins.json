@@ -1,0 +1,42 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.quepierts.thatskyinteractions.feature.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "vanilla.client.CameraEventMixin",
+    "vanilla.client.CameraFovMixin",
+    "vanilla.client.ClientLevelTickMixin",
+    "vanilla.client.CameraMixin",
+    "vanilla.client.EntityRenderStateMixin",
+    "vanilla.client.EntityRendererMixin",
+    "vanilla.client.GameRendererMixin",
+    "vanilla.client.GuiRendererMixin",
+    "vanilla.client.KeyboardHandlerMixin",
+    "vanilla.client.LocalPlayerMixin",
+    "vanilla.client.MinecraftMixin",
+    "vanilla.client.ModelFeatureRendererMixin",
+    "vanilla.client.MouseHandlerMixin",
+    "vanilla.client.PlayerModelMixin",
+    "vanilla.client.accessor.AbstractWidgetAccessor",
+    "vanilla.client.accessor.ClientInputAccessor",
+    "vanilla.client.accessor.ModelPartAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "vanilla.ChunkMapAccessor",
+    "vanilla.EntityLevelCallbackMixin",
+    "vanilla.EntityMixin",
+    "vanilla.EntityMountMixin",
+    "vanilla.EntitySizeMixin",
+    "vanilla.EntityTickMixin",
+    "vanilla.LevelMixin",
+    "vanilla.LivingEntityMixin",
+    "vanilla.PlayerTickMixin",
+    "vanilla.ServerEntityMixin",
+    "vanilla.ServerLevelTickMixin",
+    "vanilla.TrackedEntityAccessor"
+  ]
+}

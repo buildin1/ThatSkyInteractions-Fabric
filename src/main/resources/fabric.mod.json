@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "thatskyinteractions",
+  "version": "${version}",
+  "name": "ThatSkyInteractions",
+  "description": "Fabric port of ThatSkyInteractions (authorized by the original author).",
+  "authors": [
+    "Louis_Quepierts"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.quepierts.thatskyinteractions.ThatSkyInteractions"
+    ],
+    "client": [
+      "net.quepierts.thatskyinteractions.ThatSkyInteractionsClient"
+    ]
+  },
+  "mixins": [
+    "thatskyinteractions.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.1.2",
+    "java": ">=25",
+    "fabric-api": ">=0.155.3"
+  }
+}

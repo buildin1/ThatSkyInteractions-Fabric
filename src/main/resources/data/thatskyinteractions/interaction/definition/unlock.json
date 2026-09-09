@@ -1,0 +1,8 @@
+{
+  "icon": "thatskyinteractions:empty",
+  "interactions": [
+    {
+      "type": "thatskyinteractions:unlock"
+    }
+  ]
+}

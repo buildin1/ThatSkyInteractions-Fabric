@@ -1,0 +1,14 @@
+{
+  "icon": "thatskyinteractions:expression/bow",
+  "expressions": [
+    {
+      "type": "thatskyinteractions:animation",
+      "animation": "thatskyinteractions:bow_1"
+    },
+    {
+      "type": "thatskyinteractions:animation",
+      "animation": "thatskyinteractions:bow_2"
+    }
+  ],
+  "priority": 34
+}

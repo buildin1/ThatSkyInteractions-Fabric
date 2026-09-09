@@ -1,0 +1,37 @@
+package net.quepierts.thatskyinteractions.feature.friendship.behaviour;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.quepierts.thatskyinteractions.ThatSkyInteractions;
+import net.quepierts.thatskyinteractions.feature.friendship.FriendshipTreeNode;
+import net.quepierts.thatskyinteractions.core.friendship.model.NodeState;
+import org.jspecify.annotations.NonNull;
+
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public final class BlockBehaviour implements FriendshipBehaviour {
+
+    public static final BlockBehaviour  INSTANCE    = new BlockBehaviour();
+    public static final String          TYPE        = "block";
+    public static final Identifier      ICON        = ThatSkyInteractions.location("block");
+    
+    @Override
+    public void execute(
+            final @NonNull  ServerPlayer                requester,
+            final @NonNull  ServerPlayer                receiver,
+            final @NonNull  FriendshipTreeNode          node
+    ) {
+        
+    }
+    
+    @Override
+    public@NonNull Identifier getIcon(
+            final @NonNull  Player                      player,
+            final @NonNull  FriendshipTreeNode          node,
+            final @NonNull  NodeState                   state
+    ) {
+        return ICON;
+    }
+}

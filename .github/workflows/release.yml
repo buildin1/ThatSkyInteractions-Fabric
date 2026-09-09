@@ -1,0 +1,87 @@
+name: Release
+
+# 推 tag 触发。tag 形如 v26.1.2-2.1.0-rc2（即 v<mc版本>-<mod版本>）。
+# 也可手动触发做演练：勾 dry_run 就只构建、不发布。
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "只构建，不创建 Release"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # tag 里的版本必须和 gradle.properties 对得上，否则会发出一个名不副实的 Release
+      - name: Verify tag matches gradle.properties
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -euo pipefail
+          MC=$(grep -E '^minecraft_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          MOD=$(grep -E '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          EXPECTED="v${MC}-${MOD}"
+          ACTUAL="${GITHUB_REF_NAME}"
+          echo "expected=$EXPECTED actual=$ACTUAL"
+          if [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "::error::tag ($ACTUAL) 与 gradle.properties ($EXPECTED) 不一致"
+            exit 1
+          fi
+
+      - name: Build
+        run: ./gradlew build --stacktrace
+
+      - name: Collect artifacts
+        id: collect
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp build/libs/*.jar dist/
+          ls -la dist/
+          MC=$(grep -E '^minecraft_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          MOD=$(grep -E '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          echo "mc=$MC"   >> "$GITHUB_OUTPUT"
+          echo "mod=$MOD" >> "$GITHUB_OUTPUT"
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "ThatSkyInteractions Fabric ${{ steps.collect.outputs.mod }} · MC ${{ steps.collect.outputs.mc }}"
+          draft: false
+          prerelease: ${{ contains(steps.collect.outputs.mod, 'rc') || contains(steps.collect.outputs.mod, 'beta') || contains(steps.collect.outputs.mod, 'alpha') }}
+          generate_release_notes: true
+          files: dist/*.jar
+          body: |
+            **Minecraft** `${{ steps.collect.outputs.mc }}` · **Fabric Loader** `0.19.5+` · **Java** `25`
+
+            ThatSkyInteractions 的 Fabric 移植版，经原作者 Louis_Quepierts 授权。
+            veynir 动画后端（MIT）已合并进主 jar，无需额外安装。
+
+            需要 [Fabric API](https://modrinth.com/mod/fabric-api)。
+
+      - name: Upload artifact (dry run)
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: release-dry-run
+          path: dist/*.jar
+          if-no-files-found: error

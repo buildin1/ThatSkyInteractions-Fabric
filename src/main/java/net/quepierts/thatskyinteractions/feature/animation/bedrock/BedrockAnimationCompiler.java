@@ -1,0 +1,252 @@
+package net.quepierts.thatskyinteractions.feature.animation.bedrock;
+
+import it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
+import net.minecraft.util.Mth;
+import net.quepierts.thatskyinteractions.core.animation.model.bedrock.BedrockAnimation;
+import net.quepierts.thatskyinteractions.core.animation.model.bedrock.BedrockKeyframe;
+import net.quepierts.thatskyinteractions.core.animation.model.bedrock.BedrockTimeline;
+import net.quepierts.veynir.backend.buffer.AnimationBuffer;
+import net.quepierts.veynir.backend.model.Timeline;
+import net.quepierts.veynir.backend.source.AnimationSource;
+import net.quepierts.veynir.backend.source.TimelineSource;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+import org.jspecify.annotations.NonNull;
+
+import java.util.ArrayList;
+import java.util.Set;
+
+@UtilityClass
+public class BedrockAnimationCompiler {
+
+    private static final Vector3fc FACTOR_ONE   = new Vector3f(1);
+    private static final Vector3fc FACTOR_INV_Y = new Vector3f(1, -1, 1);
+    private static final Vector3fc FACTOR_DEG   = new Vector3f(Mth.DEG_TO_RAD);
+
+    private static final Set<String> INV_Y_BONES = Set.of(
+            "body",
+            "left_arm",
+            "right_arm",
+            "left_leg",
+            "right_leg",
+            "head"
+    );
+
+    public static @NonNull AnimationSource compile(@NonNull BedrockAnimation animation) {
+        return compile(animation, ChannelProcessor.none());
+    }
+
+    public static @NonNull AnimationSource compile(
+            @NonNull BedrockAnimation   animation,
+            @NonNull ChannelProcessor   processor
+    ) {
+        var bones               = animation.bones();
+        var duration            = animation.length();
+
+        var channels            = new ArrayList<String>();
+        var timelines           = new ArrayList<Timeline>();
+
+        var constants           = new FloatArrayList();
+
+        for (var entry : bones.entrySet()) {
+            final var key = entry.getKey();
+
+            if (processor.discard(key)) {
+                continue;
+            }
+
+            var name            = processor.process(key);
+            var bone            = entry.getValue();
+
+            if (bone            .position()
+                                .isPresent()) {
+
+                channels        .add(name + ".position");
+                var timeline    = compile(
+                        bone.position().get(),
+                        constants,
+                        FACTOR_INV_Y,
+                        duration
+                );
+                timelines       .add(timeline);
+
+            }
+
+            if (bone            .rotation()
+                                .isPresent()) {
+
+                channels        .add(name + ".rotation");
+                var timeline    = compile(
+                        bone.rotation().get(),
+                        constants,
+                        FACTOR_DEG,
+                        duration
+                );
+                timelines       .add(timeline);
+            }
+
+            if (bone            .scale()
+                                .isPresent()) {
+
+                channels        .add(name + ".scale");
+                var timeline    = compile(
+                        bone.scale().get(),
+                        constants,
+                        FACTOR_ONE,
+                        duration
+                );
+                timelines       .add(timeline);
+            }
+        }
+
+        var size                = constants.size();
+        var buffer              = new AnimationBuffer(size);
+        System                  .arraycopy(
+                constants.elements(), 0,
+                buffer.getBuffer(), 0,
+                size
+        );
+
+        return                  new TimelineSource(
+                channels.toArray(String[]::new),
+                timelines.toArray(Timeline[]::new),
+                buffer,
+                true,
+                animation.length()
+        );
+    }
+
+    private static @NonNull Timeline compile(
+            @NonNull BedrockTimeline    timeline,
+            @NonNull FloatArrayList     constants,
+            final Vector3fc             factors,
+            final float                 duration
+    ) {
+        var tmp                 = new float[16];
+        var keyframes           = timeline.keyframes();
+
+        if (keyframes.size()    == 1) {
+
+            throw new UnsupportedOperationException();
+        }
+
+        var starts              = new FloatArrayList();
+        var ends                = new FloatArrayList();
+        var addr0               = new IntArrayList();
+        var addr1               = new IntArrayList();
+        var interpolations      = new ByteArrayList();
+
+        var array               = new ArrayList<>(keyframes.entrySet());
+
+        var n                   = array.size();
+        var t                   = n - 1;
+
+        for (int i = 0; i < t; i++) {
+            var e0              = array.get(i);
+            var e1              = array.get(i + 1);
+
+            var t0              = e0.getKey();
+            var t1              = e1.getKey();
+
+            starts              .add(t0.floatValue());
+            ends                .add(t1.floatValue());
+
+            var k0              = e0.getValue();
+            var k1              = e1.getValue();
+
+            var smooth          =   (BedrockKeyframe.CATMULLROM.equals(k0.interpolation())
+                                ||   BedrockKeyframe.CATMULLROM.equals(k1.interpolation()))
+                                &&  (i > 0 && i < t - 1);
+
+            var addr             = constants.size();
+
+            if (smooth) {
+
+                var i0          = Mth.clamp(i - 1, 0, n - 1);
+                var i3          = Mth.clamp(i + 2, 0, n - 1);
+
+                var kp          = array.get(i0).getValue();
+                var kn          = array.get(i3).getValue();
+
+                get(kp.getPost  (), factors, tmp, 0);
+                get(k0.getPost  (), factors, tmp, 4);
+                get(k1.getPre   (), factors, tmp, 8);
+                get(kn.getPre   (), factors, tmp, 12);
+
+                addr0           .add(addr);
+                addr1           .add(addr + 8);
+
+                interpolations  .add(Timeline.INTERPOLATION_CATMULLROM);
+
+                constants       .addElements(addr, tmp, 0, 16);
+
+            } else {
+
+                get(k0.getPost  (), factors, tmp, 0);
+                addr0           .add(addr);
+
+                if (k0.getPost().equals(k1.getPre())) {
+                    addr1       .add(addr);
+                    constants   .addElements(addr, tmp, 0, 4);
+
+                    interpolations.add(Timeline.INTERPOLATION_CONSTANT);
+                } else {
+                    get(k1.getPre(), factors, tmp, 4);
+                    addr1        .add(addr + 4);
+                    constants    .addElements(addr, tmp, 0, 8);
+
+                    interpolations.add(Timeline.INTERPOLATION_LINER);
+                }
+
+            }
+        }
+
+
+        var last                = starts.size() - 1;
+        var end                 = ends.getFloat(last);
+
+        /*if (end < duration) {
+            starts.add(end);
+            ends.add(duration);
+            addr0.add(addr0.getInt(last));
+            addr1.add(addr1.getInt(last));
+            interpolations.add(Timeline.INTERPOLATION_CONSTANT);
+        }*/
+
+
+        return                  new Timeline(
+                                    starts          .toFloatArray(),
+                                    ends            .toFloatArray(),
+                                    addr0           .toIntArray(),
+                                    addr1           .toIntArray(),
+                                    interpolations  .toByteArray(),
+                                    starts          .size()
+                                );
+    }
+
+    private static void get(
+            @NonNull Vector3fc  vector,
+            final Vector3fc     factor,
+            float[]             array,
+            int                 offset
+    ) {
+        array[offset]       = vector.x() * factor.x();
+        array[offset + 1]   = vector.y() * factor.y();
+        array[offset + 2]   = vector.z() * factor.z();
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private enum Channel {
+        POSITION,
+        ROTATION,
+        SCALE;
+    }
+
+}

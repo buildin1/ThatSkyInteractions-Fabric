@@ -1,0 +1,18 @@
+{
+  "icon": "thatskyinteractions:expression/wave",
+  "expressions": [
+    {
+      "type": "thatskyinteractions:animation",
+      "animation": "thatskyinteractions:wave_1"
+    },
+    {
+      "type": "thatskyinteractions:animation",
+      "animation": "thatskyinteractions:wave_2"
+    },
+    {
+      "type": "thatskyinteractions:animation",
+      "animation": "thatskyinteractions:wave_3"
+    }
+  ],
+  "priority": 10
+}

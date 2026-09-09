@@ -1,0 +1,82 @@
+{
+
+  "key.category.thatskyinteractions.interactions": "That Sky Interactions",
+  "key.thatskyinteractions.interact": "Enable Interactions",
+  "key.thatskyinteractions.open_expression": "Open Expression Screen",
+  "key.thatskyinteractions.unlock_camera": "Unlock Camera",
+
+  "gui.thatskyinteractions.message.unlock.default.request": "Offer %s to unlock %s?",
+  "gui.thatskyinteractions.message.unlock.accept.left": "Receive",
+  "gui.thatskyinteractions.message.unlock.accept.right": "gifts",
+  "gui.thatskyinteractions.message.unlock.friend.request": "Offer %s to become friend with this player?",
+  "gui.thatskyinteractions.message.unlock.friend.accept": "Become friends with this player?",
+  "gui.thatskyinteractions.message.unlock.interaction.request": "Offer %s to this friend to unlock %s?",
+  "gui.thatskyinteractions.message.unlock.interaction.accept": "Unlock %s?",
+  "gui.thatskyinteractions.message.unlock.lock.request": "Offer %s to this friend to increases %s?",
+  "gui.thatskyinteractions.message.unlock.lock.accept": "Increase %s with this friend?",
+  "gui.thatskyinteractions.message.unlock.lock.intimacy": "intimacy",
+  "gui.thatskyinteractions.message.block.line1": "Block this player?",
+  "gui.thatskyinteractions.message.block.line2": "You won't get that player any invitation!",
+  "gui.thatskyinteractions.message.unblock.line1": "Unblock this player?",
+  "gui.thatskyinteractions.message.unblock.line2": "You can get that player again!",
+  "gui.thatskyinteractions.message.nickname.change": "Change this friend's nickname?",
+
+  "gui.tree.node.interaction.level": "Level %s",
+
+  "tab.thatskyinteractions": "That Sky Interactions",
+
+  "interaction.thatskyinteractions.high_five": "High Five",
+  "interaction.thatskyinteractions.hug": "Hug",
+  "interaction.thatskyinteractions.double_high_five": "Double High Five",
+  "interaction.thatskyinteractions.pat_head": "Pat Head",
+  "interaction.thatskyinteractions.bear_hug": "Bear Hug",
+
+  "block.thatskyinteractions.cloud": "Cloud",
+  "block.thatskyinteractions.wing_of_light": "Wing Of Light",
+  "block.thatskyinteractions.mural": "Mural",
+  "block.thatskyinteractions.mural_blooming": "Blooming Mural",
+  "block.thatskyinteractions.candle_cluster": "Candle Cluster",
+
+  "item.thatskyinteractions.cloud_editor": "Cloud Editor",
+  "item.thatskyinteractions.cloud_expand": "Cloud Expand",
+  "item.thatskyinteractions.cloud_reduce": "Cloud Reduce",
+
+  "candle_cluster.scale": "Scale: %d x %d x %d",
+  "candle_cluster.framed": "Framed: %s",
+  "candle_cluster.usage0": "Usage:",
+  "candle_cluster.usage1": "[Right Click] + [Shift]: Remove One Candle",
+
+  "cloud.description0": "Do not expand the size by placing a bunch of cloud blocks!!",
+  "cloud.description1": "Use CloudEditor or Expand/Reduce!!",
+  "cloud.usage0": "Usage:",
+  "cloud.usage1": "[Right Click] with cloud block to select",
+  "cloud.usage2": "[Right Click] with empty to open editor",
+
+  "advancements.thatskyinteractions.root.title": "Lighting the Way",
+  "advancements.thatskyinteractions.root.description": "Picked up a candle",
+  "advancements.thatskyinteractions.wing_of_light.title": "Lost and Found",
+  "advancements.thatskyinteractions.wing_of_light.description": "Found a Wing of Light",
+  "advancements.thatskyinteractions.friendship.title": "Shall We Play",
+  "advancements.thatskyinteractions.friendship.description": "Present a candle with other players to become friends",
+  "advancements.thatskyinteractions.intimate.title": "Diving In",
+  "advancements.thatskyinteractions.intimate.description": "Unlock every node in a friend's interaction tree",
+
+  "word.thatskyinteractions.candlelight": "candlelight",
+  "word.thatskyinteractions.missing_wol": "missing wing of light",
+
+  "gui.thatskyinteractions.prompt.w2s.mouse.general": "Press [%s] to interact",
+  "gui.thatskyinteractions.prompt.w2s.world.general": "Press [%s] + [%s] to interact",
+  "gui.thatskyinteractions.prompt.w2s.mouse.collect": "Collect %s",
+  "gui.thatskyinteractions.prompt.w2s.world.collect": "Press [%s] + [%s] to collect %s",
+  "gui.thatskyinteractions.prompt.w2s.mouse.astrolabe_ignite": "Light up the a friend's star",
+  "gui.thatskyinteractions.prompt.w2s.mouse.request": "Accept your friend's invite?",
+  "gui.thatskyinteractions.prompt.w2s.world.request": "Press [%s] + [%s] to accept invite",
+  "gui.thatskyinteractions.prompt.w2s.mouse.unlock": "Accepting a gift from a friend?",
+  "gui.thatskyinteractions.prompt.w2s.world.unlock": "Press [%s] + [%s] to accept gift",
+
+  "command.thatskyinteractions.preference.voice.get": "The preference voice of %s is %s.",
+  "command.thatskyinteractions.preference.voice.set": "Set the preference voice of %s to %s.",
+  "command.thatskyinteractions.preference.voice.invalid": "Invalid voice %s.",
+
+  "message.thatskyinteractions.handhold.stop": "Sprint to stop holding hand."
+}
