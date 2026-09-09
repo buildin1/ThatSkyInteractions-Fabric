@@ -133,11 +133,6 @@ public final class PlayerExpressionManager extends DataSyncManager<ExpressionSet
 
         log.info("Loaded {} expression sets", this.sets.size());
         log.info("Loaded {} expressions", this.expressions.size());
-        net.quepierts.thatskyinteractions.feature.animation.AnimDebug.log(
-                "expressions loaded: {} ids={}",
-                this.expressions.size(),
-                this.expressions.keySet().stream().map(Identifier::toString).sorted().toList()
-        );
     }
 
     public List<Identifier> ordinal() {

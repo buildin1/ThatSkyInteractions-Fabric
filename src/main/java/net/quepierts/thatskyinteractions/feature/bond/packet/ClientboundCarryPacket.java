@@ -59,11 +59,8 @@ public record ClientboundCarryPacket(
         
         final var carrier       = level.getPlayerByUUID(this.carrier());
         final var rider         = level.getPlayerByUUID(this.rider());
+        
 
-        net.quepierts.thatskyinteractions.feature.animation.AnimDebug.log(
-                "client carry {} carrier={} rider={}",
-                this.operation(), this.carrier(), this.rider()
-        );
 
         switch (this.operation()) {
 

@@ -201,11 +201,6 @@ public record ClientboundAnimationControlPacket(
         final var attachment    = PlayerAnimationSystem.getAnimationData(avatar);
         final var controller    = attachment.getController();
 
-        net.quepierts.thatskyinteractions.feature.animation.AnimDebug.log(
-                "client anim ctrl {} id={} layer={} target={}",
-                this.operation, this.identifier.orElse(null), this.layer().orElse(null), avatar.getName().getString()
-        );
-
         switch (this.operation) {
             case PLAY: {
                 final var animationId = this.identifier.orElseThrow();

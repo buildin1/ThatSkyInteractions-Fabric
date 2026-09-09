@@ -1,26 +1,21 @@
-# === 绝对不能提交 ===
-# 反编译的 Minecraft 源码：版权 + 体积（common 4789 类 / clientOnly 2093 类）
+# 内部工作文档，不进仓库
+HANDOVER.md
+PORT_PLAN.md
+
+# 反编译的 MC 源码：版权 + 体积
 mc-sources/
-
-# 阶段性备份：内含完整 src 拷贝与 jar
 backups/
-
-# 本地构建产物（正式版由 GitHub Release 分发）
 build-libs/
 
-# === 构建与运行 ===
 build/
 .gradle/
 out/
 run/
 run2/
 *.hprof
-
-# Loom
 .fabric/
 remappedSrc/
 
-# === IDE ===
 .idea/
 *.iml
 *.ipr
@@ -31,7 +26,6 @@ remappedSrc/
 .project
 bin/
 
-# === 系统 ===
 .DS_Store
 Thumbs.db
 desktop.ini

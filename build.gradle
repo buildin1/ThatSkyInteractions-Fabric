@@ -93,10 +93,3 @@ jar {
         exclude "META-INF/MANIFEST.MF"
     }
 }
-
-tasks.withType(JavaCompile).configureEach {
-    doFirst {
-        println "TSI-DEBUG processorPath=" + it.options.annotationProcessorPath?.files
-        println "TSI-DEBUG proc=" + it.options.compilerArgs
-    }
-}

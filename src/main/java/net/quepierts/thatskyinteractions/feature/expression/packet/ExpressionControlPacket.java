@@ -89,12 +89,6 @@ public record ExpressionControlPacket(
                                             .getInstance()
                                             .get(identifier, expressionLevel);
 
-                net.quepierts.thatskyinteractions.feature.animation.AnimDebug.log(
-                        "client perform {} lv{} target={} -> {}",
-                        identifier, expressionLevel, target.getName().getString(),
-                        expression != null ? "FOUND" : "NULL"
-                );
-
                 if (expression != null) { // normally, expression should not be null
 
                     attachment              .start(expression, identifier);

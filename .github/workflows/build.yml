@@ -32,8 +32,7 @@ jobs:
       - name: Build
         run: ./gradlew build --stacktrace
 
-      # Lombok 与 MixinExtras 的注解处理器冲突过一次，导致所有 @Getter/@Slf4j 静默失效、
-      # 编译仍然成功。这里做一次事后校验：产物里必须能找到 Lombok 生成的方法。
+      # Lombok 失效时编译仍会成功，只能靠事后校验产物
       - name: Verify Lombok output
         run: |
           set -euo pipefail
@@ -43,7 +42,7 @@ jobs:
             > /tmp/PlayerAnimationController.class
           javap -p /tmp/PlayerAnimationController.class > /tmp/pac.txt
           if ! grep -q "isPlaying()" /tmp/pac.txt; then
-            echo "::error::Lombok 未生成 isPlaying()，注解处理器可能又被顶掉了"
+            echo "::error::Lombok 未生成 isPlaying()"
             exit 1
           fi
           echo "Lombok OK"

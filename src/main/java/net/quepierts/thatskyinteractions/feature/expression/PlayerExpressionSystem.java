@@ -64,11 +64,6 @@ public class PlayerExpressionSystem {
         final var manager       = PlayerExpressionManager.getInstance();
         final var expression    = manager.get(expressionId, level);
 
-        net.quepierts.thatskyinteractions.feature.animation.AnimDebug.log(
-                "perform {} lv{} on {} -> {}",
-                expressionId, level, player.getName().getString(), expression != null ? "FOUND" : "NULL"
-        );
-
         if (expression == null) {
             return false;
         }
@@ -76,9 +71,6 @@ public class PlayerExpressionSystem {
         final var attachment    = PlayerExpressionSystem.getAttachment(player);
 
         if (attachment.isExpressing()) {
-            net.quepierts.thatskyinteractions.feature.animation.AnimDebug.log(
-                    "perform {} skipped: already expressing {}", expressionId, attachment.getCurrent()
-            );
             return false;
         }
 

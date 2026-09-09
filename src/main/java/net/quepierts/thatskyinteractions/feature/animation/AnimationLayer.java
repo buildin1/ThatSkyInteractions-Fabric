@@ -96,10 +96,6 @@ public final class AnimationLayer implements Comparable<AnimationLayer> {
 
         final var delta = pDelta * this.speed;
 
-        if (delta < 0.0F) {
-            AnimDebug.negativeDelta(delta, this.type.getIdentifier(), this.animationId);
-        }
-
         this.animation.update(this.fsmState, delta);
         this.state.progress = this.fsmState.getElapsed();
 

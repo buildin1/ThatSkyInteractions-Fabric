@@ -46,8 +46,6 @@ public class PlayerAnimationSystem {
             return;
         }
 
-        AnimDebug.log("anim play {} on {}", animation, avatar.getName().getString());
-
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(
                 avatar,
                 ClientboundAnimationControlPacket.play(avatar, animation)
@@ -380,17 +378,11 @@ public class PlayerAnimationSystem {
         final var controller    = attachment.getController();
         final var sitting       = entity.getVehicle() != null;
         final var executionMask = controller.getExecutionMask();
-        final var hadLowerBody  = executionMask.contains(LOWER_BODY);
 
         if (sitting) {
             executionMask.not(LOWER_BODY);
         } else {
             executionMask.or(LOWER_BODY);
-        }
-
-        if (hadLowerBody == sitting) {
-            // 掩码发生了变化（骑乘状态翻转）——频繁翻转会导致姿态抖动
-            AnimDebug.maskFlip(entity.getName().getString(), sitting);
         }
 
         controller              .tick(entity.tickCount);
