@@ -26,7 +26,6 @@
 - 背起、牵手、下马的姿态未逐帧核对，与原版可能存在细微差异
 - 仅在局域网环境验证过，独立服务器未回归
 - 三人及以上场景未验证
-- 代码内仍有调试埋点，正式版发布前需移除
 - 滚轮调整互动镜头距离未实机验证
 
 ## 构建
@@ -41,7 +40,7 @@
 
 动画后端使用 [veynir](https://github.com/LouisQuepierts/veynir) 1.2.1（MIT），已合并进主 jar；SDF 渲染部分来自 AnvilLib（MPL-2.0）。
 
-感谢 Louis_Quepierts 编写 ThatSkyInteractions 与 veynir，并授权本次移植。
+感谢 Louis_Quepierts 编写 ThatSkyInteractions 与 veynir。
 
 ## 许可
 
