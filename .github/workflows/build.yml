@@ -1,5 +1,8 @@
-name: Build
+name: Build & Release
 
+# 本地测通才推送，所以每次推送到发布分支就是一次发布。
+# 版本号唯一来源是 gradle.properties：改了版本号推上来就出新 Release，
+# 同版本内再推就更新同一个 Release。没有手动打 tag 这一步。
 on:
   push:
     branches: ["**"]
@@ -11,7 +14,10 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write   # 滚动发布开发版 Release 需要写权限
+  contents: write
+
+env:
+  JAVA_VERSION: "25"
 
 jobs:
   build:
@@ -20,11 +26,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Set up JDK 25
+      - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "25"
+          java-version: ${{ env.JAVA_VERSION }}
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -50,10 +56,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      # ---- 开发版滚动发布 ----------------------------------------------------
-      # 每次推送到发布分支都把开发版 Release 同步到分支最新提交，产物不会过期。
-      # tag 固定为 dev-<mc版本>，每次重新指向当前 commit；正式版仍走 release.yml
-      # 的 v<mc>-<mod> tag，两条通道互不干扰。
+      # ---- 以下只在发布分支的推送上执行 --------------------------------------
       - name: Read versions
         if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'mc/1.20.1')
         id: ver
@@ -63,21 +66,31 @@ jobs:
           MOD=$(grep -E '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
           echo "mc=$MC"   >> "$GITHUB_OUTPUT"
           echo "mod=$MOD" >> "$GITHUB_OUTPUT"
+          echo "tag=v${MC}-${MOD}" >> "$GITHUB_OUTPUT"
 
-      - name: Sync dev release
-        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'mc/1.20.1')
+      # tag 指向本次提交。同版本内重复推送时把 tag 跟着挪，
+      # 避免 Release 里的 jar 已经更新、tag 却还停在旧提交。
+      - name: Sync tag
+        if: steps.ver.outputs.tag != ''
+        run: |
+          set -euo pipefail
+          git tag -f "${{ steps.ver.outputs.tag }}"
+          git push -f origin "${{ steps.ver.outputs.tag }}"
+
+      - name: Publish release
+        if: steps.ver.outputs.tag != ''
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: dev-${{ steps.ver.outputs.mc }}
+          tag_name: ${{ steps.ver.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: "开发版 · MC ${{ steps.ver.outputs.mc }}"
-          prerelease: true
-          make_latest: false
+          name: "ThatSkyInteractions Fabric ${{ steps.ver.outputs.mod }} · MC ${{ steps.ver.outputs.mc }}"
+          draft: false
+          prerelease: ${{ contains(steps.ver.outputs.mod, 'rc') || contains(steps.ver.outputs.mod, 'beta') || contains(steps.ver.outputs.mod, 'alpha') }}
           files: build/libs/*.jar
           body: |
-            分支 `${{ github.ref_name }}` 的最新自动构建，随每次推送更新。
+            **Minecraft** `${{ steps.ver.outputs.mc }}` · **Fabric Loader** `0.19.5+` · **Java** `${{ env.JAVA_VERSION }}`
 
-            - 提交 `${{ github.sha }}`
-            - 基础版本 `${{ steps.ver.outputs.mod }}`
+            ThatSkyInteractions 的 Fabric 移植版，经原作者 Louis_Quepierts 授权。
+            veynir 动画后端（MIT）已合并进主 jar，无需额外安装。
 
-            未经充分测试，仅供尝鲜。正式版请到 Releases 里找 `v<MC版本>-<mod版本>` 的条目。
+            需要 [Fabric API](https://modrinth.com/mod/fabric-api)。
