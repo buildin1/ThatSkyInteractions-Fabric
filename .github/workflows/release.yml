@@ -47,6 +47,10 @@ jobs:
       - name: Build
         run: ./gradlew build --stacktrace
 
+      # 与 build.yml 共用同一个脚本：发布路径的校验不能比 CI 弱
+      - name: Verify jar (Lombok + mixin refmap)
+        run: .github/scripts/verify-jar.sh
+
       - name: Collect artifacts
         id: collect
         run: |

@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write   # 滚动发布开发版 Release 需要写权限
 
 jobs:
   build:
@@ -32,27 +32,52 @@ jobs:
       - name: Build
         run: ./gradlew build --stacktrace
 
-      # Lombok 失效时编译仍会成功，只能靠事后校验产物
-      - name: Verify Lombok output
-        run: |
-          set -euo pipefail
-          JAR=$(ls build/libs/*.jar | grep -v -- '-sources' | head -1)
-          echo "Inspecting $JAR"
-          unzip -p "$JAR" net/quepierts/thatskyinteractions/feature/animation/PlayerAnimationController.class \
-            > /tmp/PlayerAnimationController.class
-          javap -p /tmp/PlayerAnimationController.class > /tmp/pac.txt
-          if ! grep -q "isPlaying()" /tmp/pac.txt; then
-            echo "::error::Lombok 未生成 isPlaying()"
-            exit 1
-          fi
-          echo "Lombok OK"
+      - name: Verify jar (Lombok + mixin refmap)
+        run: .github/scripts/verify-jar.sh
+
+      # 分支名可能带斜杠（如 mc/1.20.1），artifact 名不接受，先替换成连字符
+      - name: Compute artifact name
+        id: meta
+        run: echo "name=thatskyinteractions-${GITHUB_REF_NAME//\//-}-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v5
         with:
-          name: thatskyinteractions-${{ github.ref_name }}-${{ github.sha }}
+          name: ${{ steps.meta.outputs.name }}
           path: |
             build/libs/*.jar
             !build/libs/*-sources.jar
           if-no-files-found: error
           retention-days: 14
+
+      # ---- 开发版滚动发布 ----------------------------------------------------
+      # 每次推送到发布分支都把开发版 Release 同步到分支最新提交，产物不会过期。
+      # tag 固定为 dev-<mc版本>，每次重新指向当前 commit；正式版仍走 release.yml
+      # 的 v<mc>-<mod> tag，两条通道互不干扰。
+      - name: Read versions
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'mc/1.20.1')
+        id: ver
+        run: |
+          set -euo pipefail
+          MC=$(grep -E '^minecraft_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          MOD=$(grep -E '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          echo "mc=$MC"   >> "$GITHUB_OUTPUT"
+          echo "mod=$MOD" >> "$GITHUB_OUTPUT"
+
+      - name: Sync dev release
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'mc/1.20.1')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dev-${{ steps.ver.outputs.mc }}
+          target_commitish: ${{ github.sha }}
+          name: "开发版 · MC ${{ steps.ver.outputs.mc }}"
+          prerelease: true
+          make_latest: false
+          files: build/libs/*.jar
+          body: |
+            分支 `${{ github.ref_name }}` 的最新自动构建，随每次推送更新。
+
+            - 提交 `${{ github.sha }}`
+            - 基础版本 `${{ steps.ver.outputs.mod }}`
+
+            未经充分测试，仅供尝鲜。正式版请到 Releases 里找 `v<MC版本>-<mod版本>` 的条目。
