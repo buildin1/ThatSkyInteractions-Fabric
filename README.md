@@ -1,15 +1,15 @@
 # ThatSkyInteractions — Fabric
 
-[ThatSkyInteractions](https://github.com/LouisQuepierts/ThatSkyInteractions) 的 Fabric 移植版，经原作者授权。移植自 NeoForge 版 2.1.0-rc2。
+[ThatSkyInteractions](https://github.com/LouisQuepierts/ThatSkyInteractions) 的 Fabric 移植版，经原作者授权。移植：YuzuNyaa，基于 NeoForge 版 2.1.0-rc2。
 
 ## 环境要求
 
 | | |
 |---|---|
-| Minecraft | 26.1.2 |
+| Minecraft | 1.20.1 |
 | Fabric Loader | 0.19.5+ |
-| Fabric API | 0.155.3+26.1.2 |
-| Java | 25 |
+| Fabric API | 0.92.12+1.20.1 |
+| Java | 17 |
 
 ## 安装
 
@@ -34,7 +34,7 @@
 ./gradlew build
 ```
 
-需要 JDK 25。
+需要 JDK 17。
 
 ## 致谢
 

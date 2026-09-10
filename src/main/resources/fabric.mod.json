@@ -5,8 +5,14 @@
   "name": "ThatSkyInteractions",
   "description": "Fabric port of ThatSkyInteractions (authorized by the original author).",
   "authors": [
-    "Louis_Quepierts"
+    "Louis_Quepierts",
+    "YuzuNyaa"
   ],
+  "contact": {
+    "homepage": "https://github.com/buildin1/ThatSkyInteractions-Fabric",
+    "sources": "https://github.com/buildin1/ThatSkyInteractions-Fabric",
+    "issues": "https://github.com/buildin1/ThatSkyInteractions-Fabric/issues"
+  },
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
