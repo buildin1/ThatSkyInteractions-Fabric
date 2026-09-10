@@ -47,10 +47,15 @@ jobs:
           fi
           echo "Lombok OK"
 
+      # 分支名可能带斜杠（如 mc/1.20.1），artifact 名不接受，先替换成连字符
+      - name: Compute artifact name
+        id: meta
+        run: echo "name=thatskyinteractions-${GITHUB_REF_NAME//\//-}-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v5
         with:
-          name: thatskyinteractions-${{ github.ref_name }}-${{ github.sha }}
+          name: ${{ steps.meta.outputs.name }}
           path: |
             build/libs/*.jar
             !build/libs/*-sources.jar
