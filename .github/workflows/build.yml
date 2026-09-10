@@ -1,8 +1,11 @@
 name: Build & Release
 
-# 本地测通才推送，所以每次推送到发布分支就是一次发布。
-# 版本号唯一来源是 gradle.properties：改了版本号推上来就出新 Release，
-# 同版本内再推就更新同一个 Release。没有手动打 tag 这一步。
+# 本地测通才推送，所以每次推送到发布分支就是一次发布，而且各自有独立的版本号：
+# CI 先把 gradle.properties 里 mod_version 结尾的数字 +1 并提交回分支，
+# 再用新版本号构建、打 tag、发 Release。
+#
+# 为什么不是"同版本内更新同一个 Release"：那样 rc3 的内容会随推送悄悄变化，
+# 同一个版本号在不同时间指向不同的字节，版本号就失去意义了。
 on:
   push:
     branches: ["**"]
@@ -11,7 +14,8 @@ on:
 
 concurrency:
   group: build-${{ github.ref }}
-  cancel-in-progress: true
+  # 发布过程中被取消会留下打了一半的 Release，这里不允许中途取消
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -35,6 +39,34 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      # 递增必须在构建之前，jar 里才会带上新版本号。
+      # 提交信息带 [skip ci]，GitHub 原生识别，不会再触发一轮。
+      - name: Bump version
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'mc/1.20.1')
+        id: ver
+        run: |
+          set -euo pipefail
+          MC=$(grep -E '^minecraft_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          MOD=$(grep -E '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+
+          if [[ "$MOD" =~ ^(.*[^0-9])([0-9]+)$ ]]; then
+            NEXT="${BASH_REMATCH[1]}$(( ${BASH_REMATCH[2]} + 1 ))"
+          else
+            echo "::error::mod_version ($MOD) 结尾不是数字，无法自动递增"
+            exit 1
+          fi
+
+          sed -i "s/^mod_version=.*/mod_version=${NEXT}/" gradle.properties
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "版本号 ${NEXT} [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+          echo "已发布版本：$MOD → $NEXT"
+          echo "mc=$MC"            >> "$GITHUB_OUTPUT"
+          echo "mod=$NEXT"         >> "$GITHUB_OUTPUT"
+          echo "tag=v${MC}-${NEXT}" >> "$GITHUB_OUTPUT"
+
       - name: Build
         run: ./gradlew build --stacktrace
 
@@ -55,27 +87,6 @@ jobs:
             !build/libs/*-sources.jar
           if-no-files-found: error
           retention-days: 14
-
-      # ---- 以下只在发布分支的推送上执行 --------------------------------------
-      - name: Read versions
-        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'mc/1.20.1')
-        id: ver
-        run: |
-          set -euo pipefail
-          MC=$(grep -E '^minecraft_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
-          MOD=$(grep -E '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
-          echo "mc=$MC"   >> "$GITHUB_OUTPUT"
-          echo "mod=$MOD" >> "$GITHUB_OUTPUT"
-          echo "tag=v${MC}-${MOD}" >> "$GITHUB_OUTPUT"
-
-      # tag 指向本次提交。同版本内重复推送时把 tag 跟着挪，
-      # 避免 Release 里的 jar 已经更新、tag 却还停在旧提交。
-      - name: Sync tag
-        if: steps.ver.outputs.tag != ''
-        run: |
-          set -euo pipefail
-          git tag -f "${{ steps.ver.outputs.tag }}"
-          git push -f origin "${{ steps.ver.outputs.tag }}"
 
       - name: Publish release
         if: steps.ver.outputs.tag != ''
