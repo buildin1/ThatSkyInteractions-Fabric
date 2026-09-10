@@ -13,12 +13,11 @@ base {
 repositories {
 }
 
-// Loom 会把 fabric-loader 自带的 MixinExtras 一并塞进注解处理器路径，而它与 Lombok 冲突：
-// 冲突时 Lombok 静默失效——所有 @Getter/@Slf4j/@RequiredArgsConstructor 都不生成，
-// 但编译本身照常"成功"，只在别处报一堆找不到符号。MixinExtras 运行期由 Loader 提供即可。
-configurations.annotationProcessor {
-    exclude group: 'io.github.llamalad7'
-}
+// MixinExtras 的注解处理器【必须】留在 annotationProcessor 路径上。
+// Loom 1.6.12 走 legacy mixin AP：@ModifyExpressionValue / @WrapOperation / @ModifyReturnValue
+// 这些注解的 method 与 @At target 要靠 MixinExtras 的 AP 扩展写进 refmap，
+// 否则生产环境（intermediary 名）找不到注入目标，直接崩在 Mixin apply。
+// dev 用 Mojang 官方映射不需要 refmap，所以这个问题只有装进真实客户端才暴露。
 
 loom {
     mods {
