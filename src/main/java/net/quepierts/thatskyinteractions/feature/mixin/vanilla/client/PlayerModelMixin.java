@@ -13,7 +13,9 @@ import net.quepierts.thatskyinteractions.feature.client.model.MinecraftModelAdap
 import net.quepierts.thatskyinteractions.feature.client.model.MinecraftModelSkeleton;
 import net.quepierts.thatskyinteractions.feature.client.render.EntityModelExtension;
 import net.quepierts.thatskyinteractions.feature.client.renderstate.AnimationStateModifier;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,6 +31,12 @@ public class PlayerModelMixin implements EntityModelExtension {
     @Unique
     private MinecraftModelAdaptor a4j$ModelAdaptor;
 
+    @Shadow @Final public ModelPart leftSleeve;
+    @Shadow @Final public ModelPart rightSleeve;
+    @Shadow @Final public ModelPart leftPants;
+    @Shadow @Final public ModelPart rightPants;
+    @Shadow @Final public ModelPart jacket;
+
     @Inject(
             method = "<init>",
             at = @At("TAIL")
@@ -36,6 +44,37 @@ public class PlayerModelMixin implements EntityModelExtension {
     private void a4j$init(final ModelPart root, final boolean slim, final CallbackInfo ci) {
         final var skeleton = MinecraftModelSkeleton.auto(root, DefaultMinecraftSkeletonLayout.HUMANOID);
         this.a4j$ModelAdaptor = MinecraftModelAdaptor.of(skeleton);
+    }
+
+    /**
+     * 1.20.1 必须在原版 {@code setupAnim} 之前把各部件复位。
+     *
+     * <p>模型实例是复用的，而原版 {@code setupAnim} 只无条件重写旋转，位置/缩放只在
+     * 部分分支里赋值。动画一旦改过这些分量，残值会跨帧累积；欧拉角在残值基础上做插值
+     * 还会绕远路——表现就是手臂整圈旋转而不是弯曲。
+     *
+     * <p>做法取自原作者在 SimpleAnimator (1.20 分支) 里的 PlayerModelMixin。
+     */
+    @Inject(
+            method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V",
+            at = @At("HEAD")
+    )
+    private void tsi$resetPose(
+            final LivingEntity  entity,
+            final float         limbSwing,
+            final float         limbSwingAmount,
+            final float         ageInTicks,
+            final float         netHeadYaw,
+            final float         headPitch,
+            final CallbackInfo  ci
+    ) {
+        final var humanoid = (net.minecraft.client.model.HumanoidModel<?>) (Object) this;
+        humanoid.head       .resetPose();
+        humanoid.body       .resetPose();
+        humanoid.leftArm    .resetPose();
+        humanoid.rightArm   .resetPose();
+        humanoid.leftLeg    .resetPose();
+        humanoid.rightLeg   .resetPose();
     }
 
     @Inject(
@@ -55,11 +94,14 @@ public class PlayerModelMixin implements EntityModelExtension {
             return;
         }
 
+        boolean posed = false;
+
         final var partialTick = net.minecraft.client.Minecraft.getInstance().getFrameTime();
         final var controller  = AnimationStateModifier.INSTANCE.accept(entity, partialTick);
 
         if (controller != null) {
             PlayerAnimationHook.onSetupAnimation(controller, this.a4j$ModelAdaptor);
+            posed = true;
         }
 
         // 动作细节增强：牵手/背起时头部朝向对方（在动画姿态基础上叠加，不覆盖）
@@ -68,8 +110,30 @@ public class PlayerModelMixin implements EntityModelExtension {
             if (partner != null) {
                 final var humanoid = (net.minecraft.client.model.HumanoidModel<?>) (Object) this;
                 tsi$lookAt(humanoid.head, self, partner);
+                posed = true;
             }
         }
+
+        if (posed) {
+            tsi$copyOuterLayers();
+        }
+    }
+
+    /**
+     * 原版把外层部件（帽子/袖子/裤腿/夹克）从基础部件拷贝这一步，发生在
+     * {@code HumanoidModel#setupAnim}（hat）与 {@code PlayerModel#setupAnim}（其余）
+     * 的中途——都在本 mixin 的 TAIL 注入之前。所以动画改完基础部件后必须再拷一次，
+     * 否则外层还停在动画前的姿态：穿着皮肤第二层时身体和手臂会明显分层错位。
+     */
+    @Unique
+    private void tsi$copyOuterLayers() {
+        final var humanoid = (net.minecraft.client.model.HumanoidModel<?>) (Object) this;
+        humanoid.hat        .copyFrom(humanoid.head);
+        this.leftSleeve     .copyFrom(humanoid.leftArm);
+        this.rightSleeve    .copyFrom(humanoid.rightArm);
+        this.leftPants      .copyFrom(humanoid.leftLeg);
+        this.rightPants     .copyFrom(humanoid.rightLeg);
+        this.jacket         .copyFrom(humanoid.body);
     }
 
     @Unique
