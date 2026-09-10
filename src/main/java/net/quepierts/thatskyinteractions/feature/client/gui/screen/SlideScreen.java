@@ -1,8 +1,8 @@
 package net.quepierts.thatskyinteractions.feature.client.gui.screen;
 
 import lombok.Getter;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.gui.GuiGraphics;
+import dev.anvilcraft.lib.v2.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.quepierts.thatskyinteractions.core.property.IntProperty;
 import net.quepierts.thatskyinteractions.feature.client.gui.ColorStack;
@@ -48,8 +48,8 @@ public abstract class SlideScreen<Model, Controller extends ScreenController<Mod
         colors.push();
         colors.mul(trans, 1.0f, 1.0f, 1.0f);
 
-        pose.pushMatrix();
-        pose.translate(x, 0);
+        pose.pushPose();
+        pose.translate(x, 0, 0.0f);
         // at the right side
         graphics.original().fill(
                 0,
@@ -62,17 +62,12 @@ public abstract class SlideScreen<Model, Controller extends ScreenController<Mod
         super.extractAnimatableRenderState(graphics, colors, (int) (mouseX - x), mouseY, delta);
 
         colors.clear();
-        pose.popMatrix();
+        pose.popPose();
     }
 
     @Override
-    public void extractBackground(
-            final @NonNull GuiGraphicsExtractor graphics,
-            final int mouseX,
-            final int mouseY,
-            final float delta
-    ) {
-
+    public void renderBackground(final @NonNull GuiGraphics graphics) {
+        // 1.20.1 没有 extractBackground：等价地屏蔽原版变暗的背景
     }
 
     @Override
@@ -83,7 +78,7 @@ public abstract class SlideScreen<Model, Controller extends ScreenController<Mod
         return new MouseButtonEvent(
                 event.x() - x,
                 event.y(),
-                event.buttonInfo()
+                event.button()
         );
     }
 }

@@ -1,7 +1,7 @@
 package net.neoforged.neoforge.client.event;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.input.KeyEvent;
+import dev.anvilcraft.lib.v2.input.KeyEvent;
 import net.minecraft.world.InteractionHand;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;

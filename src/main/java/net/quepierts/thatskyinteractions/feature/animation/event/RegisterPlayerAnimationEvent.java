@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.Event;
 import net.quepierts.thatskyinteractions.core.animation.model.PlayerAnimationDefinition;
 import net.quepierts.thatskyinteractions.core.animation.model.SourceDefinition;
@@ -15,10 +15,10 @@ import org.jspecify.annotations.Nullable;
 @RequiredArgsConstructor
 public final class RegisterPlayerAnimationEvent extends Event {
 
-    private final Object2ObjectMap<Identifier, PlayerAnimationDefinition> definitions;
+    private final Object2ObjectMap<ResourceLocation, PlayerAnimationDefinition> definitions;
 
     public void register(
-            @NonNull Identifier                 id,
+            @NonNull ResourceLocation                 id,
             @NonNull PlayerAnimationDefinition  definition
     ) {
         if (this.definitions.put(id, definition) != null) {
@@ -27,7 +27,7 @@ public final class RegisterPlayerAnimationEvent extends Event {
     }
 
     public void redirect(
-            @NonNull Identifier                 id,
+            @NonNull ResourceLocation                 id,
             @NonNull PlayerAnimationDefinition  definition
     ) {
         if (this.definitions.put(id, definition) == null) {
@@ -38,7 +38,7 @@ public final class RegisterPlayerAnimationEvent extends Event {
     }
 
     public void modify(
-            @NonNull Identifier                 id,
+            @NonNull ResourceLocation                 id,
             @NonNull String                     name,
             @NonNull SourceDefinition           source,
             @NonNull String                     layer
@@ -70,7 +70,7 @@ public final class RegisterPlayerAnimationEvent extends Event {
     }
 
     public void unregister(
-            @NonNull Identifier                 id
+            @NonNull ResourceLocation                 id
     ) {
         if (this.definitions.remove(id) == null) {
             log.error("Animation not registered: {}", id);
@@ -80,13 +80,13 @@ public final class RegisterPlayerAnimationEvent extends Event {
     }
 
     public boolean contains(
-            @NonNull Identifier                 id
+            @NonNull ResourceLocation                 id
     ) {
         return this.definitions.containsKey(id);
     }
 
     public @Nullable PlayerAnimationDefinition get(
-            @NonNull Identifier                 id
+            @NonNull ResourceLocation                 id
     ) {
         return this.definitions.get(id);
     }

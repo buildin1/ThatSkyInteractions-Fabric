@@ -73,6 +73,18 @@ public class PlayerBondHandler {
         }
 
         final var leftHand      = leader == handhold.getLeft();
+
+        // 位置只在客户端驱动：
+        // - follower 自己的客户端：本地玩家是客户端权威的，正常跟随；
+        // - leader 的客户端：远程 follower 也要拖一把，否则它只能跟着服务端下发的
+        //   （比 leader 自己的位置晚一两拍）的位置走，跑起来就明显掉队；
+        //   follow 里会清掉 lerpSteps，避免被原版插值拽回旧位置。
+        // 服务端不再 move：玩家移动本来就是客户端权威的，服务端再 move 一次
+        // 反而会用 leader 的服务端位置覆盖客户端上报的准确位置。
+        if (!player.level().isClientSide()) {
+            return;
+        }
+
         resolver.follow(leader, player, leftHand);
 
     }

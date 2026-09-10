@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.friendship.behaviour;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -13,7 +13,7 @@ public final class LockBehaviour implements FriendshipBehaviour {
 
     public static final LockBehaviour   INSTANCE    = new LockBehaviour();
     public static final String          TYPE        = "lock";
-    public static final Identifier      ICON        = ThatSkyInteractions.location("lock");
+    public static final ResourceLocation      ICON        = ThatSkyInteractions.location("lock");
 
     @Override
     public void execute(
@@ -25,7 +25,7 @@ public final class LockBehaviour implements FriendshipBehaviour {
     }
 
     @Override
-    public @NonNull Identifier getIcon(
+    public @NonNull ResourceLocation getIcon(
             final @NonNull  Player                      player,
             final @NonNull  FriendshipTreeNode          node,
             final @NonNull  NodeState                   state
@@ -39,12 +39,12 @@ public final class LockBehaviour implements FriendshipBehaviour {
     ) {
         return Component.translatable(
                 "gui.thatskyinteractions.message.unlock.lock.request",
-                Component.object(FriendshipBehaviour.SPRITE_CANDLE)
+                FriendshipBehaviour.SPRITE_CANDLE
                         .withStyle(Styles.SHADOWLESS),
                 Component.translatable("gui.thatskyinteractions.message.unlock.lock.intimacy")
                         .withStyle(Styles.BOLD)
-                        .withColor(FriendshipBehaviour.HIGHLIGHT_TEXT_COLOR)
-        ).withColor(FriendshipBehaviour.NORMAL_TEXT_COLOR);
+                        .withStyle(net.minecraft.network.chat.Style.EMPTY.withColor(net.minecraft.network.chat.TextColor.fromRgb(FriendshipBehaviour.HIGHLIGHT_TEXT_COLOR)))
+        ).withStyle(net.minecraft.network.chat.Style.EMPTY.withColor(net.minecraft.network.chat.TextColor.fromRgb(FriendshipBehaviour.NORMAL_TEXT_COLOR)));
     }
 
 }

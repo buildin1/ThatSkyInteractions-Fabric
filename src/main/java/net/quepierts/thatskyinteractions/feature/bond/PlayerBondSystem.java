@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.bond;
 
 import lombok.experimental.UtilityClass;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -17,12 +17,12 @@ import org.jspecify.annotations.NonNull;
 @UtilityClass
 public class PlayerBondSystem {
 
-    private static final Identifier[] ANIMATIONS = new Identifier[] {
+    private static final ResourceLocation[] ANIMATIONS = new ResourceLocation[] {
             FKAnimation.LEFT_ARM,
             FKAnimation.RIGHT_ARM
     };
 
-    private static final Identifier[] LAYERS    = new Identifier[] {
+    private static final ResourceLocation[] LAYERS    = new ResourceLocation[] {
             AnimationLayerTypes.LEFT_ARM.getId(),
             AnimationLayerTypes.RIGHT_ARM.getId()
     };
@@ -150,7 +150,7 @@ public class PlayerBondSystem {
             cRelation.carry(rider);
             rRelation.ride(carrier);
 
-            rider.startRiding(carrier, true, true);
+            rider.startRiding(carrier, true);
 
             PacketDistributor.sendToPlayersTrackingEntityAndSelf(
                     carrier,

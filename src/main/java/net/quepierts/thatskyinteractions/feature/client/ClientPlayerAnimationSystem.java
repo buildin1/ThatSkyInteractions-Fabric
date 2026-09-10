@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.client;
 
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.quepierts.thatskyinteractions.feature.animation.PlayerAnimationAttachment;
 import net.quepierts.thatskyinteractions.feature.animation.packet.AnimationRequestPacket;
@@ -12,7 +12,7 @@ import org.jspecify.annotations.NonNull;
 @SuppressWarnings({"unused", "DataFlowIssue"})
 public class ClientPlayerAnimationSystem {
 
-    public static void play(@NonNull Identifier animation) {
+    public static void play(@NonNull ResourceLocation animation) {
 
         ClientPacketDistributor.sendToServer(
                 AnimationRequestPacket.play(

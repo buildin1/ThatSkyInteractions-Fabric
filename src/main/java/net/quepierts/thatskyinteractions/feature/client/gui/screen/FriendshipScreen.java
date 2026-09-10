@@ -50,7 +50,7 @@ public final class FriendshipScreen extends SlideScreen<FriendshipTreeData, Frie
 
     @Override
     protected void repositionElements() {
-        this.getRoot().setSize(this.width, this.height);
+        this.getRoot().setControlSize(this.width, this.height);
         super.repositionElements();
     }
 

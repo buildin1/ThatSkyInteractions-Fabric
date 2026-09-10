@@ -1,9 +1,8 @@
 package net.quepierts.thatskyinteractions.feature.client.gui.layer;
 
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.gui.GuiLayer;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -25,7 +24,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public final class FloatingControlLayer implements GuiLayer {
 
     public static final FloatingControlLayer                INSTANCE    = new FloatingControlLayer();
-    public static final Identifier                          IDENTIFIER  = ThatSkyInteractions.location("floating");
+    public static final ResourceLocation                          IDENTIFIER  = ThatSkyInteractions.location("floating");
 
     private final Map<FloatingTarget, FloatingControl>      controls    = new HashMap<>();
     private final ConcurrentLinkedDeque<Runnable>           pending     = new ConcurrentLinkedDeque<>();
@@ -73,8 +72,8 @@ public final class FloatingControlLayer implements GuiLayer {
 
     @Override
     public void render(
-            final @NonNull GuiGraphicsExtractor graphics,
-            final @NonNull DeltaTracker         tracker
+            final @NonNull GuiGraphics graphics,
+            final float tracker
     ) {
 
         final var minecraft = Minecraft.getInstance();
@@ -110,13 +109,13 @@ public final class FloatingControlLayer implements GuiLayer {
     }
 
     void render(
-            final @NonNull GuiGraphicsExtractor graphics,
-            final @NonNull DeltaTracker         tracker,
+            final @NonNull GuiGraphics graphics,
+            final float tracker,
             final int                           mouseX,
             final int                           mouseY
     ) {
 
-        final var delta     = tracker.getRealtimeDeltaTicks();
+        final var delta     = tracker;
         this.tickHandler.tick(delta * 0.05f);
 
         this.update(mouseX, mouseY);
@@ -153,7 +152,7 @@ public final class FloatingControlLayer implements GuiLayer {
         final var minecraft     = Minecraft.getInstance();
         final var renderer      = minecraft.gameRenderer;
         final var camera        = renderer.getMainCamera();
-        final var cameraPos     = camera.position().toVector3f();
+        final var cameraPos     = camera.getPosition().toVector3f();
 
         final int screenWidth   = minecraft.getWindow().getGuiScaledWidth();
         final int screenHeight  = minecraft.getWindow().getGuiScaledHeight();
@@ -161,7 +160,22 @@ public final class FloatingControlLayer implements GuiLayer {
         final int centerX       = screenWidth / 2;
         final int centerY       = screenHeight / 2;
 
-        final var projection    = camera.getViewRotationProjectionMatrix(this.projection);
+        // 1.20.1 没有 Camera#getViewRotationProjectionMatrix。这里复刻 GameRenderer#renderLevel
+        // 给 level 用的相机姿态（1.20.1 GameRenderer.java:1069-1070）：
+        //   poseStack.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
+        //   poseStack.mulPose(Axis.YP.rotationDegrees(camera.getYRot() + 180.0f));
+        // 不能拿 camera.rotation() 的共轭凑：1.20.1 的相机四元数是 rotationYXZ(-yRot, xRot)，
+        // 26.x 是 rotationYXZ(PI - yRot, -xRot)，两者俯仰符号相反、还差 180° 偏航，
+        // 用错了投影出来的位置整个是错的（正前方的目标会落进下面 vs.w <= 0 的分支）。
+        final var viewRotation  = new org.joml.Matrix4f()
+                                .rotation(com.mojang.math.Axis.XP.rotationDegrees(camera.getXRot()))
+                                .mul(new org.joml.Matrix4f().rotation(
+                                        com.mojang.math.Axis.YP.rotationDegrees(camera.getYRot() + 180.0f)
+                                ));
+
+        final var projection    = this.projection
+                                .set(renderer.getProjectionMatrix(minecraft.options.fov().get()))
+                                .mul(viewRotation);
         final var useMouse      = !minecraft.mouseHandler.isMouseGrabbed();
 
         float cx, cy;

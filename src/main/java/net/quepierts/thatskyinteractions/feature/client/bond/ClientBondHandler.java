@@ -26,8 +26,12 @@ public class ClientBondHandler {
             return;
         }
 
-        if (!event.getInput().sprint()) {
-            event.getPlayer().sendOverlayMessage(Component.translatable("message.thatskyinteractions.handhold.stop"));
+        // 1.20.1 的 Input 没有 sprint 字段，改查按键状态；overlay 消息走 Gui
+        if (!Minecraft.getInstance().options.keySprint.isDown()) {
+            Minecraft.getInstance().gui.setOverlayMessage(
+                    Component.translatable("message.thatskyinteractions.handhold.stop"),
+                    false
+            );
             event.setCanceled(true);
             return;
         }
@@ -41,7 +45,7 @@ public class ClientBondHandler {
     public static void onPlayerClick(final InputEvent.InteractionKeyMappingTriggered event) {
 
         final var minecraft = Minecraft.getInstance();
-        if (!minecraft.hasAltDown()) {
+        if (!net.minecraft.client.gui.screens.Screen.hasAltDown()) {
             return;
         }
 

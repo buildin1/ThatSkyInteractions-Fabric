@@ -3,8 +3,8 @@ package net.quepierts.thatskyinteractions.feature.control.packet;
 import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -21,9 +21,9 @@ public record NavigatePacket(
 
     public static final StreamCodec<ByteBuf, NavigatePacket> STREAM_CODEC
             = StreamCodec.composite(
-                    Vec3.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.VEC3,
                     NavigatePacket::walkTarget,
-                    Vec3.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.VEC3,
                     NavigatePacket::lookTarget,
                     NavigatePacket::new
             );

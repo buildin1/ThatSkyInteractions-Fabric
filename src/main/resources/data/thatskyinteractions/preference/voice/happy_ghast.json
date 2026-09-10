@@ -1,4 +1,5 @@
 {
   "icon": "thatskyinteractions:voice/tiny_ghast",
-  "sound": "minecraft:entity.happy_ghast.ambient"
+  "sound": "minecraft:entity.ghast.ambient",
+  "notes": [13, 15, 17, 20, 22]
 }

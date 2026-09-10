@@ -6,8 +6,8 @@ import io.netty.buffer.ByteBuf;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.feature.network.StreamCodecUtils;
 import net.quepierts.thatskyinteractions.feature.registry.AttachmentTypes;
@@ -23,7 +23,7 @@ import java.util.UUID;
 public final class PlayerInteractionAttachment {
 
     public static final Codec<PlayerInteractionAttachment> CODEC
-            = MapCodec.unitCodec(PlayerInteractionAttachment::new);
+            = MapCodec.unit(PlayerInteractionAttachment::new).codec();
 
     // todo
     public static final StreamCodec<ByteBuf, PlayerInteractionAttachment> STREAM_CODEC
@@ -42,7 +42,7 @@ public final class PlayerInteractionAttachment {
 
     public void sendInvite(
             final @NonNull Player other,
-            final @NonNull Identifier type
+            final @NonNull ResourceLocation type
     ) {
 
         this.ongoing = InteractionRequest.send(
@@ -55,7 +55,7 @@ public final class PlayerInteractionAttachment {
 
     public void receiveInvite(
             final @NonNull Player       other,
-            final @NonNull Identifier   type
+            final @NonNull ResourceLocation   type
     ) {
 
         this.received.put(

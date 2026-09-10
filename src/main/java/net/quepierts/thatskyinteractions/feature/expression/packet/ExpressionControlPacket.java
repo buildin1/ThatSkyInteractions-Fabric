@@ -4,10 +4,10 @@ import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.feature.expression.Expression;
@@ -21,7 +21,7 @@ import java.util.UUID;
 public record ExpressionControlPacket(
         Operation   operation,
         UUID        playerUUID,
-        Identifier  identifier,
+        ResourceLocation  identifier,
         int         level
 ) implements IClientboundPacket {
 
@@ -32,9 +32,9 @@ public record ExpressionControlPacket(
             = StreamCodec.composite(
                     ByteBufCodecs.BYTE.map(Operation::decode, Operation::encode),
                     ExpressionControlPacket::operation,
-                    UUIDUtil.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID,
                     ExpressionControlPacket::playerUUID,
-                    Identifier.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION,
                     ExpressionControlPacket::identifier,
                     ByteBufCodecs.VAR_INT,
                     ExpressionControlPacket::level,
@@ -43,7 +43,7 @@ public record ExpressionControlPacket(
 
     public static ExpressionControlPacket perform(
             final @NonNull UUID         playerUUID,
-            final @NonNull Identifier   id,
+            final @NonNull ResourceLocation   id,
             final          int          level
     ) {
         return new ExpressionControlPacket(Operation.PERFORM, playerUUID, id, level);
@@ -51,21 +51,21 @@ public record ExpressionControlPacket(
 
     public static ExpressionControlPacket interrupt(
             final @NonNull UUID         playerUUID,
-            final @NonNull Identifier   id
+            final @NonNull ResourceLocation   id
     ) {
         return new ExpressionControlPacket(Operation.INTERRUPT, playerUUID, id, 0);
     }
 
     public static ExpressionControlPacket cancel(
             final @NonNull UUID         playerUUID,
-            final @NonNull Identifier   id
+            final @NonNull ResourceLocation   id
     ) {
         return new ExpressionControlPacket(Operation.CANCEL, playerUUID, id, 0);
     }
 
     public static ExpressionControlPacket finished(
             final @NonNull UUID         playerUUID,
-            final @NonNull Identifier   id
+            final @NonNull ResourceLocation   id
     ) {
         return new ExpressionControlPacket(Operation.FINISHED, playerUUID, id, 0);
     }

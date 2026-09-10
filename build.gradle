@@ -1,5 +1,5 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version '1.18.0-alpha.21'
+    id 'fabric-loom' version '1.6.12'
     id 'maven-publish'
 }
 
@@ -13,6 +13,13 @@ base {
 repositories {
 }
 
+// Loom 会把 fabric-loader 自带的 MixinExtras 一并塞进注解处理器路径，而它与 Lombok 冲突：
+// 冲突时 Lombok 静默失效——所有 @Getter/@Slf4j/@RequiredArgsConstructor 都不生成，
+// 但编译本身照常"成功"，只在别处报一堆找不到符号。MixinExtras 运行期由 Loader 提供即可。
+configurations.annotationProcessor {
+    exclude group: 'io.github.llamalad7'
+}
+
 loom {
     mods {
         "thatskyinteractions" {
@@ -20,7 +27,6 @@ loom {
         }
     }
 
-    // 双客户端联机测试用（第二个客户端使用独立运行目录）
     runs {
         client2 {
             client()
@@ -33,16 +39,16 @@ loom {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // 官方 Mojang 映射：与 26.x 同名，业务代码不必改名
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    // veynir-core 1.2.1（动画后端，纯 Java，原作者制品）：使用真实库而非源码复刻
     implementation files('libs/veynir-core-1.2.1.jar')
 
+    compileOnly "org.jspecify:jspecify:1.0.0"
     compileOnly "org.projectlombok:lombok:1.18.48"
     annotationProcessor "org.projectlombok:lombok:1.18.48"
-    compileOnly "org.slf4j:slf4j-api:2.0.17"
-    
 }
 
 sourceSets.main.resources {
@@ -61,26 +67,13 @@ processResources {
 
 java {
     withSourcesJar()
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
-
-def javaToolchains = project.extensions.getByType(JavaToolchainService)
 
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
-    it.options.release = 25
-    // JDK 25 下 Gradle 进程内编译器会让 Lombok 静默失效，必须 fork 出独立 javac 并显式 -proc:full。
-    // 用 toolchain 解析 javaHome，不要写死本机路径——CI 上没有 D:\Data\java\java25。
-    it.options.compilerArgs << "-proc:full"
-    it.options.fork = true
-    it.options.forkOptions.javaHome = javaToolchains
-            .launcherFor { languageVersion = JavaLanguageVersion.of(25) }
-            .get()
-            .metadata
-            .installationPath
-            .asFile
+    it.options.release = 17
 }
 
 jar {
@@ -88,7 +81,6 @@ jar {
         rename { "${it}_${project.base.archivesName.get()}" }
     }
 
-    // 合并 veynir-core 1.2.1（纯 Java 动画后端库，随包发布）
     from(zipTree("libs/veynir-core-1.2.1.jar")) {
         exclude "META-INF/MANIFEST.MF"
     }

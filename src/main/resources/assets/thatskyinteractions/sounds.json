@@ -6,7 +6,7 @@
   },
   "voice.dog": {
     "sounds": [
-      "mob/wolf/classic/bark2"
+      "mob/wolf/bark2"
     ]
   },
   "voice.fox": {

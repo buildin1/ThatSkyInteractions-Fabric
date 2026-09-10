@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.client.gui;
 
 import lombok.Getter;
-import net.minecraft.util.ARGB;
+import net.minecraft.util.FastColor;
 
 import java.util.Arrays;
 
@@ -140,7 +140,7 @@ public final class ColorStack {
             int green,
             int blue
     ) {
-        return ARGB.color(
+        return FastColor.ARGB32.color(
                 clamp(alpha * this.a[this.top] / 255),
                 clamp(red   * this.r[this.top] / 255),
                 clamp(green * this.g[this.top] / 255),
@@ -153,10 +153,10 @@ public final class ColorStack {
             case 0x00000000 -> 0x00000000;
             case 0xffffffff -> this.argb();
             default -> this.argb(
-                    ARGB.alpha(argb),
-                    ARGB.red(argb),
-                    ARGB.green(argb),
-                    ARGB.blue(argb)
+                    FastColor.ARGB32.alpha(argb),
+                    FastColor.ARGB32.red(argb),
+                    FastColor.ARGB32.green(argb),
+                    FastColor.ARGB32.blue(argb)
             );
         };
     }

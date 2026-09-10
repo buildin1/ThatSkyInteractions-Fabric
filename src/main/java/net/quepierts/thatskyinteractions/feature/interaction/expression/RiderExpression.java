@@ -1,6 +1,6 @@
 package net.quepierts.thatskyinteractions.feature.interaction.expression;
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.core.animation.DefaultMinecraftFSM;
@@ -17,7 +17,7 @@ public final class RiderExpression
         extends AbstractAnimationExpression
         implements InteractionExpression {
 
-    public RiderExpression(final Identifier animation) {
+    public RiderExpression(final ResourceLocation animation) {
         super(AUTO);
         this.animationId = animation;
     }
@@ -66,7 +66,7 @@ public final class RiderExpression
 
     @Override
     public void onGenerateData(
-            @NonNull final Identifier identifier,
+            @NonNull final ResourceLocation identifier,
             final int          level
     ) {
         // do nothing first

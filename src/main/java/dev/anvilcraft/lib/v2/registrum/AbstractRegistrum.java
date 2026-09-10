@@ -3,7 +3,7 @@ package dev.anvilcraft.lib.v2.registrum;
 import dev.anvilcraft.lib.v2.registrum.builders.BuilderCallback;
 import dev.anvilcraft.lib.v2.registrum.builders.data.AttachmentBuilder;
 import dev.anvilcraft.lib.v2.registrum.builders.self.SoundEventBuilder;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 
 import java.util.function.Function;
@@ -24,8 +24,8 @@ public abstract class AbstractRegistrum<S extends AbstractRegistrum<S>> {
         return this.modid;
     }
 
-    public Identifier id(String path) {
-        return Identifier.fromNamespaceAndPath(this.modid, path);
+    public ResourceLocation id(String path) {
+        return new ResourceLocation(this.modid, path);
     }
 
     public <E> AttachmentBuilder<E> attachment(String name, Function<IAttachmentHolder, E> defaultFactory) {

@@ -6,7 +6,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.quepierts.thatskyinteractions.datagen.TsiEntityTagsProvider;
 import net.quepierts.thatskyinteractions.feature.animation.PlayerAnimationFactory;
 import net.quepierts.thatskyinteractions.feature.config.TsiServerConfig;
@@ -50,8 +50,8 @@ public class ThatSkyInteractions implements ModInitializer {
         CompatBootstrap.registerDataReloadListeners();
     }
 
-    public static Identifier location(String path) {
-        return Identifier.fromNamespaceAndPath(MODID, path);
+    public static ResourceLocation location(String path) {
+        return new ResourceLocation(MODID, path);
     }
 
     private void setupDataGeneration() {

@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.expression;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForge;
@@ -23,7 +23,7 @@ public class PlayerExpressionSystem {
 
     public static boolean enqueue(
             final @NonNull  ServerPlayer    player,
-            final @NonNull  Identifier      expressionId,
+            final @NonNull  ResourceLocation      expressionId,
             final           int             level
     ) {
 
@@ -58,7 +58,7 @@ public class PlayerExpressionSystem {
 
     public static boolean perform(
             final @NonNull  ServerPlayer    player,
-            final @NonNull  Identifier      expressionId,
+            final @NonNull  ResourceLocation      expressionId,
             final           int             level
     ) {
         final var manager       = PlayerExpressionManager.getInstance();
@@ -112,7 +112,7 @@ public class PlayerExpressionSystem {
 
     public static boolean perform(
             final @NonNull  ServerPlayer    player,
-            final @NonNull  Identifier      expressionId
+            final @NonNull  ResourceLocation      expressionId
     ) {
         return perform(player, expressionId, 0);
     }

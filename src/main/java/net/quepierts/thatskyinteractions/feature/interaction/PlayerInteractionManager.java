@@ -3,7 +3,7 @@ package net.quepierts.thatskyinteractions.feature.interaction;
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -28,8 +28,8 @@ public final class PlayerInteractionManager extends DataSyncManager<InteractionS
     private static final PlayerInteractionManager instance
             = new PlayerInteractionManager();
 
-    private Map<Identifier, InteractionSet> sets = Map.of();
-    private Map<Identifier, Interaction> interactions = Map.of();
+    private Map<ResourceLocation, InteractionSet> sets = Map.of();
+    private Map<ResourceLocation, Interaction> interactions = Map.of();
 
     PlayerInteractionManager() {
         super(
@@ -104,19 +104,19 @@ public final class PlayerInteractionManager extends DataSyncManager<InteractionS
     }
 
     public @Nullable InteractionSet getSet(
-            final @NonNull Identifier   identifier
+            final @NonNull ResourceLocation   identifier
     ) {
         return this.sets.get(identifier);
     }
 
     public @Nullable Interaction get(
-            final @NonNull Identifier   identifier
+            final @NonNull ResourceLocation   identifier
     ) {
         return this.interactions.get(identifier);
     }
 
     public @Nullable Interaction get(
-            final @NonNull Identifier   identifier,
+            final @NonNull ResourceLocation   identifier,
             final          int          level
     ) {
         final var set               = this.sets.get(identifier);
@@ -124,10 +124,10 @@ public final class PlayerInteractionManager extends DataSyncManager<InteractionS
     }
 
     @Override
-    protected void apply(final @NonNull Map<Identifier, InteractionSet> preparations) {
+    protected void apply(final @NonNull Map<ResourceLocation, InteractionSet> preparations) {
 
-        final var builder0  = ImmutableMap.<Identifier, InteractionSet>builder();
-        final var builder1  = ImmutableMap.<Identifier, Interaction>builder();
+        final var builder0  = ImmutableMap.<ResourceLocation, InteractionSet>builder();
+        final var builder1  = ImmutableMap.<ResourceLocation, Interaction>builder();
 
         for (final var entry : preparations.entrySet()) {
             final var identifier    = entry.getKey();
@@ -137,7 +137,7 @@ public final class PlayerInteractionManager extends DataSyncManager<InteractionS
             builder0.put(identifier, set);
 
             if (!leveled) {
-                final var first = set.interactions().getFirst();
+                final var first = set.interactions().get(0);
                 first.onGenerateData(
                         identifier,
                         0
@@ -172,7 +172,7 @@ public final class PlayerInteractionManager extends DataSyncManager<InteractionS
         log.info("Loaded {} interaction", this.interactions.size());
     }
 
-    public Iterable<Identifier> identifiers() {
+    public Iterable<ResourceLocation> identifiers() {
         return this.interactions.keySet();
     }
 }

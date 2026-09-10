@@ -4,7 +4,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
-import net.minecraft.data.tags.TagAppender;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 
@@ -33,17 +32,12 @@ public abstract class RegistrumTagsProvider<T> implements RegistrumProvider {
         protected void addTags(HolderLookup.Provider provider) {
         }
 
-        @Override
-        public TagAppender<T, T> tag(TagKey<T> tag) {
-            return super.tag(tag);
-        }
-
         public void add(TagKey<T> tag) {
             this.tag(tag);
         }
 
         /** NeoForge 的 TagAppender#add(TagEntry) 等价物（datagen 用） */
-        public IntrinsicImpl<T> addOptionalElement(TagKey<T> tag, net.minecraft.resources.Identifier id) {
+        public IntrinsicImpl<T> addOptionalElement(TagKey<T> tag, net.minecraft.resources.ResourceLocation id) {
             this.getOrCreateRawBuilder(tag).add(net.minecraft.tags.TagEntry.optionalElement(id));
             return this;
         }

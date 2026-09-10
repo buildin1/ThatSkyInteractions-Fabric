@@ -64,6 +64,17 @@ public final class FollowerPositionResolver {
         follower.setDeltaMovement(0, 0, 0);
         follower.move(MoverType.SELF, delta);
 
+        // 远程玩家在客户端会被原版 LivingEntity#aiStep 按 lerpSteps 朝服务端下发的
+        // 旧位置插值（lerpTo 每帧给 lerpSteps=3），正好把这里的移动拽回去——leader 视角
+        // 看到的 follower 就是原地不动 + 被拽一下的抽搐。把 lerpSteps 清 0 让本次移动生效。
+        if (follower.level().isClientSide() && !follower.isLocalPlayer()) {
+            follower.lerpTo(
+                    follower.getX(), follower.getY(), follower.getZ(),
+                    follower.getYRot(), follower.getXRot(),
+                    0, false
+            );
+        }
+
         if (this.counter < 0 || distance > 4 && follower.distanceToSqr(this.x, this.y, this.z) < 0.1) {
             // seems stuck somewhere
             this.counter ++;
@@ -77,8 +88,8 @@ public final class FollowerPositionResolver {
             Player      follower,
             float       partialTick
     ) {
-        final var leaderYRot    = leader.getYRot(partialTick);
-        final var followerYRot  = follower.getYRot(partialTick);
+        final var leaderYRot    = net.minecraft.util.Mth.rotLerp(partialTick, leader.yRotO, leader.getYRot());
+        final var followerYRot  = net.minecraft.util.Mth.rotLerp(partialTick, follower.yRotO, follower.getYRot());
 
         follower.setYBodyRot(leader.yBodyRot);
         float delta = Mth.wrapDegrees(followerYRot - leaderYRot);

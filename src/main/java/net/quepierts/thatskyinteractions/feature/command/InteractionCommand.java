@@ -11,7 +11,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
 import net.quepierts.thatskyinteractions.feature.interaction.PlayerInteractionAttachment;
 import net.quepierts.thatskyinteractions.feature.interaction.PlayerInteractionManager;
@@ -37,10 +37,10 @@ public final class InteractionCommand {
                     final var names         = new ArrayList<String>(requests.size());
                     for (final var request : requests) {
                         final var uuid      = request.getOther();
-                        final var other     = level.getPlayerInAnyDimension(uuid);
+                        final var other     = level.getServer().getPlayerList().getPlayer(uuid);
 
                         if (other != null) {
-                            names.add(other.getGameProfile().name());
+                            names.add(other.getGameProfile().getName());
                         }
                     }
 
@@ -48,16 +48,16 @@ public final class InteractionCommand {
             };
 
     static final SuggestionProvider<CommandSourceStack> INTERACTIONS
-            = (_, builder)
+            = (__unused0, builder)
             -> SharedSuggestionProvider.suggestResource(
                     PlayerInteractionManager.getInstance().identifiers(), builder
             );
 
     static LiteralArgumentBuilder<CommandSourceStack> command() {
-        return Commands.literal("interact").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+        return Commands.literal("interact").requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.literal("invite")
                         .then(Commands.argument("receiver", EntityArgument.player()).suggests(TsiSuggestions.OTHERS)
-                                .then(Commands.argument("interaction", IdentifierArgument.id()).suggests(INTERACTIONS)
+                                .then(Commands.argument("interaction", ResourceLocationArgument.id()).suggests(INTERACTIONS)
                                         .executes(InteractionCommand::invite))))
                 .then(Commands.literal("accept")
                         .then(Commands.argument("requester", EntityArgument.player()).suggests(WAITING)
@@ -79,7 +79,7 @@ public final class InteractionCommand {
             return 0;
         }
 
-        final var interaction   = IdentifierArgument.getId(context, "interaction");
+        final var interaction   = ResourceLocationArgument.getId(context, "interaction");
 
         PlayerInteractionSystem.invite(
                 player,

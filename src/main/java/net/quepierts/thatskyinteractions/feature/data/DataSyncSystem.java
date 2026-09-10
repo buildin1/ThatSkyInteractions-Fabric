@@ -55,7 +55,7 @@ public class DataSyncSystem {
     }
 
     private static void sync(@NonNull ServerPlayer player) {
-        final DataSyncManager<?> first = MANAGERS.getFirst();
+        final DataSyncManager<?> first = MANAGERS.get(0);
         var payload  = new SyncDatapackPacket(
                 0,
                 first.getCache()

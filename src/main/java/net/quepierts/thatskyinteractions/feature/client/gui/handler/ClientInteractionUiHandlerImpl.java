@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.client.gui.handler;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.feature.client.ClientPlayerFriendshipSystem;
@@ -17,7 +17,7 @@ import org.jspecify.annotations.NonNull;
 public final class ClientInteractionUiHandlerImpl extends ClientInteractionUiHandler {
 
     @Override
-    protected void _invite(final @NonNull Player requester, final @NonNull Identifier icon) {
+    protected void _invite(final @NonNull Player requester, final @NonNull ResourceLocation icon) {
 
         final var uuid          = requester.getUUID();
         final var target        = new FloatingTarget.Entity(uuid);
@@ -29,7 +29,7 @@ public final class ClientInteractionUiHandlerImpl extends ClientInteractionUiHan
                 FloatingButton.dynamic(
                         Component.empty(),
                         WorldPositionSupplier.entity(requester, 2.0f),
-                        (_, _)
+                        (__unused0, __unused1)
                                 -> ClientPlayerInteractionSystem.accept(requester)
                 ).withVisualNode(FloatingButtonNode.icon(icon))
         );

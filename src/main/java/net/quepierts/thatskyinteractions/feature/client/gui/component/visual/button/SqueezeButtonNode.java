@@ -36,11 +36,12 @@ public class SqueezeButtonNode implements VisualNode {
         final var pose          = graphics.pose();
         pose                    .translate(
                                     control.getX() + hw,
-                                    control.getY() + hh
+                                    control.getY() + hh,
+                                    0.0f
                                 );
 
         final var scale         = 1.0f - (UiEases.bounce(click)) * 0.3f;
-        pose                    .scale(scale, scale);
+        pose                    .scale(scale, scale, 1.0f);
 
         this.renderOp           .render(
                 graphics,

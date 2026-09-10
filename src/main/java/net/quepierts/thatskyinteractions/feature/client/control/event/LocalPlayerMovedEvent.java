@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.client.control.event;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.world.entity.player.Input;
+import net.minecraft.client.player.Input;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec2;
 import net.neoforged.bus.api.Event;

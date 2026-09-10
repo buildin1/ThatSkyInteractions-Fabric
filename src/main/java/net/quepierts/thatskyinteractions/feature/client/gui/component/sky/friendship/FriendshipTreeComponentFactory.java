@@ -7,10 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.core.friendship.model.Cost;
@@ -43,7 +42,7 @@ import java.util.Collection;
 @UtilityClass
 public class FriendshipTreeComponentFactory {
 
-    public static final Identifier ICON_LOCKED      = ThatSkyInteractions.location("locked");
+    public static final ResourceLocation ICON_LOCKED      = ThatSkyInteractions.location("locked");
 
     public static final int COLOR_LOCKED            = 0xff52677a;
     public static final int COLOR_UNLOCKABLE        = 0xffc8f9fd;
@@ -182,7 +181,7 @@ public class FriendshipTreeComponentFactory {
     }
 
     @SuppressWarnings("DataFlowIssue")
-    private static Identifier extractIcon(
+    private static ResourceLocation extractIcon(
             final FriendshipTreeNode       node,
             final NodeState                 state
     ) {
@@ -210,7 +209,7 @@ public class FriendshipTreeComponentFactory {
         final var icon          = extractIcon(node, state);
         final var mColor        = STATED_COLORS[state.ordinal()];
 
-        final var content       = ButtonVisualNodes.spin((graphics, colors, _, _, width, height) -> {
+        final var content       = ButtonVisualNodes.spin((graphics, colors, __unused0, __unused1, width, height) -> {
             graphics.blitIcon(
                     icon,
                     -14,
@@ -260,7 +259,7 @@ public class FriendshipTreeComponentFactory {
         ) {
 
             final var pose      = graphics.pose();
-            final var py        = control.getY() + pose.m21;
+            final var py        = control.getY() + pose.last().pose().m31();
 
             final var progress  = this.progress.get();
             final var empty     = progress == 0.0f;
@@ -304,8 +303,8 @@ public class FriendshipTreeComponentFactory {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class Price implements VisualNode {
 
-        private static final Identifier WHITE       = Identifier.withDefaultNamespace("textures/item/candle.png");
-        private static final Identifier ASCENDED    = Identifier.withDefaultNamespace("textures/item/red_candle.png");
+        private static final ResourceLocation WHITE       = new ResourceLocation("minecraft", "textures/item/candle.png");
+        private static final ResourceLocation ASCENDED    = new ResourceLocation("minecraft", "textures/item/red_candle.png");
 
         public static VisualNode of(final @NonNull Cost cost) {
             if (cost.isFree()) {
@@ -324,7 +323,7 @@ public class FriendshipTreeComponentFactory {
         }
 
         private final Font          font = Minecraft.getInstance().font;
-        private final Identifier    icon;
+        private final ResourceLocation    icon;
         private final String        price;
 
         @Override
@@ -340,22 +339,21 @@ public class FriendshipTreeComponentFactory {
         ) {
 
             final var original = graphics.original();
-            original.text(
-                    this.font,
+            original.drawString(                    this.font,
                     this.price,
                     control.getX() + 32,
                     control.getY() + 32,
                     colors.argb(0xffffffff)
             );
-            original.blit(
-                    RenderPipelines.GUI_TEXTURED,
+            net.quepierts.thatskyinteractions.feature.client.gui.ExtendedGuiGraphics.blitColored(
+                    original,
                     this.icon,
                     control.getX() + 20,
                     control.getY() + 28,
-                    0,
-                    0,
                     12,
                     12,
+                    0.0f,
+                    0.0f,
                     14,
                     16,
                     16,

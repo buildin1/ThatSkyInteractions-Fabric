@@ -2,7 +2,7 @@ package net.neoforged.neoforge.network;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,7 +38,11 @@ public final class PacketDistributor {
 
     private static void send(ServerPlayer player, List<CustomPacketPayload> payloads) {
         for (CustomPacketPayload payload : payloads) {
-            net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, payload);
+            net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(
+                    player,
+                    payload.type().id(),
+                    dev.anvilcraft.lib.v2.network.codec.PayloadCodecs.encode(payload)
+            );
         }
     }
 

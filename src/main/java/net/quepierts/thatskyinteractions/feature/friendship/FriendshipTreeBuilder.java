@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.*;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.quepierts.thatskyinteractions.core.friendship.model.Branch;
 import net.quepierts.veynir.core.util.LocationLookup;
 import org.jspecify.annotations.NonNull;
@@ -16,11 +16,11 @@ import java.util.Set;
 @Slf4j
 public final class FriendshipTreeBuilder {
 
-    private final Map<Identifier, Node>   actions       = new Object2ObjectOpenHashMap<>();
-    private final Map<Identifier, Node>   roots         = new Object2ObjectOpenHashMap<>();
+    private final Map<ResourceLocation, Node>   actions       = new Object2ObjectOpenHashMap<>();
+    private final Map<ResourceLocation, Node>   roots         = new Object2ObjectOpenHashMap<>();
 
     public void addAll(
-            final @NonNull Map<Identifier, FriendshipTreeFile>  actions
+            final @NonNull Map<ResourceLocation, FriendshipTreeFile>  actions
     ) {
         actions.forEach(this::insert);
     }
@@ -30,7 +30,7 @@ public final class FriendshipTreeBuilder {
     * rule:
     * */
     public void insert(
-            final @NonNull Identifier                               identifier,
+            final @NonNull ResourceLocation                               identifier,
             final @NonNull FriendshipTreeFile action
     ) {
 
@@ -74,7 +74,7 @@ public final class FriendshipTreeBuilder {
      *
      * if no parent: self.branch == MIDDLE, or else discard and error
      * */
-    public @NonNull Map<Identifier, FriendshipTree> build() {
+    public @NonNull Map<ResourceLocation, FriendshipTree> build() {
 
         for (final var node : this.actions.values()) {
             if (node.root) {
@@ -93,7 +93,7 @@ public final class FriendshipTreeBuilder {
             parent                  .insert(node);
         }
 
-        final var builder   = ImmutableMap.<Identifier, FriendshipTree>builderWithExpectedSize(this.roots.size());
+        final var builder   = ImmutableMap.<ResourceLocation, FriendshipTree>builderWithExpectedSize(this.roots.size());
 
         for (final var entry : this.roots.entrySet()) {
             final var key   = entry.getKey();
@@ -174,7 +174,7 @@ public final class FriendshipTreeBuilder {
         return                  new FriendshipTree(
                                         lookup,
                                         ordinal.toArray(FriendshipTreeNode[]::new),
-                                        levels.getLast() + 1
+                                        levels.get(levels.size() - 1) + 1
                                 );
 
     }
@@ -182,14 +182,14 @@ public final class FriendshipTreeBuilder {
     private static final class Node implements Comparable<Node> {
 
         private final Node[]                    children    = new Node[3];
-        private final Identifier                identifier;
+        private final ResourceLocation                identifier;
         private final FriendshipTreeFile        action;
         private final boolean                   root;
 
         private       int                       priority;
 
         static Node of(
-                final @NonNull Identifier       identifier,
+                final @NonNull ResourceLocation       identifier,
                 final @NonNull FriendshipTreeFile action
         ) {
             return new Node(
@@ -199,7 +199,7 @@ public final class FriendshipTreeBuilder {
         }
 
         private Node(
-                final @NonNull Identifier       identifier,
+                final @NonNull ResourceLocation       identifier,
                 final @NonNull FriendshipTreeFile action
         ) {
             this.identifier    = identifier;

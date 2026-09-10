@@ -3,10 +3,10 @@ package net.quepierts.thatskyinteractions.feature.animation.packet;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public record AnimationRequestPacket(
         Operation               operation,
-        Optional<Identifier>    identifier
+        Optional<ResourceLocation>    identifier
 ) implements IServerboundPacket {
 
     public static final Type<AnimationRequestPacket> TYPE
@@ -30,12 +30,12 @@ public record AnimationRequestPacket(
                             Operation::encode
                     ),
                     AnimationRequestPacket::operation,
-                    ByteBufCodecs.optional(Identifier.STREAM_CODEC),
+                    ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION),
                     AnimationRequestPacket::identifier,
                     AnimationRequestPacket::new
             );
 
-    public static AnimationRequestPacket play(@NonNull Identifier animation) {
+    public static AnimationRequestPacket play(@NonNull ResourceLocation animation) {
         return new AnimationRequestPacket(
                 Operation.PLAY,
                 Optional.of(animation)
@@ -59,7 +59,7 @@ public record AnimationRequestPacket(
     public static AnimationRequestPacket event(@NonNull String event) {
         return new AnimationRequestPacket(
                 Operation.EVENT,
-                Optional.of(Identifier.fromNamespaceAndPath("e", event))
+                Optional.of(new ResourceLocation("e", event))
         );
     }
 

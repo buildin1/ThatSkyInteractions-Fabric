@@ -90,7 +90,7 @@ public final class ClientNearbyInteractionPrompt {
                 FloatingButton.dynamic(
                         Component.empty(),
                         WorldPositionSupplier.entity(target, 2.4f),
-                        (_, _) -> ClientPlayerFriendshipSystem.openFriendshipScreen(target)
+                        (__unused0, __unused1) -> ClientPlayerFriendshipSystem.openFriendshipScreen(target)
                 ).withVisualNode(FloatingButtonNode.icon(
                         ThatSkyInteractions.location("interaction/high_five")
                 ))

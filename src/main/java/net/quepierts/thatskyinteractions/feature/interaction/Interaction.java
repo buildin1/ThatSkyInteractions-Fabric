@@ -1,10 +1,10 @@
 package net.quepierts.thatskyinteractions.feature.interaction;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -19,20 +19,21 @@ import java.util.function.Supplier;
 
 public interface Interaction {
 
-    Identifier DEFAULT_EXPRESSION_REQUESTER
+    ResourceLocation DEFAULT_EXPRESSION_REQUESTER
             = ThatSkyInteractions.location("interaction.requester");
 
-    Identifier DEFAULT_EXPRESSION_RECEIVER
+    ResourceLocation DEFAULT_EXPRESSION_RECEIVER
             = ThatSkyInteractions.location("interaction.receiver");
 
     Codec<Interaction> CODEC
             = TsiRegistries.INTERACTION_TYPE
             .byNameCodec()
-            .dispatch(Interaction::getType, InteractionType::codec);
+            .dispatch(Interaction::getType, type -> type.codec().codec());
 
     StreamCodec<RegistryFriendlyByteBuf, Interaction> STREAM_CODEC
-            = ByteBufCodecs.registry(TsiRegistries.Keys.INTERACTION_TYPE)
-            .dispatch(Interaction::getType, InteractionType::streamCodec);
+            = ByteBufCodecs.<RegistryFriendlyByteBuf, InteractionType<? extends Interaction>>registry(
+                    TsiRegistries.Keys.INTERACTION_TYPE
+            ).dispatch(Interaction::getType, InteractionType::streamCodec);
 
     @NonNull InteractionType<? extends Interaction> getType();
 
@@ -69,12 +70,12 @@ public interface Interaction {
 
     default void onRegisterPlayerAnimation(
             final @NonNull RegisterPlayerAnimationEvent event,
-            final @NonNull Identifier                   identifier,
+            final @NonNull ResourceLocation                   identifier,
             final          int                          level
     ) { }
 
     default void onGenerateData(
-            final @NonNull Identifier                   identifier,
+            final @NonNull ResourceLocation                   identifier,
             final          int                          level
     ) { }
 
@@ -85,7 +86,7 @@ public interface Interaction {
 
     default void onExpressionFinished(
             final @NonNull ServerPlayer                     player,
-            final @NonNull Identifier                       expression
+            final @NonNull ResourceLocation                       expression
     ) { }
 
     default boolean positional() {
@@ -104,11 +105,11 @@ public interface Interaction {
         return this.getType() == supplier.get();
     }
 
-    default @NonNull Identifier getRequesterExpression() {
+    default @NonNull ResourceLocation getRequesterExpression() {
         return DEFAULT_EXPRESSION_REQUESTER;
     }
 
-    default @NonNull Identifier getReceiverExpression() {
+    default @NonNull ResourceLocation getReceiverExpression() {
         return DEFAULT_EXPRESSION_RECEIVER;
     }
 

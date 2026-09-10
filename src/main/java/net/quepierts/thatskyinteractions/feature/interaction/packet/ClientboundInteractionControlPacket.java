@@ -4,10 +4,10 @@ import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForge;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -21,7 +21,7 @@ import java.util.UUID;
 public record ClientboundInteractionControlPacket(
         Operation               operation,
         UUID                    uuid,
-        Optional<Identifier>    identifier
+        Optional<ResourceLocation>    identifier
 ) implements IClientboundPacket {
 
     public static final Type<ClientboundInteractionControlPacket> TYPE
@@ -34,9 +34,9 @@ public record ClientboundInteractionControlPacket(
                             Operation::encode
                     ),
                     ClientboundInteractionControlPacket::operation,
-                    UUIDUtil.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID,
                     ClientboundInteractionControlPacket::uuid,
-                    ByteBufCodecs.optional(Identifier.STREAM_CODEC),
+                    ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION),
                     ClientboundInteractionControlPacket::identifier,
                     ClientboundInteractionControlPacket::new
             );
@@ -46,7 +46,7 @@ public record ClientboundInteractionControlPacket(
 
     public static ClientboundInteractionControlPacket invite(
             final @NonNull Player       requester,
-            final @NonNull Identifier   type,
+            final @NonNull ResourceLocation   type,
             final boolean               send
     ) {
         return new ClientboundInteractionControlPacket(

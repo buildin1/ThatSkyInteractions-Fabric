@@ -4,7 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.AbstractRegistrum;
 import dev.anvilcraft.lib.v2.registrum.util.entry.RegistryEntry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 /**
@@ -68,7 +68,7 @@ public abstract class AbstractBuilder<R, T extends R, P, S extends AbstractBuild
     }
 
     public ResourceKey<T> getResourceKey() {
-        return ResourceKey.create((ResourceKey) this.registryKey, Identifier.fromNamespaceAndPath(this.owner.getModid(), this.name));
+        return ResourceKey.create((ResourceKey) this.registryKey, new ResourceLocation(this.owner.getModid(), this.name));
     }
 
     @Override

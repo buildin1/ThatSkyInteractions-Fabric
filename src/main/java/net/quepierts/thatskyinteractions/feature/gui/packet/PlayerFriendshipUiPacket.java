@@ -4,9 +4,9 @@ import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.feature.gui.handler.ClientFriendshipUiHandler;
@@ -29,7 +29,7 @@ public record PlayerFriendshipUiPacket(
                             Operation::encode
                     ),
                     PlayerFriendshipUiPacket::operation,
-                    UUIDUtil.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID,
                     PlayerFriendshipUiPacket::target,
                     PlayerFriendshipUiPacket::new
             );

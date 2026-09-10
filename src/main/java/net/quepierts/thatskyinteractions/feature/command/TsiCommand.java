@@ -16,7 +16,7 @@ public class TsiCommand {
         final var dispatcher = event.getDispatcher();
 
         final var root = dispatcher.register(
-                Commands.literal(ThatSkyInteractions.MODID).requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                Commands.literal(ThatSkyInteractions.MODID).requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .then(FriendshipCommand.command())
                         .then(HandholdingCommand.command())
                         .then(PreferenceCommand.command())

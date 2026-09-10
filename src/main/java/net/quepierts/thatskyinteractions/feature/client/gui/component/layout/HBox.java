@@ -53,7 +53,7 @@ public class HBox extends Pane {
 
         final var padding   = this.getPadding();
 
-        this.setSize(
+        this.setControlSize(
                 (int) (totalWidth + padding.left + padding.right),
                 (int) (maxHeight + padding.top + padding.bottom)
         );

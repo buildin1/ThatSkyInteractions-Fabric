@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.quepierts.thatskyinteractions.feature.animation.AnimationResolveContext;
 import net.quepierts.veynir.backend.sampler.WrappedSampler;
@@ -214,7 +214,7 @@ public class TemplateAnimation extends BaseAnimation {
         final var samplers  = new AnimationSampler[size];
 
         final var override  = overrides.get(
-                Identifier.parse(definition.override()),
+                new ResourceLocation(definition.override()),
                 spl.getLayout()
         );
 

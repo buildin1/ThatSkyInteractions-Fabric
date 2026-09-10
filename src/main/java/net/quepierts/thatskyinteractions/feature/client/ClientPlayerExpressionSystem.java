@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.client;
 
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -29,7 +29,7 @@ import org.jspecify.annotations.NonNull;
 public class ClientPlayerExpressionSystem {
 
     public static void perform(
-            final @NonNull  Identifier  expressionId,
+            final @NonNull  ResourceLocation  expressionId,
             final           int         level
     ) {
 
@@ -148,8 +148,8 @@ public class ClientPlayerExpressionSystem {
                     .isFirstPerson();
 
             final var partialTick       = event.getPartialTick();
-            final var target            = player.getPreciseBodyRotation(partialTick);
-            final var current           = player.getYRot(partialTick);
+            final var target            = net.minecraft.util.Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot);
+            final var current           = net.minecraft.util.Mth.rotLerp(partialTick, player.yRotO, player.getYRot());
 
             if (firstPerson) {
                 player.setYRot(target);

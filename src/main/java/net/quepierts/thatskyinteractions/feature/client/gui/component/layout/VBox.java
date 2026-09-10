@@ -53,7 +53,7 @@ public class VBox extends Pane {
 
         final var padding   = this.getPadding();
 
-        this.setSize(
+        this.setControlSize(
                 (int) (maxWidth + padding.left + padding.right),
                 (int) (totalHeight + padding.top + padding.bottom)
         );

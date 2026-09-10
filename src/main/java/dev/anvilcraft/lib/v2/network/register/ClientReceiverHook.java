@@ -1,8 +1,8 @@
 package dev.anvilcraft.lib.v2.network.register;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
 
 /**
  * 通过反射把客户端接收器注册转发给客户端专属类，

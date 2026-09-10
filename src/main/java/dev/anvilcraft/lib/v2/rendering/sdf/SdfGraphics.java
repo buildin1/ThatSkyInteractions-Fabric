@@ -1,23 +1,21 @@
 package dev.anvilcraft.lib.v2.rendering.sdf;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.systems.CommandEncoder;
-import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.anvilcraft.lib.v2.rendering.ALRPipelines;
 import dev.anvilcraft.lib.v2.rendering.AnvilLibRendering;
-import dev.anvilcraft.lib.v2.rendering.foundation.buffers.layout.BufferLayout;
-import dev.anvilcraft.lib.v2.rendering.state.LibGuiElementRenderState;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.render.TextureSetup;
-import net.minecraft.util.ARGB;
+import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.math.Axis;
+import net.minecraft.util.FastColor;
+import dev.anvilcraft.lib.v2.rendering.MthF;
 import net.minecraft.util.Mth;
 
 
@@ -25,18 +23,16 @@ import net.minecraft.util.Mth;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.joml.Matrix3x2f;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
 
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SdfGraphics {
     private static final int            MAX_SDF_AMOUNT          = 256;
     private static final int            MAX_SHARED_SDF_AMOUNT   = 64;
-    private static final long           SDF_PARAMETER_SIZE      = SdfParameters.DEFINITION.size(BufferLayout.STD140);
     @Getter
     public static final SdfGraphics     instance                = new SdfGraphics(new SdfParameters());
 
@@ -186,12 +182,12 @@ public final class SdfGraphics {
     }
 
     public SdfGraphics color(float red, float green, float blue, float alpha) {
-        this.color      = ARGB.colorFromFloat(red, green, blue, alpha);
+        this.color      = FastColor.ARGB32.color((int)(alpha * 255.0f), (int)(red * 255.0f), (int)(green * 255.0f), (int)(blue * 255.0f));
         return          this;
     }
 
     public SdfGraphics color(int red, int green, int blue, int alpha) {
-        this.color      = ARGB.color(alpha, red, green, blue);
+        this.color      = FastColor.ARGB32.color(alpha, red, green, blue);
         return          this;
     }
 
@@ -240,7 +236,7 @@ public final class SdfGraphics {
     }
 
     public SdfGraphics draw(
-            @NotNull GuiGraphicsExtractor   graphics
+            @NotNull GuiGraphics   graphics
     ) {
         _draw(
                 graphics, 
@@ -255,7 +251,7 @@ public final class SdfGraphics {
     }
 
     public SdfGraphics draw(
-            @NotNull GuiGraphicsExtractor   graphics,
+            @NotNull GuiGraphics   graphics,
             @NotNull SdfParameters          parameters,
                      float                  x,
                      float                  y
@@ -367,36 +363,25 @@ public final class SdfGraphics {
         SdfGraphics.index   = 0;
     }
 
-    private static  CommandEncoder  encoder;
-    private static  GpuBuffer       ubo;
-
     private static  int             index;
 
-
-
+    /** 1.20.1 没有 GPU 缓冲抽象，无需初始化；保留空实现以维持调用点不变。 */
     public static void init() {
-        GpuDevice device    = RenderSystem.getDevice();
-        encoder             = device.createCommandEncoder();
-        ubo                 = device.createBuffer(
-                                    () -> "SDF Parameters",
-                                    GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_UNIFORM,
-                                    SDF_PARAMETER_SIZE * MAX_SDF_AMOUNT
-                            );
-    }
-
-    /** 在 GUI 渲染 pass 上绑定 SDF 参数 UBO（所有 SDF 元素共用同一缓冲区，按 UV1.x 索引） */
-    public static void bind(com.mojang.blaze3d.systems.RenderPass pass) {
-        if (ubo != null) {
-            pass.setUniform("SDFParameters", ubo.slice());
-        }
     }
 
     public static void debug(boolean enable) {
         SdfGraphics.debug = enable;
     }
 
+    /**
+     * 1.20.1 后端：一个形状一次 draw call，形状参数走逐形状 uniform。
+     *
+     * <p>26.x 分支是「256 个形状写进 std140 UBO，顶点用 UV1.x 索引，GUI pass 统一绘制」。
+     * 1.20.1 的 ShaderInstance 既不支持 UBO 也不支持 uniform 数组，所以改为立即模式绘制。
+     * GUI 一帧通常只有几十个形状，多出来的 draw call 无关紧要。
+     */
     private static void _draw(
-            @NotNull GuiGraphicsExtractor   graphics,
+            @NotNull GuiGraphics            graphics,
             @NotNull SdfParameters          parameters,
                      float                  x,
                      float                  y,
@@ -404,134 +389,114 @@ public final class SdfGraphics {
                      int                    color,
                      boolean                centred
     ) {
-        var round           = parameters.getRound();
-        var smooth          = parameters.getSmooth();
-        var stroke          = parameters.getStroke();
+        final var shader    = ALRPipelines.sdfGraphics();
 
-        var rect            = parameters.getRect();
-        var z               = rect.z;
-        var w               = rect.w;
+        if (shader == null) {
+            return;
+        }
 
-        var pose            = new Matrix3x2f(graphics.pose());
-        var ex              = (round + smooth + stroke) * 2.0f;
-        var width           = rect.z + ex;
-        var height          = rect.w + ex;
+        final var round     = parameters.getRound();
+        final var smooth    = parameters.getSmooth();
+        final var stroke    = parameters.getStroke();
+
+        final var rect      = parameters.getRect();
+        final var z         = rect.z;
+        final var w         = rect.w;
+
+        final var ex        = (round + smooth + stroke) * 2.0f;
+        final var width     = rect.z + ex;
+        final var height    = rect.w + ex;
         final var hw        = width * 0.5f;
         final var hh        = height * 0.5f;
 
-        final var radian    = rotation * Mth.DEG_TO_RAD;
-        final var cos       = Mth.cos(radian);
-        final var sin       = Mth.sin(radian);
-
-        float cx;
-        float cy;
-        if (centred) {
-            pose            .translate(x, y);
-
-            cx              = x;
-            cy              = y;
-        } else {
-            pose            .translate(
-                            x + hw,
-                            y + hh
-                            );
-
-            cx              = x + hw - hw * cos + hh * sin;
-            cy              = y + hh - hw * sin - hh * cos;
-        }
-
-        if (rotation != 0.0f) {
-            pose            .rotate(Mth.DEG_TO_RAD * rotation);
-        }
-
-        if (!centred) {
-            pose            .translate(-hw, -hh);
-        }
-
-        pose                .scale(width, height);
-
+        // 着色器按扩张后的尺寸计算距离场，与 26.x 一致
         rect.z              = width;
         rect.w              = height;
 
-        var extX            = Mth.abs(hw * cos) + Mth.abs(hh * sin) + 1.0f;
-        var extY            = Mth.abs(hw * sin) + Mth.abs(hh * cos) + 1.0f;
+        final var shared    = parameters.getSharedParams();
+        final var shape     = parameters.getShapeParams();
+        final var types     = parameters.getTypeParams();
 
-        var x0              = cx - extX;
-        var x1              = cx + extX;
-        var y0              = cy - extY;
-        var y1              = cy + extY;
+        setUniform(shader, "SdfShared", shared.x, shared.y, shared.z, shared.w);
+        setUniform(shader, "SdfShape",  shape.x,  shape.y,  shape.z,  shape.w);
+        setUniform(shader, "SdfRect",   rect.x,   rect.y,   rect.z,   rect.w);
+        setUniformInt(shader, "SdfTypes", types.x, types.y, types.z, types.w);
 
-        var shared          = parameters.isShared();
-        var idx             = shared ? parameters.uboIndex : index;
-        var state           = new RenderState(
-                                pose,
-                                color,
-                                idx,
-                                ubo.slice(),
-                                graphics.scissorStack.peek(),
-                                LibGuiElementRenderState.getBounds(
-                                        new Matrix3x2f(graphics.pose()),
-                                        x0, y0,
-                                        x1, y1,
-                                        graphics.scissorStack.peek()
-                                )
-                            );
+        rect.z              = z;
+        rect.w              = w;
+
+        final PoseStack pose = graphics.pose();
+        pose                .pushPose();
+
+        if (centred) {
+            pose            .translate(x, y, 0.0f);
+        } else {
+            pose            .translate(x + hw, y + hh, 0.0f);
+        }
+
+        if (rotation != 0.0f) {
+            pose            .mulPose(Axis.ZP.rotationDegrees(rotation));
+        }
+
+        pose                .scale(width, height, 1.0f);
+
+        final Matrix4f mat  = pose.last().pose();
+
+        final int a         = FastColor.ARGB32.alpha(color);
+        final int r         = FastColor.ARGB32.red(color);
+        final int g         = FastColor.ARGB32.green(color);
+        final int b         = FastColor.ARGB32.blue(color);
+
+        RenderSystem        .enableBlend();
+        RenderSystem        .defaultBlendFunc();
+        RenderSystem        .setShader(ALRPipelines::sdfGraphics);
+
+        final BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer              .begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+        buffer              .vertex(mat, -0.5f, -0.5f, 0.0f).color(r, g, b, a).uv(0.0f, 0.0f).endVertex();
+        buffer              .vertex(mat, -0.5f, +0.5f, 0.0f).color(r, g, b, a).uv(0.0f, 1.0f).endVertex();
+        buffer              .vertex(mat, +0.5f, +0.5f, 0.0f).color(r, g, b, a).uv(1.0f, 1.0f).endVertex();
+        buffer              .vertex(mat, +0.5f, -0.5f, 0.0f).color(r, g, b, a).uv(1.0f, 0.0f).endVertex();
+        BufferUploader      .drawWithShader(buffer.end());
+
+        RenderSystem        .disableBlend();
+
+        pose                .popPose();
 
         if (debug) {
-            graphics        .outline(
-                                    (int) x0, (int) y0,
-                                    (int) (x1 - x0), (int) (y1 - y0),
+            final var extX  = hw + 1.0f;
+            final var extY  = hh + 1.0f;
+            graphics        .renderOutline(
+                                    (int) (x - extX), (int) (y - extY),
+                                    (int) (extX * 2.0f), (int) (extY * 2.0f),
                                     0xFF0000FF
                             );
         }
 
-        if (!shared || !parameters.uploaded) {
-            var offset      = idx * SDF_PARAMETER_SIZE;
-            var slice       = ubo.slice(offset, SDF_PARAMETER_SIZE);
-            parameters      .upload(encoder, slice);
-            parameters      .uploaded = shared;
-        }
-
-        graphics.guiRenderState.addGuiElement(state);
-        rect.z              = z;
-        rect.w              = w;
-
-        if (!shared) {
+        if (!parameters.isShared()) {
             SdfGraphics     .index++;
         }
     }
 
-    private record RenderState(
-            Matrix3x2f                  pose,
-            int                         color,
-            int                         index,
-            GpuBufferSlice              sdfParametersUbo,
-            @Nullable ScreenRectangle   scissorArea,
-            @Nullable ScreenRectangle   bounds
-    ) implements LibGuiElementRenderState {
-
-        @Override
-        public void buildVertices(VertexConsumer consumer) {
-            consumer.addVertexWith2DPose(this.pose(), -0.5f, -0.5f).setUv(0, 0).setUv1(this.index(), 0).setColor(this.color());
-            consumer.addVertexWith2DPose(this.pose(), -0.5f, +0.5f).setUv(0, 1).setUv1(this.index(), 0).setColor(this.color());
-            consumer.addVertexWith2DPose(this.pose(), +0.5f, +0.5f).setUv(1, 1).setUv1(this.index(), 0).setColor(this.color());
-            consumer.addVertexWith2DPose(this.pose(), +0.5f, -0.5f).setUv(1, 0).setUv1(this.index(), 0).setColor(this.color());
-        }
-
-        @Override
-        public @NonNull RenderPipeline pipeline() {
-            return ALRPipelines.SDF_GRAPHICS;
-        }
-
-        @Override
-        public @NonNull TextureSetup textureSetup() {
-            return TextureSetup.noTexture();
-        }
-
-        @Override
-        public Map<String, GpuBufferSlice> bufferSlices() {
-            return Map.of("SDFParameters", this.sdfParametersUbo());
+    private static void setUniform(
+            @NotNull net.minecraft.client.renderer.ShaderInstance shader,
+            @NotNull String name,
+            float a, float b, float c, float d
+    ) {
+        final var uniform = shader.getUniform(name);
+        if (uniform != null) {
+            uniform.set(a, b, c, d);
         }
     }
 
+    private static void setUniformInt(
+            @NotNull net.minecraft.client.renderer.ShaderInstance shader,
+            @NotNull String name,
+            int a, int b, int c, int d
+    ) {
+        final var uniform = shader.getUniform(name);
+        if (uniform != null) {
+            uniform.set(a, b, c, d);
+        }
+    }
 }

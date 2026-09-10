@@ -3,12 +3,11 @@ package net.quepierts.thatskyinteractions.internal;
 import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
 
 import net.quepierts.thatskyinteractions.feature.animation.packet.AnimationRequestPacket;
 import net.quepierts.thatskyinteractions.feature.animation.packet.AnimationSignalPacket;
@@ -83,7 +82,7 @@ public final class TsiPackets {
             final CustomPacketPayload.Type<T> type,
             final StreamCodec<? super RegistryFriendlyByteBuf, T> codec
     ) {
-        PayloadTypeRegistry.clientboundPlay().register(type, codec);
+        dev.anvilcraft.lib.v2.network.codec.PayloadCodecs.register(type, codec);
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             // 反射转发，避免服务端加载客户端专属类
@@ -95,9 +94,12 @@ public final class TsiPackets {
             final CustomPacketPayload.Type<T> type,
             final StreamCodec<? super RegistryFriendlyByteBuf, T> codec
     ) {
-        PayloadTypeRegistry.serverboundPlay().register(type, codec);
-        ServerPlayNetworking.registerGlobalReceiver(type, (payload, ctx) ->
-                ctx.server().execute(() -> payload.handleOnServer(ctx.player())));
+        dev.anvilcraft.lib.v2.network.codec.PayloadCodecs.register(type, codec);
+        // 1.20.1 按 channel id 收包，自行解码后再切回主线程
+        ServerPlayNetworking.registerGlobalReceiver(type.id(), (server, player, handler, buf, sender) -> {
+            final T payload = codec.decode(dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf.of(buf));
+            server.execute(() -> payload.handleOnServer(player));
+        });
     }
 
     private static <T extends IClientboundPacket & IServerboundPacket> void bi(

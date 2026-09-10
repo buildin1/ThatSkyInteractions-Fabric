@@ -61,7 +61,7 @@ public final class ClientInteractionFeedback {
             lastCarrying = carrying;
             if (carrying) {
                 ClientCameraEffects.trigger();
-                play(self, SoundEvents.ARMOR_EQUIP_LEATHER.value(), 0.9f, 1.2f);
+                play(self, SoundEvents.ARMOR_EQUIP_LEATHER, 0.9f, 1.2f);
                 particles(self, ParticleTypes.CLOUD, 8);
                 final Player carrier = carry.getCarrier();
                 if (carrier != null && carrier != self) {

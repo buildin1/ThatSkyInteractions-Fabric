@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -166,7 +166,7 @@ public final class CompatBootstrap {
         // Fabric 在服务器构造时就固定监听器列表，SERVER_STARTING 阶段注册已太晚。
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
-                NeoForge.EVENTS.post(new OnDatapackSyncEvent(server, handler.getPlayer(), server.reloadableRegistries())));
+                NeoForge.EVENTS.post(new OnDatapackSyncEvent(server, handler.getPlayer(), null)));
     }
 
     /**
@@ -187,8 +187,8 @@ public final class CompatBootstrap {
         //   还没加载 → 所有交互动画（*.requester / *.receiver）一条都生成不出来。
         // 因此这里把「前一个必须先于后一个」显式声明给 Fabric，还原 NeoForge 的执行顺序。
         var helper      = ResourceManagerHelper.get(PackType.SERVER_DATA);
-        var order       = new ArrayList<Identifier>();
-        Identifier previous = null;
+        var order       = new ArrayList<ResourceLocation>();
+        ResourceLocation previous = null;
 
         for (var entry : reloadEvent.getListeners()) {
             helper.registerReloadListener(new SimpleFabricReloadListener(
@@ -202,7 +202,7 @@ public final class CompatBootstrap {
 
         // 重载完成后的全体同步（NeoForge 在 datapack sync 时对所有玩家触发）——必须排在最后，
         // 否则同步出去的是尚未加载完的缓存。
-        var syncId      = Identifier.fromNamespaceAndPath(MODID, "datapack_sync");
+        var syncId      = new ResourceLocation(MODID, "datapack_sync");
         helper.registerReloadListener(new SimpleFabricReloadListener(
                 syncId,
                 simpleListener(),
@@ -216,11 +216,18 @@ public final class CompatBootstrap {
     private static PreparableReloadListener simpleListener() {
         return new PreparableReloadListener() {
             @Override
-            public CompletableFuture<Void> reload(SharedState currentReload, Executor taskExecutor, PreparationBarrier barrier, Executor reloadExecutor) {
+            public CompletableFuture<Void> reload(
+                    PreparationBarrier barrier,
+                    net.minecraft.server.packs.resources.ResourceManager resourceManager,
+                    net.minecraft.util.profiling.ProfilerFiller preparationsProfiler,
+                    net.minecraft.util.profiling.ProfilerFiller reloadProfiler,
+                    Executor backgroundExecutor,
+                    Executor gameExecutor
+            ) {
                 return barrier.wait(null).thenRun(() -> {
                     MinecraftServer server = ServerHolder.get();
                     if (server != null) {
-                        NeoForge.EVENTS.post(new OnDatapackSyncEvent(server, null, server.reloadableRegistries()));
+                        NeoForge.EVENTS.post(new OnDatapackSyncEvent(server, null, null));
                     }
                 });
             }

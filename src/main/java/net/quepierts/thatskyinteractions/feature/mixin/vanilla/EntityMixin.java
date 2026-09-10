@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.mixin.vanilla;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
@@ -17,7 +17,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
-public abstract class EntityMixin implements IAttachmentHolder {
+public abstract class EntityMixin implements IAttachmentHolder, net.neoforged.neoforge.attachment.AttachmentHolderAccess {
+
+    @org.spongepowered.asm.mixin.Unique
+    private final java.util.Map<net.neoforged.neoforge.attachment.AttachmentType<?>, Object> tsi$attachments = new java.util.IdentityHashMap<>();
+
+    @org.spongepowered.asm.mixin.Unique
+    @Override
+    public java.util.Map<net.neoforged.neoforge.attachment.AttachmentType<?>, Object> tsi$attachments() {
+        return this.tsi$attachments;
+    }
 
     @Shadow
     private Vec3 position;
@@ -28,14 +37,15 @@ public abstract class EntityMixin implements IAttachmentHolder {
     @Shadow
     public abstract void refreshDimensions();
 
-    @Inject(method = "saveWithoutId(Lnet/minecraft/world/level/storage/ValueOutput;)V", at = @At("TAIL"))
-    private void tsi$saveAttachments(net.minecraft.world.level.storage.ValueOutput output, CallbackInfo ci) {
-        net.neoforged.neoforge.attachment.AttachmentPersistence.save((Entity) (Object) this, output);
+    // 1.20.1 的实体存档还是 CompoundTag，26.x 的 ValueOutput/ValueInput 尚未引入
+    @Inject(method = "saveWithoutId", at = @At("TAIL"))
+    private void tsi$saveAttachments(net.minecraft.nbt.CompoundTag tag, CallbackInfoReturnable<net.minecraft.nbt.CompoundTag> cir) {
+        net.neoforged.neoforge.attachment.AttachmentPersistence.save((Entity) (Object) this, tag);
     }
 
-    @Inject(method = "load(Lnet/minecraft/world/level/storage/ValueInput;)V", at = @At("TAIL"))
-    private void tsi$loadAttachments(net.minecraft.world.level.storage.ValueInput input, CallbackInfo ci) {
-        net.neoforged.neoforge.attachment.AttachmentPersistence.load((Entity) (Object) this, input);
+    @Inject(method = "load", at = @At("TAIL"))
+    private void tsi$loadAttachments(net.minecraft.nbt.CompoundTag tag, CallbackInfo ci) {
+        net.neoforged.neoforge.attachment.AttachmentPersistence.load((Entity) (Object) this, tag);
     }
 
     @Shadow
@@ -71,20 +81,9 @@ public abstract class EntityMixin implements IAttachmentHolder {
         NeoForge.EVENT_BUS.post(new EntityTurnEvent.Post(Generic.cast(this), xo, yo));
     }
 
-    @ModifyExpressionValue(
-            method = "startRiding(Lnet/minecraft/world/entity/Entity;ZZ)Z",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/EntityType;canSerialize()Z"
-            )
-    )
-    private boolean tsi$onStartRiding(
-            final boolean   original,
-            final Entity    entityToRide,
-            final boolean   force
-    ) {
-        return original || (entityToRide instanceof Avatar && force);
-    }
+    // 26.x 在 startRiding 里用 EntityType#canSerialize 挡住"骑玩家"，所以原项目要改写它的返回值。
+    // 1.20.1 没有这道闸：couldAcceptPassenger 只有 Marker 覆写，而 force=true 会直接跳过
+    // canRide / canAddPassenger，因此 startRiding(player, true) 本就成立，无需注入。
 
     /*@Inject(
             method = "startRiding(Lnet/minecraft/world/entity/Entity;ZZ)Z",

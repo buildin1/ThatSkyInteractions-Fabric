@@ -5,9 +5,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.quepierts.thatskyinteractions.core.animation.model.PlayerAnimationDefinition;
 import net.quepierts.thatskyinteractions.core.animation.model.PlayerMask;
 import net.quepierts.thatskyinteractions.core.animation.model.SourceDefinition;
@@ -41,7 +41,7 @@ public final class SequenceAnimationExpression extends AbstractAnimationExpressi
     @Override
     public void onRegisterPlayerAnimation(
             @NonNull RegisterPlayerAnimationEvent       event,
-            @NonNull Identifier                         identifier,
+            @NonNull ResourceLocation                         identifier,
                      int                                level
     ) {
 

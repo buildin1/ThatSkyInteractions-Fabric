@@ -27,7 +27,7 @@ public final class ClientFriendshipUiHandlerImpl extends ClientFriendshipUiHandl
                 FloatingButton.dynamic(
                         Component.empty(),
                         WorldPositionSupplier.entity(requester, 2.0f),
-                        (_, _)
+                        (__unused0, __unused1)
                                 -> ClientPlayerFriendshipSystem.acceptUnlock(requester)
                 ).withVisualNode(FloatingButtonNode.icon(
                         ThatSkyInteractions.location("be_friend")

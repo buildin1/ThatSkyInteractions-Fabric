@@ -4,7 +4,6 @@ import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -34,7 +33,7 @@ public class ClientPlayerFriendshipSystem {
     }
 
     /** 打开与指定玩家的好友界面（右键交互与靠近提示图标共用） */
-    public static void openFriendshipScreen(final @NonNull Avatar other) {
+    public static void openFriendshipScreen(final @NonNull Player other) {
 
         final var local = Minecraft.getInstance().player;
         if (local == null || other == local) {
@@ -129,7 +128,7 @@ public class ClientPlayerFriendshipSystem {
             }
 
             final var target        = event.getTarget();
-            if (!(target instanceof Avatar other)) {
+            if (!(target instanceof Player other)) {
                 return;
             }
 

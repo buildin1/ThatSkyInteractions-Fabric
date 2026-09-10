@@ -16,7 +16,7 @@ public class TsiSuggestions {
                         return Suggestions.empty();
                     }
                     final var player    = source.getPlayerOrException();
-                    final var name      = player.getGameProfile().name();
+                    final var name      = player.getGameProfile().getName();
                     final var names     = source.getOnlinePlayerNames();
                     final var removed   = names.stream()
                             .filter(n -> !n.equals(name))

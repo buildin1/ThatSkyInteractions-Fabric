@@ -1,25 +1,31 @@
 package net.neoforged.neoforge.attachment;
 
-import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * NeoForge API 兼容层：attachment 持有者。
- * 由 {@code feature.mixin.vanilla.EntityMixin} 挂到 Entity 上；Level 等原版类型由 Fabric API
- * 的 AttachmentTarget 注入提供。同时提供 NeoForge 的 Supplier 重载（DeferredHolder 入口）。
+ * 1.20.1 兼容层：attachment 持有者。
+ *
+ * <p>存储由 {@code EntityMixin} / {@code LevelMixin} 注入并经 {@link AttachmentHolderAccess} 暴露。
+ * {@code getData} 保留 NeoForge 的「按 holder 惰性构造默认值」语义。
  */
 public interface IAttachmentHolder {
 
+    private Map<AttachmentType<?>, Object> tsi$map() {
+        return ((AttachmentHolderAccess) this).tsi$attachments();
+    }
+
+    @SuppressWarnings("unchecked")
     default <T> T getData(AttachmentType<T> type) {
-        AttachmentTarget self = (AttachmentTarget) this;
-        T existing = self.getAttached(type.fabricType());
+        final Map<AttachmentType<?>, Object> map = this.tsi$map();
+        final Object existing = map.get(type);
         if (existing != null) {
-            return existing;
+            return (T) existing;
         }
-        T created = type.defaultFactory().apply(this);
-        self.setAttached(type.fabricType(), created);
+        final T created = type.defaultFactory().apply(this);
+        map.put(type, created);
         return created;
     }
 
@@ -27,9 +33,10 @@ public interface IAttachmentHolder {
         return this.getData(type.get());
     }
 
+    @SuppressWarnings("unchecked")
     @Nullable
     default <T> T getExistingDataOrNull(AttachmentType<T> type) {
-        return ((AttachmentTarget) this).getAttached(type.fabricType());
+        return (T) this.tsi$map().get(type);
     }
 
     @Nullable
@@ -37,12 +44,10 @@ public interface IAttachmentHolder {
         return this.getExistingDataOrNull(type.get());
     }
 
+    @SuppressWarnings("unchecked")
     @Nullable
     default <T> T setData(AttachmentType<T> type, T value) {
-        AttachmentTarget self = (AttachmentTarget) this;
-        T old = self.getAttached(type.fabricType());
-        self.setAttached(type.fabricType(), value);
-        return old;
+        return (T) this.tsi$map().put(type, value);
     }
 
     @Nullable
@@ -51,21 +56,17 @@ public interface IAttachmentHolder {
     }
 
     default boolean hasData(AttachmentType<?> type) {
-        return ((AttachmentTarget) this).hasAttached(type.fabricType());
+        return this.tsi$map().containsKey(type);
     }
 
     default boolean hasData(Supplier<? extends AttachmentType<?>> type) {
         return this.hasData(type.get());
     }
 
+    @SuppressWarnings("unchecked")
     @Nullable
     default <T> T removeData(AttachmentType<T> type) {
-        AttachmentTarget self = (AttachmentTarget) this;
-        T old = self.getAttached(type.fabricType());
-        if (old != null) {
-            self.removeAttached(type.fabricType());
-        }
-        return old;
+        return (T) this.tsi$map().remove(type);
     }
 
     @Nullable

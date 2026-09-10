@@ -3,7 +3,7 @@ package net.quepierts.thatskyinteractions.feature.animation.bedrock;
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -27,8 +27,8 @@ public final class BedrockAnimationManager extends DataSyncManager<BedrockAnimat
     private static final BedrockAnimationManager instance
             = new BedrockAnimationManager();
 
-    private Map<Identifier, BedrockAnimationDefinition> definitions = Map.of();
-    private Map<Identifier, BedrockAnimation>           animations  = Map.of();
+    private Map<ResourceLocation, BedrockAnimationDefinition> definitions = Map.of();
+    private Map<ResourceLocation, BedrockAnimation>           animations  = Map.of();
 
     private BedrockAnimationManager() {
         super(
@@ -44,9 +44,9 @@ public final class BedrockAnimationManager extends DataSyncManager<BedrockAnimat
     }
 
     @Override
-    protected void apply(final @NonNull Map<Identifier, BedrockAnimationDefinition> preparations) {
-        var builder         = ImmutableMap.<Identifier, BedrockAnimationDefinition>builder();
-        var builder2        = ImmutableMap.<Identifier, BedrockAnimation>builder();
+    protected void apply(final @NonNull Map<ResourceLocation, BedrockAnimationDefinition> preparations) {
+        var builder         = ImmutableMap.<ResourceLocation, BedrockAnimationDefinition>builder();
+        var builder2        = ImmutableMap.<ResourceLocation, BedrockAnimation>builder();
 
         for (final var entry : preparations.entrySet()) {
             final var identifier = entry.getKey();
@@ -66,15 +66,15 @@ public final class BedrockAnimationManager extends DataSyncManager<BedrockAnimat
         log.info("Loaded {} bedrock animation sources from {} files", this.animations.size(), this.definitions.size());
     }
 
-    public BedrockAnimationDefinition getDefinition(Identifier identifier) {
+    public BedrockAnimationDefinition getDefinition(ResourceLocation identifier) {
         return this.definitions.get(identifier);
     }
 
-    public BedrockAnimation getAnimation(Identifier identifier) {
+    public BedrockAnimation getAnimation(ResourceLocation identifier) {
         return this.animations.get(identifier);
     }
 
-    public Collection<Identifier> identifiers() {
+    public Collection<ResourceLocation> identifiers() {
         return this.animations.keySet();
     }
 }

@@ -1,10 +1,10 @@
 package net.quepierts.thatskyinteractions.feature.expression;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -20,11 +20,12 @@ public interface Expression {
     Codec<Expression> CODEC
             = TsiRegistries.EXPRESSION_TYPE
             .byNameCodec()
-            .dispatch(Expression::getType, ExpressionType::codec);
+            .dispatch(Expression::getType, type -> type.codec().codec());
 
     StreamCodec<RegistryFriendlyByteBuf, Expression> STREAM_CODEC
-            = ByteBufCodecs.registry(TsiRegistries.Keys.EXPRESSION_TYPE)
-            .dispatch(Expression::getType, ExpressionType::streamCodec);
+            = ByteBufCodecs.<RegistryFriendlyByteBuf, ExpressionType<? extends Expression>>registry(
+                    TsiRegistries.Keys.EXPRESSION_TYPE
+            ).dispatch(Expression::getType, ExpressionType::streamCodec);
 
     @NonNull ExpressionType<? extends Expression> getType();
 
@@ -66,12 +67,12 @@ public interface Expression {
 
     default void onRegisterPlayerAnimation(
             final @NonNull RegisterPlayerAnimationEvent                     event,
-            final @NonNull Identifier                                       identifier,
+            final @NonNull ResourceLocation                                       identifier,
             final          int                                              level
     ) { }
 
     default void onGenerateData(
-            final @NonNull Identifier                                       identifier,
+            final @NonNull ResourceLocation                                       identifier,
             final          int                                              level
     ) { }
 

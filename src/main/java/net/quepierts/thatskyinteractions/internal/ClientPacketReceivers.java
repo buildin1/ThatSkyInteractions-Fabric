@@ -2,9 +2,9 @@ package net.quepierts.thatskyinteractions.internal;
 
 import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
 
 /**
  * 客户端专属的 S2C 接收器注册。
@@ -19,7 +19,10 @@ public final class ClientPacketReceivers {
             final CustomPacketPayload.Type<T> type,
             final StreamCodec<? super RegistryFriendlyByteBuf, T> codec
     ) {
-        ClientPlayNetworking.registerGlobalReceiver(type, (payload, ctx) ->
-                ctx.client().execute(() -> payload.handleOnClient(ctx.player())));
+        // 1.20.1 按 channel id 收包，自行解码后再切回主线程
+        ClientPlayNetworking.registerGlobalReceiver(type.id(), (client, handler, buf, sender) -> {
+            final T payload = codec.decode(RegistryFriendlyByteBuf.of(buf));
+            client.execute(() -> payload.handleOnClient(client.player));
+        });
     }
 }

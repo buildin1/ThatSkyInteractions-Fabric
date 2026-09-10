@@ -2,8 +2,7 @@ package net.quepierts.thatskyinteractions.feature.client.gui.component.visual;
 
 import dev.anvilcraft.lib.v2.rendering.sdf.SdfGraphics;
 import lombok.experimental.UtilityClass;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.NonNull;
 
 @UtilityClass
@@ -33,22 +32,17 @@ public class GeneralRenderOps {
     };
 
     public static RenderOp texture(
-            final @NonNull Identifier               texture,
+            final @NonNull ResourceLocation               texture,
             final          int                      textureWidth,
             final          int                      textureHeight
     ) {
-        return (graphics, colors, x, y, width, height) -> graphics.original().blit(
-                RenderPipelines.GUI_TEXTURED,
+        return (graphics, colors, x, y, width, height) -> net.quepierts.thatskyinteractions.feature.client.gui.ExtendedGuiGraphics.blitColored(
+                graphics.original(),
                 texture,
-                (int) (x - width / 2),
-                (int) (y - height / 2),
+                (int) (x - width / 2), (int) (y - height / 2),
                 0f, 0f,
-                (int) width,
-                (int) height,
-                textureWidth,
-                textureHeight,
-                textureWidth,
-                textureHeight,
+                (int) width, (int) height,
+                textureWidth, textureHeight,
                 colors.argb()
         );
     }

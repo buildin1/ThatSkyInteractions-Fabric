@@ -2,8 +2,8 @@ package net.quepierts.thatskyinteractions.feature.data.packet;
 
 import io.netty.buffer.Unpooled;
 import lombok.NoArgsConstructor;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
 import net.quepierts.veynir.core.misc.Generic;
 import org.jspecify.annotations.NonNull;
 
@@ -44,7 +44,7 @@ public final class PacketCache {
             final @NonNull StreamCodec<? super RegistryFriendlyByteBuf, T> codec,
             final @NonNull T object
     ) {
-        var fresh = new RegistryFriendlyByteBuf(Unpooled.buffer(), )
+        var fresh = new RegistryFriendlyByteBuf(Unpooled.buffer());
         codec.encode(fresh, object);
 
         this.free();
@@ -64,10 +64,8 @@ public final class PacketCache {
     ) {
         if (this.buffer == null) {
 
-            this.buffer = new RegistryFriendlyByteBuf(
-                    Unpooled.buffer(),
-                    target.registryAccess()
-            );
+            // 1.20.1 的 RegistryFriendlyByteBuf 只是 FriendlyByteBuf 的别名，不带注册表访问器
+            this.buffer = new RegistryFriendlyByteBuf(Unpooled.buffer());
 
             if (this.cachedCodec != null && this.cachedObject != null) {
                 this.cachedCodec.encode(this.buffer, Generic.cast(this.cachedObject));
@@ -94,7 +92,7 @@ public final class PacketCache {
     public void read(final RegistryFriendlyByteBuf byteBuf) {
         this.free();
         final var bytes = byteBuf.readableBytes();
-        this.buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(bytes), byteBuf.registryAccess());
+        this.buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(bytes));
         this.buffer.writeBytes(byteBuf);
         this.readableBytes = bytes;
     }

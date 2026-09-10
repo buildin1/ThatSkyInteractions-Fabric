@@ -1,7 +1,6 @@
 package net.neoforged.neoforge.event;
 
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.ReloadableServerRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.neoforged.bus.api.Event;
 
@@ -10,18 +9,18 @@ import java.util.List;
 
 public class AddServerReloadListenersEvent extends Event {
 
-    private final ReloadableServerRegistries.Holder registries;
+    private final Object registries;
     private final List<ListenerEntry> listeners = new ArrayList<>();
 
-    public AddServerReloadListenersEvent(ReloadableServerRegistries.Holder registries) {
+    public AddServerReloadListenersEvent(Object registries) {
         this.registries = registries;
     }
 
-    public ReloadableServerRegistries.Holder getRegistries() {
+    public Object getRegistries() {
         return this.registries;
     }
 
-    public void addListener(Identifier identifier, PreparableReloadListener listener) {
+    public void addListener(ResourceLocation identifier, PreparableReloadListener listener) {
         this.listeners.add(new ListenerEntry(identifier, listener));
     }
 
@@ -29,5 +28,5 @@ public class AddServerReloadListenersEvent extends Event {
         return this.listeners;
     }
 
-    public record ListenerEntry(Identifier identifier, PreparableReloadListener listener) {}
+    public record ListenerEntry(ResourceLocation identifier, PreparableReloadListener listener) {}
 }

@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import lombok.experimental.UtilityClass;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
 import net.quepierts.thatskyinteractions.core.model.PlayerPair;
 
 @UtilityClass
@@ -19,9 +19,9 @@ public class PlayerPairParser {
 
     public static final StreamCodec<ByteBuf, PlayerPair> STREAM_CODEC
             = StreamCodec.composite(
-                    UUIDUtil.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID,
                     PlayerPair::getLeft,
-                    UUIDUtil.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID,
                     PlayerPair::getRight,
                     PlayerPair::new
             );

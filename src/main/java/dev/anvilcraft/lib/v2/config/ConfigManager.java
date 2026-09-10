@@ -38,7 +38,7 @@ public final class ConfigManager {
         if (annotation.type() == ModConfig.Type.SERVER) {
             // 服务器启动时从存档目录加载（NeoForge 同样延迟到服务器启动）
             ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-                Path dir = server.getServerDirectory().resolve("serverconfig");
+                Path dir = server.getServerDirectory().toPath().resolve("serverconfig");
                 loadConfig(new ConfigRecord(instance, clazz, fileName), dir);
             });
         } else {

@@ -2,8 +2,8 @@ package net.quepierts.thatskyinteractions.feature.interaction;
 
 import com.mojang.serialization.MapCodec;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.core.interaction.DefaultInteractionFSM;
@@ -15,8 +15,8 @@ import org.jspecify.annotations.Nullable;
 
 public final class UnlockInteraction implements Interaction {
 
-    public static final Identifier INVITE               = ThatSkyInteractions.location("unlock_invite");
-    public static final Identifier ACCEPT               = ThatSkyInteractions.location("unlock_accept");
+    public static final ResourceLocation INVITE               = ThatSkyInteractions.location("unlock_invite");
+    public static final ResourceLocation ACCEPT               = ThatSkyInteractions.location("unlock_accept");
     private static final UnlockInteraction INSTANCE     = new UnlockInteraction();
 
     public static final MapCodec<UnlockInteraction> MAP_CODEC

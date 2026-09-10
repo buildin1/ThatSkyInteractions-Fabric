@@ -1,6 +1,5 @@
 package net.neoforged.neoforge.event;
 
-import net.minecraft.server.ReloadableServerRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.Event;
@@ -11,9 +10,9 @@ public class OnDatapackSyncEvent extends Event {
 
     private final MinecraftServer server;
     private final ServerPlayer player;
-    private final ReloadableServerRegistries.Holder registries;
+    private final Object registries;
 
-    public OnDatapackSyncEvent(MinecraftServer server, ServerPlayer player, ReloadableServerRegistries.Holder registries) {
+    public OnDatapackSyncEvent(MinecraftServer server, ServerPlayer player, Object registries) {
         this.server = server;
         this.player = player;
         this.registries = registries;
@@ -31,7 +30,7 @@ public class OnDatapackSyncEvent extends Event {
         return this.player;
     }
 
-    public ReloadableServerRegistries.Holder getRegistries() {
+    public Object getRegistries() {
         return this.registries;
     }
 }

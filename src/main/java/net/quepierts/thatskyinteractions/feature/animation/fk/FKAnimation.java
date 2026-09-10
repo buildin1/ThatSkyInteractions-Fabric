@@ -1,6 +1,6 @@
 package net.quepierts.thatskyinteractions.feature.animation.fk;
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -25,10 +25,10 @@ import java.util.Collections;
 
 public final class FKAnimation extends TemplateAnimation {
 
-    public static final Identifier LEFT_ARM
+    public static final ResourceLocation LEFT_ARM
             = ThatSkyInteractions.location("fk/left_arm");
 
-    public static final Identifier RIGHT_ARM
+    public static final ResourceLocation RIGHT_ARM
             = ThatSkyInteractions.location("fk/right_arm");
 
     private final FKTargetType type;

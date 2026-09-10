@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.client.gui.component.control;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.input.MouseButtonEvent;
+import dev.anvilcraft.lib.v2.input.MouseButtonEvent;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.quepierts.thatskyinteractions.core.property.EnumProperty;

@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.client.gui.component.visual;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.quepierts.thatskyinteractions.feature.client.gui.ColorStack;
 import net.quepierts.thatskyinteractions.feature.client.gui.ExtendedGuiGraphics;
 import net.quepierts.thatskyinteractions.feature.client.gui.component.control.Control;
@@ -15,7 +15,7 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface VisualNode {
 
-    VisualNode EMPTY = (_, _, _, _, _, _, _) -> {};
+    VisualNode EMPTY = (__unused0, __unused1, __unused2, __unused3, __unused4, __unused5, __unused6) -> {};
 
     static VisualNode combine(@NonNull VisualNode... nodes) {
 
@@ -45,7 +45,7 @@ public interface VisualNode {
         if (size == 0) {
             return EMPTY;
         } else if (size == 1) {
-            return nonempty.getFirst();
+            return nonempty.get(0);
         } else {
             return factory.apply(nonempty.toArray(VisualNode[]::new));
         }
@@ -90,7 +90,7 @@ public interface VisualNode {
     ) {
         final var pose = graphics.pose();
         for (final var node : nodes) {
-            pose.pushMatrix();
+            pose.pushPose();
             node.extractRenderState(
                     control,
                     graphics,
@@ -101,7 +101,7 @@ public interface VisualNode {
                     mouseY,
                     delta
             );
-            pose.popMatrix();
+            pose.popPose();
         }
     }
 

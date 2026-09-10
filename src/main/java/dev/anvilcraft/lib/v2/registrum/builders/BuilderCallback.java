@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.RegistryEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullSupplier;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.RegistryBuilder;
@@ -35,7 +35,7 @@ public interface BuilderCallback {
                     NonNullFunction<DeferredHolder<R2, T2>, ? extends RegistryEntry<R2, T2>> entryFactory
             ) {
                 T2 value = factory.get();
-                Identifier id = Identifier.fromNamespaceAndPath(owner.getModid(), name);
+                ResourceLocation id = new ResourceLocation(owner.getModid(), name);
                 Registry<R2> registry = (Registry<R2>) (Registry<?>) RegistryBuilder.getCustomRegistry((net.minecraft.resources.ResourceKey) type);
                 if (registry == null) {
                     throw new IllegalStateException("Registry not found for " + type + " (custom registries must be created before registration)");

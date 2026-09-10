@@ -6,7 +6,7 @@ import dev.anvilcraft.lib.v2.registrum.builders.AbstractBuilder;
 import dev.anvilcraft.lib.v2.registrum.builders.BuilderCallback;
 import dev.anvilcraft.lib.v2.registrum.util.entry.RegistryEntry;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.quepierts.thatskyinteractions.feature.interaction.Interaction;
 import net.quepierts.thatskyinteractions.feature.interaction.InteractionType;

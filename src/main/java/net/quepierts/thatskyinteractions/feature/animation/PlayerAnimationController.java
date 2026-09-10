@@ -6,10 +6,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.common.NeoForge;
 import net.quepierts.thatskyinteractions.core.animation.model.PlayerBone;
@@ -79,7 +78,7 @@ public final class PlayerAnimationController {
         this.context    = new Context(this.fkController);
     }
 
-    public void play(Identifier identifier) {
+    public void play(ResourceLocation identifier) {
         this.play(
                 identifier,
                 AnimationLayerTypes.DEFAULT.get()
@@ -87,7 +86,7 @@ public final class PlayerAnimationController {
     }
 
     public boolean play(
-            final @NonNull Identifier           animationId,
+            final @NonNull ResourceLocation           animationId,
             final @NonNull AnimationLayerType   type
     ) {
 
@@ -509,18 +508,24 @@ public final class PlayerAnimationController {
         return new PoseCache(DefaultMinecraftSkeletonLayout.HUMANOID);
     }
 
+    /**
+     * 1.20.1 没有 EntityRenderState，位置 / 朝向 / 缩放直接按 partialTick 从实体插值取。
+     */
     public void setupToLocal(
-            final HumanoidRenderState   state
+            final net.minecraft.world.entity.LivingEntity   entity,
+            final float                                     partialTick
     ) {
-        final var scale = 0.9375F;
+        final var scale     = 0.9375F;
+        final var bodyRot   = net.minecraft.util.Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
+
         this.toLocal.identity()
                 .translate( // offset ( -2, 0, +1 ), idk why!!!
-                        (float) state.x,
-                        (float) state.y,
-                        (float) state.z
+                        (float) net.minecraft.util.Mth.lerp(partialTick, entity.xOld, entity.getX()),
+                        (float) net.minecraft.util.Mth.lerp(partialTick, entity.yOld, entity.getY()),
+                        (float) net.minecraft.util.Mth.lerp(partialTick, entity.zOld, entity.getZ())
                 )
-                .scale(state.scale)
-                .rotate(Axis.YP.rotationDegrees(180F - state.bodyRot))
+                .scale(entity.getScale())
+                .rotate(Axis.YP.rotationDegrees(180F - bodyRot))
                 .scale(-scale, -scale, scale)
                 .translate(0.0F, -1.501F, 0.0F)
                 .scale(0.0625f);
@@ -548,7 +553,7 @@ public final class PlayerAnimationController {
         }
 
         for (final var layer : serialized.layers) {
-            final var layerType         = TsiRegistries.ANIMATION_LAYER_TYPE.getValue(layer.type());
+            final var layerType         = TsiRegistries.ANIMATION_LAYER_TYPE.get(layer.type());
 
             if (layerType == null) {
                 continue;

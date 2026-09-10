@@ -1,11 +1,9 @@
 package net.neoforged.neoforge.client.gui;
 
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 
 @FunctionalInterface
 public interface GuiLayer {
 
-    void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker);
+    void render(GuiGraphics graphics, float partialTick);
 }

@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.animation;
 
 import lombok.experimental.UtilityClass;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,7 +39,7 @@ public class PlayerAnimationSystem {
 
     public static void play(
             final @NonNull  LivingEntity    avatar,
-            final @NonNull  Identifier      animation
+            final @NonNull  ResourceLocation      animation
     ) {
 
         if (PlayerAnimationSystem.isNotAnimatable(avatar)) {
@@ -57,8 +57,8 @@ public class PlayerAnimationSystem {
 
     public static void play(
             final @NonNull  LivingEntity    avatar,
-            final @NonNull  Identifier      animation,
-            final @Nullable Identifier      layer
+            final @NonNull  ResourceLocation      animation,
+            final @Nullable ResourceLocation      layer
     ) {
 
         if (layer == null) {
@@ -109,7 +109,7 @@ public class PlayerAnimationSystem {
 
     public static void abort(
             final @NonNull  LivingEntity    avatar,
-            final @Nullable Identifier      layer
+            final @Nullable ResourceLocation      layer
     ) {
 
         if (layer == null) {
@@ -161,7 +161,7 @@ public class PlayerAnimationSystem {
 
     public static void exit(
             final @NonNull  LivingEntity    avatar,
-            final @Nullable Identifier      layer
+            final @Nullable ResourceLocation      layer
     ) {
 
         if (layer == null) {
@@ -213,7 +213,7 @@ public class PlayerAnimationSystem {
 
     public static void pause(
             final @NonNull  LivingEntity    avatar,
-            final @Nullable Identifier      layer
+            final @Nullable ResourceLocation      layer
     ) {
         if (layer == null) {
             pause(avatar);
@@ -264,7 +264,7 @@ public class PlayerAnimationSystem {
 
     public static void resume(
             final @NonNull  LivingEntity    avatar,
-            final @Nullable Identifier      layer
+            final @Nullable ResourceLocation      layer
     ) {
 
         if (layer == null) {
@@ -298,7 +298,7 @@ public class PlayerAnimationSystem {
     public static void event(
             final @NonNull  LivingEntity    avatar,
             final @NonNull  String          event,
-            final @Nullable Identifier      layer
+            final @Nullable ResourceLocation      layer
     ) {
 
         if (layer == null) {
@@ -353,7 +353,7 @@ public class PlayerAnimationSystem {
     ) {
 
         PacketDistributor.sendToPlayersInDimension(
-                player.level(),
+                (net.minecraft.server.level.ServerLevel) player.level(),
                 AnimationSignalPacket.of(
                         player,
                         signal
@@ -407,11 +407,11 @@ public class PlayerAnimationSystem {
     }
 
     public static boolean isAnimatable(final @NonNull LivingEntity entity) {
-        return entity.is(TsiEntityTags.ANIMATABLE_HUMANOID);
+        return entity.getType().is(TsiEntityTags.ANIMATABLE_HUMANOID);
     }
 
     public static boolean isNotAnimatable(final @NonNull LivingEntity entity) {
-        return !entity.is(TsiEntityTags.ANIMATABLE_HUMANOID);
+        return !entity.getType().is(TsiEntityTags.ANIMATABLE_HUMANOID);
     }
 
     public static @Nullable LivingEntity tryParseAnimatable(final @Nullable Entity entity) {

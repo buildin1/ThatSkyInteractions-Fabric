@@ -17,8 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Entity.class)
 public abstract class EntityMountMixin {
 
-    @Inject(method = "startRiding(Lnet/minecraft/world/entity/Entity;ZZ)Z", at = @At("HEAD"), cancellable = true)
-    private void tsi$onStartRiding(Entity vehicle, boolean force, boolean suppressCallbacks, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "startRiding(Lnet/minecraft/world/entity/Entity;Z)Z", at = @At("HEAD"), cancellable = true)
+    private void tsi$onStartRiding(Entity vehicle, boolean force, CallbackInfoReturnable<Boolean> cir) {
         var event = new EntityMountEvent((Entity) (Object) this, vehicle, true);
         NeoForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {

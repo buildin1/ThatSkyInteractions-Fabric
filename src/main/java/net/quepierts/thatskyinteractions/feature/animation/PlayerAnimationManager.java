@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
@@ -30,7 +30,7 @@ public final class PlayerAnimationManager extends DataSyncManager<PlayerAnimatio
     private static final PlayerAnimationManager instance
             = new PlayerAnimationManager();
 
-    private Map<Identifier, Holder> map = Map.of();
+    private Map<ResourceLocation, Holder> map = Map.of();
 
     PlayerAnimationManager() {
         super(
@@ -46,8 +46,8 @@ public final class PlayerAnimationManager extends DataSyncManager<PlayerAnimatio
     }
 
     @Override
-    protected void apply(final @NonNull Map<Identifier, PlayerAnimationDefinition> preparations) {
-        var builder = ImmutableMap.<Identifier, Holder>builder();
+    protected void apply(final @NonNull Map<ResourceLocation, PlayerAnimationDefinition> preparations) {
+        var builder = ImmutableMap.<ResourceLocation, Holder>builder();
         for (var entry : preparations.entrySet()) {
             var id = entry.getKey();
             var definition = entry.getValue();
@@ -59,7 +59,7 @@ public final class PlayerAnimationManager extends DataSyncManager<PlayerAnimatio
     }
 
     @Override
-    protected @NonNull Map<Identifier, PlayerAnimationDefinition> onHostLoaded(final @NonNull Map<Identifier, PlayerAnimationDefinition> preparations) {
+    protected @NonNull Map<ResourceLocation, PlayerAnimationDefinition> onHostLoaded(final @NonNull Map<ResourceLocation, PlayerAnimationDefinition> preparations) {
 
         final var modified  = new Object2ObjectOpenHashMap<>(preparations);
         final var event     = new RegisterPlayerAnimationEvent(modified);
@@ -69,7 +69,7 @@ public final class PlayerAnimationManager extends DataSyncManager<PlayerAnimatio
         return modified;
     }
 
-    public PlayerAnimation get(Identifier id) {
+    public PlayerAnimation get(ResourceLocation id) {
         var holder = this.map.get(id);
         if (holder == null) {
             log.error("Animation not found: {}", id);
@@ -78,7 +78,7 @@ public final class PlayerAnimationManager extends DataSyncManager<PlayerAnimatio
         return holder.get(id);
     }
 
-    public PlayerAnimationDefinition getDefinition(Identifier id) {
+    public PlayerAnimationDefinition getDefinition(ResourceLocation id) {
         var holder = this.map.get(id);
         if (holder == null) {
             log.error("Animation not found: {}", id);
@@ -87,7 +87,7 @@ public final class PlayerAnimationManager extends DataSyncManager<PlayerAnimatio
         return holder.definition;
     }
 
-    public Iterable<Identifier> identifiers() {
+    public Iterable<ResourceLocation> identifiers() {
         return this.map.keySet();
     }
 
@@ -100,7 +100,7 @@ public final class PlayerAnimationManager extends DataSyncManager<PlayerAnimatio
 
         private volatile boolean                initialized = false;
 
-        public PlayerAnimation get(final Identifier id) {
+        public PlayerAnimation get(final ResourceLocation id) {
             if (!this.initialized) {
                 synchronized (this) {
                     if (!this.initialized) {

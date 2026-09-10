@@ -3,9 +3,9 @@ package net.quepierts.thatskyinteractions.feature.expression.call.packet;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.ISensitiveBiPacket;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -14,14 +14,14 @@ import net.quepierts.thatskyinteractions.feature.expression.PlayerPreferenceAtta
 import org.jspecify.annotations.NonNull;
 
 public record ChangeVoicePacket(
-        Identifier voice
+        ResourceLocation voice
 ) implements ISensitiveBiPacket {
 
     public static final Type<ChangeVoicePacket> TYPE
             = IPacket.type(ThatSkyInteractions.location("preference/voice"));
 
     public static final StreamCodec<ByteBuf, ChangeVoicePacket> STREAM_CODEC
-            = Identifier.STREAM_CODEC.map(
+            = dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION.map(
                     ChangeVoicePacket::new,
                     ChangeVoicePacket::voice
             );

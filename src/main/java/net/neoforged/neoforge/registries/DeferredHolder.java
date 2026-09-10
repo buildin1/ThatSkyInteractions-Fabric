@@ -3,7 +3,7 @@ package net.neoforged.neoforge.registries;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.HolderOwner;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 
 import java.util.function.Supplier;
@@ -14,16 +14,16 @@ import java.util.function.Supplier;
 public class DeferredHolder<R, T extends R> implements Supplier<T> {
 
     private final ResourceKey<R> registryKey;
-    private final Identifier id;
+    private final ResourceLocation id;
     private final Supplier<T> supplier;
 
-    public DeferredHolder(ResourceKey<R> registryKey, Identifier id, Supplier<T> supplier) {
+    public DeferredHolder(ResourceKey<R> registryKey, ResourceLocation id, Supplier<T> supplier) {
         this.registryKey = registryKey;
         this.id = id;
         this.supplier = supplier;
     }
 
-    public static <R, T extends R> DeferredHolder<R, T> create(ResourceKey<? extends Registry<R>> registryKey, Identifier id, Supplier<T> supplier) {
+    public static <R, T extends R> DeferredHolder<R, T> create(ResourceKey<? extends Registry<R>> registryKey, ResourceLocation id, Supplier<T> supplier) {
         return new DeferredHolder<>(null, id, supplier);
     }
 
@@ -32,7 +32,7 @@ public class DeferredHolder<R, T extends R> implements Supplier<T> {
         return this.supplier.get();
     }
 
-    public Identifier getId() {
+    public ResourceLocation getId() {
         return this.id;
     }
 

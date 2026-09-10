@@ -4,13 +4,13 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
 import net.quepierts.thatskyinteractions.feature.animation.PlayerAnimationSystem;
 import net.quepierts.thatskyinteractions.feature.client.animation.PlayerAnimationHook;
-import net.quepierts.thatskyinteractions.feature.client.bond.ClientBondHandler;
 import net.quepierts.thatskyinteractions.feature.client.control.ClientCameraSystem;
 import net.quepierts.thatskyinteractions.feature.client.control.event.CameraAlignEvent;
 import net.quepierts.thatskyinteractions.feature.client.control.event.ComputeCameraPositionEvent;
@@ -24,6 +24,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * 1.20.1 的相机装配方法是 {@code setup(BlockGetter, Entity, boolean, boolean, float)}，
+ * 26.x 是 {@code alignWithEntity(float)}；{@code getMaxZoom} 在 1.20.1 收发都是 double。
+ * 另外 1.20.1 的 Camera 没有 {@code matrixPropertiesDirty}，也没有静态的
+ * {@code FORWARDS/UP/LEFT} 常量——方向向量在 {@code setRotation} 里就地重算。
+ */
 @Mixin(Camera.class)
 public abstract class CameraMixin {
 
@@ -46,28 +52,20 @@ public abstract class CameraMixin {
     private float yRot;
 
     @Shadow
-    private org.joml.Quaternionf rotation;
+    @org.spongepowered.asm.mixin.Final
+    private Quaternionf rotation;
 
     @Shadow
-    private org.joml.Vector3f forwards;
+    @org.spongepowered.asm.mixin.Final
+    private Vector3f forwards;
 
     @Shadow
-    private org.joml.Vector3f up;
+    @org.spongepowered.asm.mixin.Final
+    private Vector3f up;
 
     @Shadow
-    private org.joml.Vector3f left;
-
-    @Shadow
-    private int matrixPropertiesDirty;
-
-    @Shadow
-    private static org.joml.Vector3f FORWARDS;
-
-    @Shadow
-    private static org.joml.Vector3f UP;
-
-    @Shadow
-    private static org.joml.Vector3f LEFT;
+    @org.spongepowered.asm.mixin.Final
+    private Vector3f left;
 
     @Unique
     private float tsi$roll;
@@ -84,7 +82,7 @@ public abstract class CameraMixin {
 
     /**
      * NeoForge 的三参 setRotation 等价实现：在原版两参基础上叠加 roll，
-     * 并同步重算方向向量与矩阵脏标记（否则视角/剔除会出现错位）。
+     * 并按 1.20.1 的方式就地重算方向向量（否则视角/剔除会出现错位）。
      */
     @Unique
     private void tsi$setRotation(final float yRot, final float xRot, final float roll) {
@@ -92,22 +90,25 @@ public abstract class CameraMixin {
         this.tsi$roll = roll;
         if (roll != 0.0F) {
             this.rotation.rotateZ(-roll * net.minecraft.util.Mth.DEG_TO_RAD);
-            FORWARDS.rotate(this.rotation, this.forwards);
-            UP.rotate(this.rotation, this.up);
-            LEFT.rotate(this.rotation, this.left);
-            this.matrixPropertiesDirty |= 3;
+            this.forwards.set(0.0F, 0.0F, 1.0F).rotate(this.rotation);
+            this.up.set(0.0F, 1.0F, 0.0F).rotate(this.rotation);
+            this.left.set(1.0F, 0.0F, 0.0F).rotate(this.rotation);
         }
     }
 
     @Inject(
-            method = "alignWithEntity",
+            method = "setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V",
             at = @At("TAIL")
     )
     private void a4j$animate(
-            final float partialTicks,
-            final CallbackInfo ci
+            final BlockGetter   level,
+            final Entity        cameraEntity,
+            final boolean       detached,
+            final boolean       mirrored,
+            final float         partialTicks,
+            final CallbackInfo  ci
     ) {
-        if (!(this.entity instanceof Avatar avatar)) {
+        if (!(this.entity instanceof Player avatar)) {
             return;
         }
 
@@ -131,17 +132,18 @@ public abstract class CameraMixin {
     }
 
     @Inject(
-            method = "getMaxZoom",
+            method = "getMaxZoom(D)D",
             at = @At("RETURN")
     )
     private void a4j$getMaxZoom(
-            final CallbackInfoReturnable<Double> cir
+            final double                            distance,
+            final CallbackInfoReturnable<Double>    cir
     ) {
-        ClientCameraSystem.updateMaxZoom(cir.getReturnValueF());
+        ClientCameraSystem.updateMaxZoom((float) cir.getReturnValueD());
     }
 
     @WrapOperation(
-            method = "alignWithEntity",
+            method = "setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/Camera;setPosition(DDD)V"
@@ -162,14 +164,19 @@ public abstract class CameraMixin {
     }
 
     @Inject(
-            method = "alignWithEntity",
+            method = "setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V",
             at = @At("HEAD")
     )
     private void a4j$alignWithEntity(
-            final float partialTicks,
-            final CallbackInfo ci
+            final BlockGetter   level,
+            final Entity        cameraEntity,
+            final boolean       detached,
+            final boolean       mirrored,
+            final float         partialTicks,
+            final CallbackInfo  ci
     ) {
-        if (this.entity != Minecraft.getInstance().player) {
+        // HEAD 处 this.entity 还没赋值（1.20.1 在 setup 内部才写），用形参判断
+        if (cameraEntity != Minecraft.getInstance().player) {
             return;
         }
 

@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.interaction;
 
 import lombok.*;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.lang.ref.WeakReference;
 import java.util.UUID;
@@ -10,7 +10,7 @@ import java.util.UUID;
 public final class InteractionRequest {
 
     private final   UUID                        other;
-    private final   Identifier                  type;
+    private final   ResourceLocation                  type;
     private final   WeakReference<Interaction>  interaction;
     private final   long                        expireTime;
     private final   boolean                     requester;
@@ -20,7 +20,7 @@ public final class InteractionRequest {
 
     public static InteractionRequest send(
             UUID other,
-            Identifier type,
+            ResourceLocation type,
             long tick
     ) {
         return new InteractionRequest(other, type, tick + 20 * 60, true);
@@ -28,7 +28,7 @@ public final class InteractionRequest {
 
     public static InteractionRequest receive(
             UUID other,
-            Identifier type,
+            ResourceLocation type,
             long tick
     ) {
         return new InteractionRequest(other, type, tick + 20 * 60, false);
@@ -36,7 +36,7 @@ public final class InteractionRequest {
 
     private InteractionRequest(
             final @NonNull UUID         other,
-            final @NonNull Identifier   type,
+            final @NonNull ResourceLocation   type,
             final          long         expireTime,
             final          boolean      requester
     ) {

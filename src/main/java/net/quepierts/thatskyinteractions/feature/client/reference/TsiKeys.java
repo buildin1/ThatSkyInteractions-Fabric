@@ -14,8 +14,9 @@ import org.lwjgl.glfw.GLFW;
 @EventBusSubscriber(value = Dist.CLIENT, modid = ThatSkyInteractions.MODID)
 public class TsiKeys {
 
-    public static final KeyMapping.Category CATEGORY
-            = new KeyMapping.Category(ThatSkyInteractions.location("interactions"));
+    // 1.20.1 的按键分类就是一个翻译键字符串；26.x 的 KeyMapping.Category(Identifier)
+    // 生成的键是 key.category.<ns>.<path>，这里必须逐字对上 lang 文件
+    public static final String CATEGORY = "key.category.thatskyinteractions.interactions";
 
     public static final KeyMapping KEY_INTERACT = new KeyMapping(
             "key.thatskyinteractions.interact",

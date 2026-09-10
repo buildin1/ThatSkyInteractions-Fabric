@@ -10,9 +10,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.IdentifierArgument;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.Avatar;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.Entity;
 import net.quepierts.thatskyinteractions.feature.animation.PlayerAnimationManager;
 import net.quepierts.thatskyinteractions.feature.animation.PlayerAnimationSystem;
@@ -25,7 +25,7 @@ import java.util.Collections;
 public final class AnimationCommand {
 
     static final SuggestionProvider<CommandSourceStack> ANIMATIONS
-            = (_, builder)
+            = (__unused0, builder)
             -> SharedSuggestionProvider.suggestResource(
                     PlayerAnimationManager.getInstance().identifiers(), builder
             );
@@ -49,12 +49,12 @@ public final class AnimationCommand {
         return Commands.literal("animation")
                 // /animation play <name> [targets] [layer]
                 .then(Commands.literal("play")
-                        .then(Commands.argument("animation", IdentifierArgument.id()).suggests(ANIMATIONS)
+                        .then(Commands.argument("animation", ResourceLocationArgument.id()).suggests(ANIMATIONS)
                                 .executes(ctx -> play(ctx, null, null))
                                 .then(Commands.argument("targets", EntityArgument.entities())
                                         .executes(ctx -> play(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), null))
-                                        .then(Commands.argument("layer", IdentifierArgument.id()).suggests(LAYERS)
-                                                .executes(ctx -> play(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), IdentifierArgument.getId(ctx, "layer"))))
+                                        .then(Commands.argument("layer", ResourceLocationArgument.id()).suggests(LAYERS)
+                                                .executes(ctx -> play(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), ResourceLocationArgument.getId(ctx, "layer"))))
                                 )
                         )
                 )
@@ -63,8 +63,8 @@ public final class AnimationCommand {
                         .executes(ctx -> stop(ctx, null, null))
                         .then(Commands.argument("targets", EntityArgument.entities())
                                 .executes(ctx -> stop(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), null))
-                                .then(Commands.argument("layer", IdentifierArgument.id()).suggests(LAYERS)
-                                        .executes(ctx -> stop(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), IdentifierArgument.getId(ctx, "layer"))))
+                                .then(Commands.argument("layer", ResourceLocationArgument.id()).suggests(LAYERS)
+                                        .executes(ctx -> stop(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), ResourceLocationArgument.getId(ctx, "layer"))))
                         )
                 )
                 // /animation exit [targets] [layer]
@@ -72,8 +72,8 @@ public final class AnimationCommand {
                         .executes(ctx -> exit(ctx, null, null))
                         .then(Commands.argument("targets", EntityArgument.entities())
                                 .executes(ctx -> exit(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), null))
-                                .then(Commands.argument("layer", IdentifierArgument.id()).suggests(LAYERS)
-                                        .executes(ctx -> exit(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), IdentifierArgument.getId(ctx, "layer"))))
+                                .then(Commands.argument("layer", ResourceLocationArgument.id()).suggests(LAYERS)
+                                        .executes(ctx -> exit(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), ResourceLocationArgument.getId(ctx, "layer"))))
                         )
                 )
                 // /animation pause [targets] [layer]
@@ -81,8 +81,8 @@ public final class AnimationCommand {
                         .executes(ctx -> pause(ctx, null, null))
                         .then(Commands.argument("targets", EntityArgument.entities())
                                 .executes(ctx -> pause(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), null))
-                                .then(Commands.argument("layer", IdentifierArgument.id()).suggests(LAYERS)
-                                        .executes(ctx -> pause(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), IdentifierArgument.getId(ctx, "layer"))))
+                                .then(Commands.argument("layer", ResourceLocationArgument.id()).suggests(LAYERS)
+                                        .executes(ctx -> pause(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), ResourceLocationArgument.getId(ctx, "layer"))))
                         )
                 )
                 // /animation resume [targets] [layer]
@@ -90,8 +90,8 @@ public final class AnimationCommand {
                         .executes(ctx -> resume(ctx, null, null))
                         .then(Commands.argument("targets", EntityArgument.entities())
                                 .executes(ctx -> resume(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), null))
-                                .then(Commands.argument("layer", IdentifierArgument.id()).suggests(LAYERS)
-                                        .executes(ctx -> resume(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), IdentifierArgument.getId(ctx, "layer"))))
+                                .then(Commands.argument("layer", ResourceLocationArgument.id()).suggests(LAYERS)
+                                        .executes(ctx -> resume(ctx, EntityArgument.getOptionalEntities(ctx, "targets"), ResourceLocationArgument.getId(ctx, "layer"))))
                         )
                 )
                 // /animation event <event> [targets] [layer]
@@ -100,8 +100,8 @@ public final class AnimationCommand {
                                 .executes(ctx -> event(ctx, StringArgumentType.getString(ctx, "event"), null, null))
                                 .then(Commands.argument("targets", EntityArgument.entities())
                                         .executes(ctx -> event(ctx, StringArgumentType.getString(ctx, "event"), EntityArgument.getOptionalEntities(ctx, "targets"), null))
-                                        .then(Commands.argument("layer", IdentifierArgument.id()).suggests(LAYERS)
-                                                .executes(ctx -> event(ctx, StringArgumentType.getString(ctx, "event"), EntityArgument.getOptionalEntities(ctx, "targets"), IdentifierArgument.getId(ctx, "layer"))))
+                                        .then(Commands.argument("layer", ResourceLocationArgument.id()).suggests(LAYERS)
+                                                .executes(ctx -> event(ctx, StringArgumentType.getString(ctx, "event"), EntityArgument.getOptionalEntities(ctx, "targets"), ResourceLocationArgument.getId(ctx, "layer"))))
                                 )
                         )
                 );
@@ -111,10 +111,10 @@ public final class AnimationCommand {
     private static int play(
             CommandContext<CommandSourceStack>  ctx,
             Collection<? extends Entity>        targets,
-            Identifier                          layer
+            ResourceLocation                          layer
     ) throws CommandSyntaxException {
         
-        var name        = IdentifierArgument.getId(ctx, "animation");
+        var name        = ResourceLocationArgument.getId(ctx, "animation");
         var entities    = resolveTargets(ctx, targets);
         for (var e : entities) {
             final var animatable = PlayerAnimationSystem.tryParseAnimatable(e);
@@ -131,12 +131,12 @@ public final class AnimationCommand {
     private static int stop(
             CommandContext<CommandSourceStack>  ctx,
             Collection<? extends Entity>        targets,
-            Identifier                          layer
+            ResourceLocation                          layer
     ) throws CommandSyntaxException {
         
         var entities    = resolveTargets(ctx, targets);
         for (var e : entities) {
-            if (e instanceof Avatar avatar) {
+            if (e instanceof Player avatar) {
                 PlayerAnimationSystem.abort(avatar, layer);
             }
         }
@@ -148,13 +148,13 @@ public final class AnimationCommand {
     private static int exit(
             CommandContext<CommandSourceStack>  ctx,
             Collection<? extends Entity>        targets,
-            Identifier                          layer
+            ResourceLocation                          layer
     ) throws CommandSyntaxException {
         
         var entities    = resolveTargets(ctx, targets);
         
         for (var e : entities) {
-            if (e instanceof Avatar avatar) {
+            if (e instanceof Player avatar) {
                 PlayerAnimationSystem.exit(avatar, layer);
             }
         }
@@ -166,12 +166,12 @@ public final class AnimationCommand {
     private static int pause(
             CommandContext<CommandSourceStack>  ctx,
             Collection<? extends Entity>        targets,
-            Identifier                          layer
+            ResourceLocation                          layer
     ) throws CommandSyntaxException {
         
         var entities    = resolveTargets(ctx, targets);
         for (var e : entities) {
-            if (e instanceof Avatar avatar) {
+            if (e instanceof Player avatar) {
                 PlayerAnimationSystem.pause(avatar, layer);
             }
         }
@@ -183,12 +183,12 @@ public final class AnimationCommand {
     private static int resume(
             CommandContext<CommandSourceStack>  ctx,
             Collection<? extends Entity>        targets,
-            Identifier                          layer
+            ResourceLocation                          layer
     ) throws CommandSyntaxException {
         
         var entities = resolveTargets(ctx, targets);
         for (var e : entities) {
-            if (e instanceof Avatar avatar) {
+            if (e instanceof Player avatar) {
                 PlayerAnimationSystem.resume(avatar, layer);
             }
         }
@@ -201,12 +201,12 @@ public final class AnimationCommand {
             CommandContext<CommandSourceStack>  ctx,
             String                              eventArg, 
             Collection<? extends Entity>        targets,
-            Identifier                          layer
+            ResourceLocation                          layer
     ) throws CommandSyntaxException {
         
         var entities = resolveTargets(ctx, targets);
         for (var e : entities) {
-            if (e instanceof Avatar avatar) {
+            if (e instanceof Player avatar) {
                 PlayerAnimationSystem.event(avatar, eventArg, layer);
             }
         }

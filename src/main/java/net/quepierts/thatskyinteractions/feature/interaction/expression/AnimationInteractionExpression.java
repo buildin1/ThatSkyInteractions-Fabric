@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.interaction.expression;
 
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.core.interaction.DefaultInteractionFSM;
@@ -23,7 +23,7 @@ public class AnimationInteractionExpression
     private final boolean       continuous;
 
     public AnimationInteractionExpression(
-            final Identifier    animation,
+            final ResourceLocation    animation,
             final boolean       requester,
             final boolean       continuous
     ) {
@@ -115,7 +115,7 @@ public class AnimationInteractionExpression
 
     @Override
     public void onGenerateData(
-            @NonNull final Identifier   identifier,
+            @NonNull final ResourceLocation   identifier,
                      final int          level
     ) {
         // do nothing first

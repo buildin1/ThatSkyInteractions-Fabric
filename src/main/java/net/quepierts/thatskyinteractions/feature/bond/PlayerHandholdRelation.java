@@ -3,8 +3,8 @@ package net.quepierts.thatskyinteractions.feature.bond;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
@@ -249,9 +249,9 @@ public class PlayerHandholdRelation {
                 = StreamCodec.composite(
                         ByteBufCodecs.BYTE.map(Role::from, Role::toByte),
                         Serialized::role,
-                        ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC),
+                        ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID),
                         Serialized::left,
-                        ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC),
+                        ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID),
                         Serialized::right,
                         Serialized::new
                 );

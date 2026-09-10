@@ -10,9 +10,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import lombok.AccessLevel;
 import lombok.Getter;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.quepierts.thatskyinteractions.core.friendship.model.NodeState;
 import net.quepierts.thatskyinteractions.core.model.PlayerPair;
 import net.quepierts.thatskyinteractions.feature.data.PlayerPairParser;
@@ -25,7 +25,7 @@ public final class FriendshipTreeData {
 
     public static final Codec<FriendshipTreeData> CODEC
             = RecordCodecBuilder.create(instance -> instance.group(
-                    Identifier.CODEC.fieldOf("type").forGetter(FriendshipTreeData::getType),
+                    ResourceLocation.CODEC.fieldOf("type").forGetter(FriendshipTreeData::getType),
                     PlayerPairParser.CODEC.fieldOf("relation").forGetter(FriendshipTreeData::getRelation),
                     Codec.unboundedMap(
                             Codec.STRING,
@@ -38,7 +38,7 @@ public final class FriendshipTreeData {
 
     public static final StreamCodec<ByteBuf, FriendshipTreeData> STREAM_CODEC
             = StreamCodec.composite(
-                    Identifier.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION,
                     FriendshipTreeData::getType,
                     PlayerPairParser.STREAM_CODEC,
                     FriendshipTreeData::getRelation,
@@ -59,13 +59,13 @@ public final class FriendshipTreeData {
     private transient final FriendshipTree              structure;
 
     @Getter
-    private final Identifier                            type;
+    private final ResourceLocation                            type;
     @Getter
     private final PlayerPair                            relation;
     private final Object2ObjectMap<String, NodeState>   states;
 
     public FriendshipTreeData(
-            final @NonNull Identifier           type,
+            final @NonNull ResourceLocation           type,
             final @NonNull PlayerPair           relation
     ) {
         this.type           = type;
@@ -83,7 +83,7 @@ public final class FriendshipTreeData {
     }
 
     private FriendshipTreeData(
-            final @NonNull Identifier               type,
+            final @NonNull ResourceLocation               type,
             final @NonNull PlayerPair               relation,
             final @NonNull Map<String, NodeState>   states
     ) {

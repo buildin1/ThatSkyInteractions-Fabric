@@ -4,9 +4,8 @@ import dev.anvilcraft.lib.v2.rendering.sdf.SdfGraphics;
 import dev.anvilcraft.lib.v2.rendering.sdf.SdfParameters;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.feature.client.gui.ColorStack;
@@ -21,7 +20,7 @@ import org.jspecify.annotations.NonNull;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FloatingButtonNode implements VisualNode {
 
-    public static final Identifier ICON                 = ThatSkyInteractions.location("textures/gui/floating.png");
+    public static final ResourceLocation ICON                 = ThatSkyInteractions.location("textures/gui/floating.png");
     public static final SdfParameters PARAMS_BASE
             = SdfGraphics.getInstance()
             .circle(0, 0, 16)
@@ -37,17 +36,16 @@ public final class FloatingButtonNode implements VisualNode {
     private final RenderOp renderOp;
 
     public static FloatingButtonNode texture(
-            final @NonNull Identifier identifier
+            final @NonNull ResourceLocation identifier
     ) {
         return new FloatingButtonNode(
-                (graphics, colors, _, _, _, _) -> {
-                    graphics.original().blit(
-                            RenderPipelines.GUI_TEXTURED,
+                (graphics, colors, __unused0, __unused1, __unused2, __unused3) -> {
+                    net.quepierts.thatskyinteractions.feature.client.gui.ExtendedGuiGraphics.blitColored(
+                            graphics.original(),
                             identifier,
                             -14, -14,
                             0, 0,
                             28, 28,
-                            32, 32,
                             32, 32,
                             colors.argb()
                     );
@@ -56,10 +54,10 @@ public final class FloatingButtonNode implements VisualNode {
     }
 
     public static FloatingButtonNode icon(
-            final @NonNull Identifier identifier
+            final @NonNull ResourceLocation identifier
     ) {
         return new FloatingButtonNode(
-                (graphics, colors, _, _, _, _) -> {
+                (graphics, colors, __unused0, __unused1, __unused2, __unused3) -> {
                     graphics.blitIcon(
                             identifier,
                             -14, -14,
@@ -71,16 +69,16 @@ public final class FloatingButtonNode implements VisualNode {
     }
 
     public static FloatingButtonNode sprite(
-            final @NonNull Identifier identifier
+            final @NonNull ResourceLocation identifier
     ) {
         return new FloatingButtonNode(
-                (graphics, colors, _, _, _, _) -> {
-                    graphics.original().blitSprite(
-                            RenderPipelines.GUI_TEXTURED,
+                (graphics, colors, __unused0, __unused1, __unused2, __unused3) -> {
+                    net.quepierts.thatskyinteractions.feature.client.gui.ExtendedGuiGraphics.blitColored(
+                            graphics.original(),
                             identifier,
-                            32, 32,
                             -14, -28,
                             0, 0,
+                            32, 32,
                             32, 32,
                             colors.argb()
                     );
@@ -110,10 +108,10 @@ public final class FloatingButtonNode implements VisualNode {
         final var transiting        = active < 1.0f;
 
         final var pose              = graphics.pose();
-        pose                        .translate(control.x(), control.y());
+        pose                        .translate(control.x(), control.y(), 0.0f);
 
         if (transiting) {
-            pose                    .scale(0.8f + active * 0.2f);
+            pose                    .scale(0.8f + active * 0.2f, 0.8f + active * 0.2f, 1.0f);
         }
 
         colors                      .push();
@@ -123,12 +121,12 @@ public final class FloatingButtonNode implements VisualNode {
         final var ft                = focusTransition.getValue();
         final var original          = graphics.original();
         if (ft > 0.0f) {
-            pose                    .pushMatrix();
-            pose                    .translate(0, -14);
+            pose                    .pushPose();
+            pose                    .translate(0, -14, 0.0f);
 
             final var click         = control.getAttribute(FloatingButton.ATTRIBUTE_CLICK_TRANSITION);
             final var t             = Mth.abs(Mth.cos(2 * click.getValue() * Mth.PI));
-            pose                    .scale(t, 1.0f);
+            pose                    .scale(t, 1.0f, 1.0f);
 
             colors                  .push();
             colors                  .mul(ft, 1.0f, 1.0f, 1.0f);
@@ -150,18 +148,17 @@ public final class FloatingButtonNode implements VisualNode {
                                     );
 
             colors                  .pop();
-            pose                    .popMatrix();
+            pose                    .popPose();
 
         }
 
-        pose                        .rotate(Mth.HALF_PI * 0.5f);
+        pose                        .mulPose(com.mojang.math.Axis.ZP.rotation(Mth.HALF_PI * 0.5f));
 
-        original                    .blit(
-                                            RenderPipelines.GUI_TEXTURED,
+        net.quepierts.thatskyinteractions.feature.client.gui.ExtendedGuiGraphics.blitColored(
+                                            original,
                                             ICON,
                                             -4, -4,
                                             0, 0,
-                                            8, 8,
                                             8, 8,
                                             8, 8,
                                             colors.argb()

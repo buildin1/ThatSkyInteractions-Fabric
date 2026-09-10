@@ -1,6 +1,7 @@
 package dev.anvilcraft.lib.v2.rendering.sdf;
 
 import lombok.experimental.UtilityClass;
+import dev.anvilcraft.lib.v2.rendering.MthF;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
@@ -155,7 +156,7 @@ public class Sdf2d {
         float mx        = Math.max(dx, 0.0f);
         float my        = Math.max(dy, 0.0f);
 
-        return          Mth.length(mx, my) +
+        return          MthF.length(mx, my) +
                         Math.min(Math.max(dx, dy), 0.0f);
     }
 
@@ -163,7 +164,7 @@ public class Sdf2d {
             float px, float py,
             float r
     ) {
-        return          Mth.length(px, py) - r;
+        return          MthF.length(px, py) - r;
     }
 
     public static float sdArc(
@@ -179,9 +180,9 @@ public class Sdf2d {
         if (scy * px > scx * py) {
             var dx      = px - scx * ra;
             var dy      = py - scy * ra;
-            result      = Mth.length(dx, dy);
+            result      = MthF.length(dx, dy);
         } else {
-            result      = Math.abs(Mth.length(px, py) - ra);
+            result      = Math.abs(MthF.length(px, py) - ra);
         }
 
         return          result - rb;
@@ -198,13 +199,13 @@ public class Sdf2d {
         float rx        = nx * px + (-ny) * py;
         float ry        = ny * px +  nx  * py;
 
-        float a         = Math.abs(Mth.length(rx, ry) - r) - th * 0.5f;
+        float a         = Math.abs(MthF.length(rx, ry) - r) - th * 0.5f;
 
         float by        = Math.max(0.0f,
                         Math.abs(r - ry) - th * 0.5f);
 
-        float b         = Mth.length(rx, by) *
-                        Mth.sign(rx);
+        float b         = MthF.length(rx, by) *
+                        MthF.sign(rx);
 
         return          Math.max(a, b);
     }
@@ -217,7 +218,7 @@ public class Sdf2d {
 
         px =            Math.abs(px);
 
-        float l =       Mth.length(px, py) - r;
+        float l =       MthF.length(px, py) - r;
 
         float dot       = px * cx + py * cy;
         float clamped   = Mth.clamp(dot, 0.0f, r);
@@ -225,11 +226,11 @@ public class Sdf2d {
         float mx        = px - cx * clamped;
         float my        = py - cy * clamped;
 
-        float m         = Mth.length(mx, my);
+        float m         = MthF.length(mx, my);
 
         return          Math.max(
                             l,
-                            m * Mth.sign(cy * px - cx * py)
+                            m * MthF.sign(cy * px - cx * py)
                         );
     }
 
@@ -247,7 +248,7 @@ public class Sdf2d {
         float k         = px * (-b) + py * a;
 
         if (k           < 0.0f) {
-            return      Mth.length(px, py) - r1;
+            return      MthF.length(px, py) - r1;
         }
 
         if (k           > a * h) {
@@ -255,7 +256,7 @@ public class Sdf2d {
             float dx    = px;
             float dy    = py - h;
 
-            return      Mth.length(dx, dy) - r2;
+            return      MthF.length(dx, dy) - r2;
         }
 
         return          px * a + py * b - r1;
@@ -278,18 +279,18 @@ public class Sdf2d {
 
         if (py          < 0.0f) {
 
-            return      Mth.length(px, py) - ra;
+            return      MthF.length(px, py) - ra;
         }
 
         if (py * ce - px * he > he * ce) {
 
-            return      Mth.length(
+            return      MthF.length(
                             px,
                             py - he
                         ) - rb;
         }
 
-        return          Mth.length(
+        return          MthF.length(
                             px + ce,
                             py
                         ) - (ce + ra);
@@ -311,7 +312,7 @@ public class Sdf2d {
                             1.0f
         );
 
-        return          Mth.length(
+        return          MthF.length(
                             pax - h * bax,
                             pay - h * bay
                         );
@@ -335,7 +336,7 @@ public class Sdf2d {
 
         px              -= Mth.clamp(px, -2.0f * r, 0.0f);
 
-        return          -Mth.length(px, py) * Mth.sign(py);
+        return          -MthF.length(px, py) * MthF.sign(py);
     }
 
     public static float sdIsoscelesTriangle(
@@ -361,7 +362,7 @@ public class Sdf2d {
         float bx        = px - qx * h2;
         float by        = py - qy;
 
-        float s         = -Mth.sign(qy);
+        float s         = -MthF.sign(qy);
 
         float da        = ax * ax + ay * ay;
         float sa        = s * (px * qy - py * qx);
@@ -373,7 +374,7 @@ public class Sdf2d {
         float dSign     = Math.min(sa, sb);
 
         return          -(float) Math.sqrt(dDist)
-                        * Mth.sign(dSign);
+                        * MthF.sign(dSign);
     }
 
 }

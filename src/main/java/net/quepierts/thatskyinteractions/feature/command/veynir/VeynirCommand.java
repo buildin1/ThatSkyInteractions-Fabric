@@ -17,7 +17,7 @@ public class VeynirCommand {
         final var dispatcher = event.getDispatcher();
 
         dispatcher.register(
-                Commands.literal("veynir").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                Commands.literal("veynir").requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .then(AnimationCommand.command())
                         .then(CompileCommand.command())
         );

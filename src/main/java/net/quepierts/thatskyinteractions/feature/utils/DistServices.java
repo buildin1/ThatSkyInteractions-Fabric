@@ -11,7 +11,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.AccessFlag;
+import java.lang.reflect.Modifier;
 
 @Slf4j
 @UtilityClass
@@ -27,8 +27,8 @@ public class DistServices {
             // look for default implementation
             try {
                 for (final var field : clazz.getDeclaredFields()) {
-                    final var flags = field.accessFlags();
-                    if (!flags.contains(AccessFlag.STATIC)) {
+                    
+                    if (!Modifier.isStatic(field.getModifiers())) {
                         continue;
                     }
 

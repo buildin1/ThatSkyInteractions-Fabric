@@ -2,8 +2,8 @@ package net.quepierts.thatskyinteractions.feature.animation.binary;
 
 import io.netty.buffer.ByteBuf;
 import lombok.experimental.UtilityClass;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
 import net.quepierts.veynir.backend.buffer.AnimationBuffer;
 import net.quepierts.veynir.backend.model.Timeline;
 import net.quepierts.veynir.backend.source.TimelineSource;

@@ -7,9 +7,9 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;
 
@@ -20,19 +20,22 @@ import java.util.function.Function;
 @Slf4j
 public record Order(
         int                     priority,
-        Optional<Identifier>    target,
+        Optional<ResourceLocation>    target,
         Relation                relation
 
 ) {
 
     public static final Order DEFAULT = new Order(0, Optional.empty(), Relation.WHATEVER);
 
-    public static final Codec<Order> CODEC
+    private static final Codec<Order> RECORD_CODEC
             = RecordCodecBuilder.<Order>create(instance -> instance.group(
                     Codec.INT.fieldOf("priority").forGetter(Order::priority),
-                    Identifier.CODEC.optionalFieldOf("target").forGetter(Order::target),
+                    ResourceLocation.CODEC.optionalFieldOf("target").forGetter(Order::target),
                     Relation.CODEC.optionalFieldOf("relation", Relation.WHATEVER).forGetter(Order::relation)
-            ).apply(instance, Order::new)).withAlternative(
+            ).apply(instance, Order::new));
+
+    public static final Codec<Order> CODEC = dev.anvilcraft.lib.v2.codec.CodecCompat.withAlternative(
+            RECORD_CODEC,
                     Codec.INT.xmap(
                             priority -> new Order(priority, Optional.empty(), Relation.WHATEVER),
                             order -> order.priority
@@ -43,7 +46,7 @@ public record Order(
             = StreamCodec.composite(
                     ByteBufCodecs.INT,
                     Order::priority,
-                    ByteBufCodecs.optional(Identifier.STREAM_CODEC),
+                    ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION),
                     Order::target,
                     Relation.STREAM_CODEC,
                     Order::relation,
@@ -51,18 +54,18 @@ public record Order(
             );
 
     public static <T> void sort(
-            final @NonNull Map<Identifier, T>           preparations,
+            final @NonNull Map<ResourceLocation, T>           preparations,
             final @NonNull Function<T, Order>           mapper,
-            final @NonNull BiConsumer<Identifier, T>    consumer
+            final @NonNull BiConsumer<ResourceLocation, T>    consumer
     ) {
 
         @RequiredArgsConstructor
         class Node implements Comparable<Node> {
-            final   Identifier          key;
+            final   ResourceLocation          key;
             final   T                   value;
             final   Order               order;
 
-            final   List<Identifier>    outEdges    = new ArrayList<>();
+            final   List<ResourceLocation>    outEdges    = new ArrayList<>();
                     int                 inDegree    = 0;
 
             @Override
@@ -71,7 +74,7 @@ public record Order(
             }
         }
 
-        final var nodes                 = new HashMap<Identifier, Node>(preparations.size());
+        final var nodes                 = new HashMap<ResourceLocation, Node>(preparations.size());
 
         for (final var entry : preparations.entrySet()) {
             final var key               = entry.getKey();

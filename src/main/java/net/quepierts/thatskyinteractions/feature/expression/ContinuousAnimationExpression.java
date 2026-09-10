@@ -3,8 +3,8 @@ package net.quepierts.thatskyinteractions.feature.expression;
 import com.mojang.serialization.MapCodec;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.core.animation.DefaultMinecraftFSM;
@@ -26,7 +26,7 @@ import java.util.Optional;
 public final class ContinuousAnimationExpression extends AbstractAnimationExpression {
 
     public static final String AUTO = "auto";
-    private static final Identifier EMPTY = ThatSkyInteractions.location("empty");
+    private static final ResourceLocation EMPTY = ThatSkyInteractions.location("empty");
 
     public static final MapCodec<ContinuousAnimationExpression> MAP_CODEC
             = AbstractAnimationExpression.codec(ContinuousAnimationExpression::new);
@@ -55,7 +55,7 @@ public final class ContinuousAnimationExpression extends AbstractAnimationExpres
     @Override
     public void onRegisterPlayerAnimation(
             @NonNull RegisterPlayerAnimationEvent event,
-            @NonNull Identifier                         identifier,
+            @NonNull ResourceLocation                         identifier,
             int                                level
     ) {
 

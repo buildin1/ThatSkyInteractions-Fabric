@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -17,21 +17,21 @@ import java.util.zip.ZipInputStream;
 
 // todo: use compiled source insteadof raw source
 @Slf4j
-public final class AnimationSourceManager extends SimplePreparableReloadListener<Map<Identifier, AnimationSource>> {
+public final class AnimationSourceManager extends SimplePreparableReloadListener<Map<ResourceLocation, AnimationSource>> {
 
     public static final String FOLDER                   = "animation/binary";
     private static final FileToIdConverter LISTER       = new FileToIdConverter(FOLDER, ".anim.bin");
 
-    private Map<Identifier, AnimationSource> sources    = Map.of();
+    private Map<ResourceLocation, AnimationSource> sources    = Map.of();
 
     @Override
-    protected Map<Identifier, AnimationSource> prepare(
+    protected Map<ResourceLocation, AnimationSource> prepare(
             final @NonNull ResourceManager                      manager,
             final @NonNull ProfilerFiller                       filler
     ) {
         final var lister = LISTER;
 
-        final var map       = new HashMap<Identifier, AnimationSource>();
+        final var map       = new HashMap<ResourceLocation, AnimationSource>();
 
         for (final var entry : lister.listMatchingResources(manager).entrySet()) {
             final var location  = entry.getKey();
@@ -60,7 +60,7 @@ public final class AnimationSourceManager extends SimplePreparableReloadListener
 
     @Override
     protected void apply(
-            final @NonNull Map<Identifier, AnimationSource>     preparations,
+            final @NonNull Map<ResourceLocation, AnimationSource>     preparations,
             final @NonNull ResourceManager                      manager,
             final @NonNull ProfilerFiller                       filler
     ) {

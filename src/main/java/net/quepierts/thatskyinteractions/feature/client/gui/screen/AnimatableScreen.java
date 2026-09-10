@@ -3,9 +3,9 @@ package net.quepierts.thatskyinteractions.feature.client.gui.screen;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.MouseButtonEvent;
+import dev.anvilcraft.lib.v2.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.quepierts.thatskyinteractions.core.property.FloatProperty;
 import net.quepierts.thatskyinteractions.core.transition.BooleanTransition;
@@ -78,7 +78,7 @@ public abstract class AnimatableScreen<Model, Controller extends ScreenControlle
     @Override
     public void tick() {
 
-        final var delta = Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks() * 0.05f;
+        final var delta = Minecraft.getInstance().getDeltaFrameTime() * 0.05f;
         if (this.handler != null) {
             this.handler.tick(delta * 0.05f);
         }
@@ -90,16 +90,32 @@ public abstract class AnimatableScreen<Model, Controller extends ScreenControlle
         }
     }
 
+    // ---- 1.20.1 原版签名 → mod 内部 MouseButtonEvent 签名的适配层 ----
+    // 26.x 的 Screen 已把点击参数打包成 MouseButtonEvent 且有 extract/submit 两段式绘制；
+    // 1.20.1 都没有，所以在这里转换一次，下面的实现体保持不变。
+
     @Override
-    public final void extractRenderState(
-            final @NonNull GuiGraphicsExtractor graphics,
-            final int                           mouseX,
-            final int                           mouseY,
-            final float                         delta
+    public void render(
+            final @NonNull GuiGraphics  graphics,
+            final int                   mouseX,
+            final int                   mouseY,
+            final float                 delta
     ) {
+        super.render(graphics, mouseX, mouseY, delta);
+        this.extractAnimatableRenderState(
+                new ExtendedGuiGraphics(graphics),
+                new ColorStack(),
+                mouseX,
+                mouseY,
+                delta
+        );
     }
 
     @Override
+    public boolean mouseClicked(final double x, final double y, final int button) {
+        return this.mouseClicked(new MouseButtonEvent(x, y, button), false);
+    }
+
     public boolean mouseClicked(
             final @NonNull MouseButtonEvent event,
             final boolean doubleClick
@@ -109,6 +125,10 @@ public abstract class AnimatableScreen<Model, Controller extends ScreenControlle
     }
 
     @Override
+    public boolean mouseReleased(final double x, final double y, final int button) {
+        return this.mouseReleased(new MouseButtonEvent(x, y, button));
+    }
+
     public boolean mouseReleased(
             final @NonNull MouseButtonEvent event
     ) {
@@ -117,6 +137,10 @@ public abstract class AnimatableScreen<Model, Controller extends ScreenControlle
     }
 
     @Override
+    public boolean mouseDragged(final double x, final double y, final int button, final double dx, final double dy) {
+        return this.mouseDragged(new MouseButtonEvent(x, y, button), dx, dy);
+    }
+
     public boolean mouseDragged(
             final @NonNull MouseButtonEvent event,
             final double dx,
@@ -131,6 +155,10 @@ public abstract class AnimatableScreen<Model, Controller extends ScreenControlle
     }
 
     @Override
+    public boolean mouseScrolled(final double x, final double y, final double delta) {
+        return this.mouseScrolled(x, y, 0.0, delta);
+    }
+
     public boolean mouseScrolled(
             final double x,
             final double y,

@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.friendship;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -22,7 +22,7 @@ public final class FriendshipTreeManager extends DataSyncManager<FriendshipTreeF
     private static final FriendshipTreeManager instance
             = new FriendshipTreeManager();
 
-    private Map<Identifier, FriendshipTree> trees = Map.of();
+    private Map<ResourceLocation, FriendshipTree> trees = Map.of();
 
     FriendshipTreeManager() {
         super(
@@ -38,7 +38,7 @@ public final class FriendshipTreeManager extends DataSyncManager<FriendshipTreeF
     }
 
     @Override
-    protected void apply(final @NonNull Map<Identifier, FriendshipTreeFile> preparations) {
+    protected void apply(final @NonNull Map<ResourceLocation, FriendshipTreeFile> preparations) {
         final var builder = new FriendshipTreeBuilder();
         builder.addAll(preparations);
         this.trees = builder.build();
@@ -46,7 +46,7 @@ public final class FriendshipTreeManager extends DataSyncManager<FriendshipTreeF
         log.info("Loaded {} friendship trees", this.trees.size());
     }
 
-    public FriendshipTree get(final @NonNull Identifier identifier) {
+    public FriendshipTree get(final @NonNull ResourceLocation identifier) {
         return this.trees.get(identifier);
     }
 

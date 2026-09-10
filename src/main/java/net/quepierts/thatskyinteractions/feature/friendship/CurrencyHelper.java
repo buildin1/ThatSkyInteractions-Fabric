@@ -27,7 +27,7 @@ public class CurrencyHelper {
         final var inventory = player.getInventory();
 
         int remain          = amount;
-        for (final var stack : inventory) {
+        for (final var stack : inventory.items) {
             if (!stack.is(item)) {
                 continue;
             }

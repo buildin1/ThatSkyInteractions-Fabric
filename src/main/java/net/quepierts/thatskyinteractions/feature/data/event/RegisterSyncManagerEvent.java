@@ -3,7 +3,7 @@ package net.quepierts.thatskyinteractions.feature.data.event;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.Event;
 import net.quepierts.thatskyinteractions.feature.data.DataSyncManager;
 import org.jspecify.annotations.NonNull;
@@ -13,9 +13,9 @@ import java.util.*;
 @RequiredArgsConstructor
 public final class RegisterSyncManagerEvent extends Event {
 
-    private final Map<Identifier, DataSyncManager<?>>   pending              = new HashMap<>();
-    private final Map<Identifier, Set<Identifier>>      afterDependencies    = new HashMap<>();
-    private final Map<Identifier, Set<Identifier>>      beforeDependencies   = new HashMap<>();
+    private final Map<ResourceLocation, DataSyncManager<?>>   pending              = new HashMap<>();
+    private final Map<ResourceLocation, Set<ResourceLocation>>      afterDependencies    = new HashMap<>();
+    private final Map<ResourceLocation, Set<ResourceLocation>>      beforeDependencies   = new HashMap<>();
     private final List<DataSyncManager<?>>              managers;
 
     public void register(
@@ -28,33 +28,33 @@ public final class RegisterSyncManagerEvent extends Event {
 
     public void registerAfter(
             @NonNull DataSyncManager<?> manager,
-            @NonNull Identifier         identifier
+            @NonNull ResourceLocation         identifier
     ) {
         final var key = manager.getIdentifier();
         if (this.pending.put(key, manager) != null) {
             throw new IllegalArgumentException("Duplicate manager: " + key);
         }
 
-        this.afterDependencies.computeIfAbsent(key, _ -> new HashSet<>()).add(identifier);
+        this.afterDependencies.computeIfAbsent(key, __unused0 -> new HashSet<>()).add(identifier);
     }
 
     public void registerBefore(
             @NonNull DataSyncManager<?> manager,
-            @NonNull Identifier         identifier
+            @NonNull ResourceLocation         identifier
     ) {
         final var key = manager.getIdentifier();
         if (this.pending.put(key, manager) != null) {
             throw new IllegalArgumentException("Duplicate manager: " + key);
         }
 
-        this.beforeDependencies.computeIfAbsent(key, _ -> new HashSet<>()).add(identifier);
+        this.beforeDependencies.computeIfAbsent(key, __unused0 -> new HashSet<>()).add(identifier);
     }
 
     public void register() {
 
         final var size      = this.pending.size();
-        final var inDeg     = new Object2IntOpenHashMap<Identifier>(size);
-        final var graph     = new HashMap<Identifier, List<DataSyncManager<?>>>(size);
+        final var inDeg     = new Object2IntOpenHashMap<ResourceLocation>(size);
+        final var graph     = new HashMap<ResourceLocation, List<DataSyncManager<?>>>(size);
         final var allIds    = this.pending.keySet();
 
         for (final var id : allIds) {
@@ -76,7 +76,7 @@ public final class RegisterSyncManagerEvent extends Event {
             }
         }
 
-        final var queue     = new ObjectArrayFIFOQueue<Identifier>();
+        final var queue     = new ObjectArrayFIFOQueue<ResourceLocation>();
         for (final var entry : inDeg.object2IntEntrySet()) {
             if (entry.getIntValue() == 0) {
                 queue.enqueue(entry.getKey());
@@ -107,6 +107,6 @@ public final class RegisterSyncManagerEvent extends Event {
 
     private record Entry(
             DataSyncManager<?>      manager,
-            Identifier              other
+            ResourceLocation              other
     ) { }
 }

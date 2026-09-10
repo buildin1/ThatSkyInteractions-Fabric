@@ -1,89 +1,79 @@
 package net.neoforged.neoforge.attachment;
 
+import com.mojang.serialization.MapCodec;
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
- * NeoForge API 兼容层：attachment 类型，包装 Fabric Data Attachment API 的类型。
- * defaultFactory 保留 NeoForge 的“按 holder 构造默认值”语义（由 IAttachmentHolder.getData 惰性创建）。
+ * 1.20.1 兼容层：attachment 类型。
+ *
+ * <p>26.x 分支上这是 Fabric {@code AttachmentType} 的包装；1.20.1 没有那套 API，
+ * 所以类型自带全部元数据，存储与持久化由本包内的其它类负责。
  */
 public final class AttachmentType<T> {
 
-    private final net.fabricmc.fabric.api.attachment.v1.AttachmentType<T> fabricType;
+    private final ResourceLocation id;
     private final Function<IAttachmentHolder, T> defaultFactory;
 
+    /** holder 感知的序列化器（NeoForge 语义），与 persistenceCodec 二选一。 */
+    private final IAttachmentSerializer<T> serializer;
+    private final MapCodec<T> persistenceCodec;
+    private final Predicate<? super T> serializePredicate;
+
+    private final boolean copyOnDeath;
+
     public AttachmentType(
-            net.fabricmc.fabric.api.attachment.v1.AttachmentType<T> fabricType,
-            Function<IAttachmentHolder, T> defaultFactory
+            final ResourceLocation id,
+            final Function<IAttachmentHolder, T> defaultFactory,
+            final IAttachmentSerializer<T> serializer,
+            final MapCodec<T> persistenceCodec,
+            final Predicate<? super T> serializePredicate,
+            final boolean copyOnDeath
     ) {
-        this.fabricType = fabricType;
+        this.id = id;
         this.defaultFactory = defaultFactory;
+        this.serializer = serializer;
+        this.persistenceCodec = persistenceCodec;
+        this.serializePredicate = serializePredicate;
+        this.copyOnDeath = copyOnDeath;
     }
 
-    public net.fabricmc.fabric.api.attachment.v1.AttachmentType<T> fabricType() {
-        return this.fabricType;
+    public ResourceLocation id() {
+        return this.id;
     }
 
     public Function<IAttachmentHolder, T> defaultFactory() {
         return this.defaultFactory;
     }
 
+    public IAttachmentSerializer<T> serializer() {
+        return this.serializer;
+    }
+
+    public MapCodec<T> persistenceCodec() {
+        return this.persistenceCodec;
+    }
+
+    public Predicate<? super T> serializePredicate() {
+        return this.serializePredicate;
+    }
+
+    public boolean copyOnDeath() {
+        return this.copyOnDeath;
+    }
+
+    public boolean persistent() {
+        return this.serializer != null || this.persistenceCodec != null;
+    }
+
     public T getDefault() {
         return this.defaultFactory != null ? this.defaultFactory.apply(null) : null;
     }
 
-    public static <T> Builder<T> builder() {
-        return new Builder<>();
-    }
-
-    public static final class Builder<T> {
-
-        private Function<IAttachmentHolder, T> defaultFactory;
-        private com.mojang.serialization.MapCodec<? extends T> persistenceCodec;
-        private java.util.function.Predicate<? super T> serializePredicate;
-        private net.minecraft.network.codec.StreamCodec<?, T> syncCodec;
-        private boolean copyOnDeath;
-        private boolean persistent;
-
-        public Builder<T> defaultValue(Function<IAttachmentHolder, T> factory) {
-            this.defaultFactory = factory;
-            return this;
-        }
-
-        public Builder<T> persistent(com.mojang.serialization.MapCodec<? extends T> codec) {
-            this.persistenceCodec = codec;
-            this.persistent = true;
-            return this;
-        }
-
-        public Builder<T> serializePredicate(java.util.function.Predicate<? super T> predicate) {
-            this.serializePredicate = predicate;
-            return this;
-        }
-
-        public Builder<T> sync(net.minecraft.network.codec.StreamCodec<? super net.minecraft.network.RegistryFriendlyByteBuf, T> codec) {
-            this.syncCodec = codec;
-            return this;
-        }
-
-        public Builder<T> copyOnDeath() {
-            this.copyOnDeath = true;
-            return this;
-        }
-
-        public boolean isCopyOnDeath() {
-            return this.copyOnDeath;
-        }
-
-        public com.mojang.serialization.MapCodec<? extends T> persistenceCodec() {
-            return this.persistenceCodec;
-        }
-
-        public net.minecraft.network.codec.StreamCodec<?, T> syncCodec() {
-            return this.syncCodec;
-        }
-
-        public Function<IAttachmentHolder, T> defaultFactory() {
-            return this.defaultFactory;
-        }
+    @Override
+    public String toString() {
+        return "AttachmentType[" + this.id + "]";
     }
 }

@@ -2,29 +2,29 @@ package net.quepierts.thatskyinteractions.feature.interaction;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
 public record InteractionSet(
-        Identifier          icon,
+        ResourceLocation          icon,
         List<Interaction>   interactions
 ) {
 
     public static final Codec<InteractionSet> CODEC
             = RecordCodecBuilder.create(instance -> instance.group(
-                Identifier.CODEC.fieldOf("icon").forGetter(InteractionSet::icon),
-                Interaction.CODEC.listOf(1, 16).fieldOf("interactions").forGetter(InteractionSet::interactions)
+                ResourceLocation.CODEC.fieldOf("icon").forGetter(InteractionSet::icon),
+                Interaction.CODEC.listOf().fieldOf("interactions").forGetter(InteractionSet::interactions)
             ).apply(instance, InteractionSet::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, InteractionSet> STREAM_CODEC
             = StreamCodec.composite(
-                    Identifier.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION,
                     InteractionSet::icon,
-                    ByteBufCodecs.<RegistryFriendlyByteBuf, Interaction>list().apply(Interaction.STREAM_CODEC),
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.list(Interaction.STREAM_CODEC),
                     InteractionSet::interactions,
                     InteractionSet::new
             );

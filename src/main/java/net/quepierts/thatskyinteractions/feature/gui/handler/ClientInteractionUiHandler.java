@@ -1,6 +1,6 @@
 package net.quepierts.thatskyinteractions.feature.gui.handler;
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.quepierts.thatskyinteractions.feature.utils.DistServices;
@@ -17,14 +17,14 @@ public abstract class ClientInteractionUiHandler {
 
     public static void invite(
             final @NonNull Player       requester,
-            final @NonNull Identifier   icon
+            final @NonNull ResourceLocation   icon
     ) {
         INSTANCE._invite(requester, icon);
     }
 
     protected void _invite(
             final @NonNull Player       requester,
-            final @NonNull Identifier   icon
+            final @NonNull ResourceLocation   icon
     ) { }
 
 }

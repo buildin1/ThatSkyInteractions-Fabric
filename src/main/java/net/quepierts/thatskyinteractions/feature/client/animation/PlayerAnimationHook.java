@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.SubmitNodeStorage;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.util.Mth;
-import net.neoforged.neoforge.client.extensions.IRenderStateExtension;
 import net.quepierts.thatskyinteractions.core.animation.DefaultMinecraftSkeletonPipeline;
 import net.quepierts.thatskyinteractions.core.animation.model.PlayerBone;
 import net.quepierts.thatskyinteractions.feature.animation.PlayerAnimationController;
@@ -41,15 +38,18 @@ public class PlayerAnimationHook {
     }
 
     public static  void onSetupRootAnimation(
-            final Object                            state,
-            final PoseStack                         poseStack
+            final net.minecraft.world.entity.LivingEntity   entity,
+            final PoseStack                                 poseStack
     ) {
 
-        if (!(state instanceof IRenderStateExtension extension)) {
+        final var attachment = net.quepierts.thatskyinteractions.feature.animation.PlayerAnimationSystem
+                .getExistingAttachment(entity);
+
+        if (attachment == null) {
             return;
         }
 
-        final var controller = extension.getRenderData(AnimationStateModifier.CONTEXT_KEY);
+        final var controller = attachment.getController();
         if (controller == null) {
             return;
         }
@@ -89,7 +89,7 @@ public class PlayerAnimationHook {
             return false;
         }
 
-        final var entity = camera.entity();
+        final var entity = camera.getEntity();
 
         if (!(entity instanceof AbstractClientPlayer player)) {
             return false;
@@ -111,7 +111,7 @@ public class PlayerAnimationHook {
 
         controller.update(partialTicks);
 
-        final var renderer = minecraft.getEntityRenderDispatcher().getPlayerRenderer(player);
+        final var renderer = (net.minecraft.client.renderer.entity.player.PlayerRenderer) minecraft.getEntityRenderDispatcher().getRenderer(player);
         final var adaptor = ((EntityModelExtension) renderer.getModel()).a4j$GetModelAdaptor();
 
         onSetupAnimation(controller, adaptor);
@@ -138,8 +138,8 @@ public class PlayerAnimationHook {
 
         final var factor    = 0.0625f * 0.9375f;
         final var blend     = alpha * factor;
-        final var eyeHeight = entity.getEyeHeight() * 16.0f;
-        final var yBodyRot  = entity.getPreciseBodyRotation(partialTicks);
+        final var eyeHeight = player.getEyeHeight() * 16.0f;
+        final var yBodyRot  = net.minecraft.util.Mth.rotLerp(partialTicks, player.yBodyRotO, player.yBodyRot);
         final var position  = new Matrix4f()
                             .rotateY((180F - yBodyRot) * Mth.DEG_TO_RAD)
                             .scale(-blend, -blend, blend)
@@ -150,10 +150,10 @@ public class PlayerAnimationHook {
 
         ioPosition          .add(position);
 
-        var xRot            = player.getXRot(partialTicks);
+        var xRot            = net.minecraft.util.Mth.lerp(partialTicks, player.xRotO, player.getXRot());
 
         // todo: fix the rotation
-        var yRot            = Mth.wrapDegrees(player.getYRot(partialTicks) - yBodyRot);
+        var yRot            = Mth.wrapDegrees(net.minecraft.util.Mth.rotLerp(partialTicks, player.yRotO, player.getYRot()) - yBodyRot);
         var rotation        = rootRot
                             .rotateYXZ(
                                 head.yRot(),

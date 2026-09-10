@@ -3,7 +3,7 @@ package net.quepierts.thatskyinteractions.feature.client.gui.component.control;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -78,7 +78,7 @@ public class Control extends AbstractWidget implements IAttributeHolder {
         this.tween      = tween;
 
         this.position   = vec2 -> this.setPosition((int) vec2.x(), (int) vec2.y());
-        this.size       = vec2 -> this.setSize((int) vec2.x(), (int) vec2.y());
+        this.size       = vec2 -> { this.setWidth((int) vec2.x()); this.height = (int) vec2.y(); };
 
         this.padding    = new Insets(0);
         this.margin     = new Insets(0);
@@ -88,8 +88,8 @@ public class Control extends AbstractWidget implements IAttributeHolder {
     }
 
     @Override
-    protected final void extractWidgetRenderState(
-            final @NonNull GuiGraphicsExtractor graphics,
+    protected final void renderWidget(
+            final @NonNull GuiGraphics graphics,
             final int                           mouseX,
             final int                           mouseY,
             final float                         delta
@@ -121,8 +121,91 @@ public class Control extends AbstractWidget implements IAttributeHolder {
                     mouseY,
                     delta
             );
-            ((AbstractWidgetAccessor) this).getTooltip().refreshTooltipForNextRenderPass(graphics.original(), mouseX, mouseY, this.isHovered(), this.isFocused(), this.getRectangle());
+            // 1.20.1 的 tooltip 由 AbstractWidget 内部在 render 时刷新，无需手动调用
         }
+    }
+
+    @Override
+    public void onClick(final double x, final double y) {
+        this.onClick(new dev.anvilcraft.lib.v2.input.MouseButtonEvent(x, y, 0), false);
+    }
+
+    public void onClick(final dev.anvilcraft.lib.v2.input.MouseButtonEvent event, final boolean doubleClick) {
+    }
+
+    @Override
+    public void onRelease(final double x, final double y) {
+        this.onRelease(new dev.anvilcraft.lib.v2.input.MouseButtonEvent(x, y, 0));
+    }
+
+    public void onRelease(final dev.anvilcraft.lib.v2.input.MouseButtonEvent event) {
+    }
+
+    // ---- 1.20.1 原版鼠标签名 → mod 内部 MouseButtonEvent 签名的适配层 ----
+    // 26.x 的 Screen/AbstractWidget 已经把点击参数打包成 MouseButtonEvent，1.20.1 还是散参数。
+    // 在基类转换一次，整棵组件树的重写方法就不用动。
+
+    @Override
+    public boolean mouseClicked(final double x, final double y, final int button) {
+        return this.mouseClicked(new dev.anvilcraft.lib.v2.input.MouseButtonEvent(x, y, button), false);
+    }
+
+    /**
+     * 26.x 的 {@code AbstractWidget#mouseClicked(MouseButtonEvent, boolean)} 负责命中测试并派发
+     * {@code onClick}。1.20.1 原版只有散参数版本，本类重写散参数版本转发到这里——若这里是空实现，
+     * 命中测试与派发就被整个绕过：点击恒返回 false，按钮的按压动画和动作都触发不了。
+     * 这里照 26.x 的实现补回。
+     */
+    public boolean mouseClicked(final dev.anvilcraft.lib.v2.input.MouseButtonEvent event, final boolean doubleClick) {
+        if (!this.isActive()) {
+            return false;
+        }
+
+        if (this.isValidClickButton(event.button()) && this.isMouseOver(event.x(), event.y())) {
+            this.playDownSound(net.minecraft.client.Minecraft.getInstance().getSoundManager());
+            this.onClick(event, doubleClick);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean mouseReleased(final double x, final double y, final int button) {
+        return this.mouseReleased(new dev.anvilcraft.lib.v2.input.MouseButtonEvent(x, y, button));
+    }
+
+    public boolean mouseReleased(final dev.anvilcraft.lib.v2.input.MouseButtonEvent event) {
+        if (this.isValidClickButton(event.button())) {
+            this.onRelease(event);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean mouseDragged(final double x, final double y, final int button, final double dx, final double dy) {
+        return this.mouseDragged(new dev.anvilcraft.lib.v2.input.MouseButtonEvent(x, y, button), dx, dy);
+    }
+
+    public boolean mouseDragged(final dev.anvilcraft.lib.v2.input.MouseButtonEvent event, final double dx, final double dy) {
+        return this.isValidClickButton(event.button());
+    }
+
+    @Override
+    public boolean mouseScrolled(final double x, final double y, final double delta) {
+        return this.mouseScrolled(x, y, 0.0, delta);
+    }
+
+    public boolean mouseScrolled(final double x, final double y, final double scrollX, final double scrollY) {
+        return false;
+    }
+
+    /** 1.20.1 的 AbstractWidget 没有 setSize(int,int)，这里补一个等价入口。 */
+    public void setControlSize(final int width, final int height) {
+        this.setWidth(width);
+        this.height = height;
     }
 
     public void onTick(final float delta) {
@@ -141,7 +224,7 @@ public class Control extends AbstractWidget implements IAttributeHolder {
 
         if (this.visualNode != null) {
             final var pose = graphics.pose();
-            pose.pushMatrix();
+            pose.pushPose();
             this.visualNode.extractRenderState(
                     this,
                     graphics,
@@ -151,7 +234,7 @@ public class Control extends AbstractWidget implements IAttributeHolder {
                     mouseY,
                     delta
             );
-            pose.popMatrix();
+            pose.popPose();
         }
     }
 
@@ -221,8 +304,8 @@ public class Control extends AbstractWidget implements IAttributeHolder {
                     original.fill(
                             (int) margin.left,
                             (int) margin.top,
-                            (int) (this.getRight() - margin.right),
-                            (int) (this.getBottom() - margin.bottom),
+                            (int) ((this.getX() + this.getWidth()) - margin.right),
+                            (int) ((this.getY() + this.getHeight()) - margin.bottom),
                             0xFFFF0000
                     );
                 }
@@ -232,8 +315,8 @@ public class Control extends AbstractWidget implements IAttributeHolder {
                     original.fill(
                             (int) (this.getX() + padding.left),
                             (int) (this.getY() + padding.top),
-                            (int) (this.getRight() - padding.right),
-                            (int) (this.getBottom() - padding.bottom),
+                            (int) ((this.getX() + this.getWidth()) - padding.right),
+                            (int) ((this.getY() + this.getHeight()) - padding.bottom),
                             0xFF00FF00
                     );
                 }

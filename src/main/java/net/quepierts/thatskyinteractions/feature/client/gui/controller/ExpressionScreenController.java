@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.client.gui.controller;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.quepierts.thatskyinteractions.feature.client.ClientPlayerCallSystem;
 import net.quepierts.thatskyinteractions.feature.client.ClientPlayerExpressionSystem;
@@ -34,7 +34,7 @@ public final class ExpressionScreenController extends ScreenController<Void> {
         ClientPlayerExpressionSystem.perform(identifier, level);
     }
 
-    public void onVoiceClicked(final Identifier identifier) {
+    public void onVoiceClicked(final ResourceLocation identifier) {
 
         final var preference = ClientPlayerCallSystem.getPreference();
 

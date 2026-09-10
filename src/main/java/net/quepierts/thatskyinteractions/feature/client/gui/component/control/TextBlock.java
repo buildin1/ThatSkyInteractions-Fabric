@@ -49,7 +49,7 @@ public class TextBlock extends Control {
             }
         }
 
-        this.setSize(width, height);
+        this.setControlSize(width, height);
 
     }
 
@@ -80,7 +80,7 @@ public class TextBlock extends Control {
                     final var x = this.getX();
                     final var y = this.getY() + i * lineHeight;
 
-                    graphics.original().text(
+                    graphics.original().drawString(
                             font,
                             line,
                             x,
@@ -97,7 +97,7 @@ public class TextBlock extends Control {
                     final var x = baseX - this.widths[i] / 2;
                     final var y = this.getY() + i * lineHeight;
 
-                    graphics.original().text(
+                    graphics.original().drawString(
                             font,
                             line,
                             x,
@@ -114,7 +114,7 @@ public class TextBlock extends Control {
                     final var x = baseX - this.widths[i];
                     final var y = this.getY() + i * lineHeight;
 
-                    graphics.original().text(
+                    graphics.original().drawString(
                             font,
                             line,
                             x,

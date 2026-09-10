@@ -68,7 +68,8 @@ public final class MinecraftModelSkeleton {
         final var map       = ImmutableMap.<String, ModelSkeleton.Bone>builder();
         final var list      = new ArrayList<ModelSkeleton.Bone>(layout.size());
 
-        final var lookup    = root.createPartLookup();
+        // 1.20.1 的 ModelPart 没有 createPartLookup，自行按名字递归查找
+        final var lookup    = partLookup(root);
 
         for (var name : names) {
             final var part      = "root".equals(name) ? root : lookup.apply(name);
@@ -85,6 +86,26 @@ public final class MinecraftModelSkeleton {
                 map.build(),
                 list
         );
+    }
+
+    /** 递归收集所有具名部件，等价 26.x 的 ModelPart#createPartLookup。 */
+    private static java.util.function.Function<String, ModelPart> partLookup(final ModelPart root) {
+        final java.util.Map<String, ModelPart> parts = new java.util.HashMap<>();
+        collect(root, parts);
+        return name -> {
+            final var part = parts.get(name);
+            if (part == null) {
+                throw new java.util.NoSuchElementException("No such part: " + name);
+            }
+            return part;
+        };
+    }
+
+    private static void collect(final ModelPart part, final java.util.Map<String, ModelPart> out) {
+        getChildren(part).forEach((name, child) -> {
+            out.putIfAbsent(name, child);
+            collect(child, out);
+        });
     }
 
     private static final class Part implements ModelSkeleton.Delegate {
@@ -190,47 +211,47 @@ public final class MinecraftModelSkeleton {
 
             @Override
             public float x() {
-                return pose.x();
+                return pose.x;
             }
 
             @Override
             public float y() {
-                return pose.y();
+                return pose.y;
             }
 
             @Override
             public float z() {
-                return pose.z();
+                return pose.z;
             }
 
             @Override
             public float xRot() {
-                return pose.xRot();
+                return pose.xRot;
             }
 
             @Override
             public float yRot() {
-                return pose.yRot();
+                return pose.yRot;
             }
 
             @Override
             public float zRot() {
-                return pose.zRot();
+                return pose.zRot;
             }
 
             @Override
             public float xScale() {
-                return pose.xScale();
+                return 1.0f;  // 1.20.1 的 PartPose 没有缩放分量
             }
 
             @Override
             public float yScale() {
-                return pose.yScale();
+                return 1.0f;
             }
 
             @Override
             public float zScale() {
-                return pose.zScale();
+                return 1.0f;
             }
 
             @Override

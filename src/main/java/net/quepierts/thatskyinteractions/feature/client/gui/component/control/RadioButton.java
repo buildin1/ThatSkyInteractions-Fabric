@@ -3,7 +3,7 @@ package net.quepierts.thatskyinteractions.feature.client.gui.component.control;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.input.MouseButtonEvent;
+import dev.anvilcraft.lib.v2.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.quepierts.thatskyinteractions.core.property.FloatProperty;
 import net.quepierts.thatskyinteractions.core.transition.BooleanTransition;

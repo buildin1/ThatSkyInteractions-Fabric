@@ -1,24 +1,13 @@
 package dev.anvilcraft.lib.v2.rendering.sdf;
 
-import dev.anvilcraft.lib.v2.rendering.foundation.buffers.layout.BufferLayout;
-import dev.anvilcraft.lib.v2.rendering.foundation.buffers.object.BufferObjectLayoutDefinition;
-import dev.anvilcraft.lib.v2.rendering.foundation.buffers.object.BufferObjectLayoutEntry;
-import dev.anvilcraft.lib.v2.rendering.foundation.buffers.object.BufferObject;
-import dev.anvilcraft.lib.v2.rendering.foundation.buffers.object.ShaderBufferObjectUsage;
 import lombok.Getter;
+import dev.anvilcraft.lib.v2.rendering.MthF;
 import net.minecraft.util.Mth;
 import org.joml.Vector4f;
 import org.joml.Vector4i;
 
 @Getter
-public class SdfParameters extends BufferObject<SdfParameters> {
-
-    public static final BufferObjectLayoutDefinition<SdfParameters> DEFINITION = BufferObjectLayoutDefinition.create(
-            BufferObjectLayoutEntry.<SdfParameters>ofVec4f().forGetter(SdfParameters::getSharedParams).build(),
-            BufferObjectLayoutEntry.<SdfParameters>ofVec4f().forGetter(SdfParameters::getShapeParams).build(),
-            BufferObjectLayoutEntry.<SdfParameters>ofVec4f().forGetter(SdfParameters::getRect).build(),
-            BufferObjectLayoutEntry.<SdfParameters>ofVec4i().forGetter(SdfParameters::getTypeParams).build()
-    );
+public class SdfParameters {
 
     private final   Vector4f    sharedParams    = new Vector4f();
     private final   Vector4f    shapeParams     = new Vector4f();
@@ -29,7 +18,6 @@ public class SdfParameters extends BufferObject<SdfParameters> {
     boolean                     uploaded        = false;
 
     protected SdfParameters() {
-        super(BufferLayout.STD140, ShaderBufferObjectUsage.UBO);
     }
 
     public void box(float width, float height) {
@@ -180,11 +168,6 @@ public class SdfParameters extends BufferObject<SdfParameters> {
     private void _renderType(SdfRenderType value) {
         this.typeParams.y   = value.ordinal();
         this.uploaded       = false;
-    }
-
-    @Override
-    protected BufferObjectLayoutDefinition<SdfParameters> getDefinition() {
-        return              DEFINITION;
     }
 
     public void reset() {

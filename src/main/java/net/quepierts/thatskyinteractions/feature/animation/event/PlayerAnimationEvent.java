@@ -3,7 +3,7 @@ package net.quepierts.thatskyinteractions.feature.animation.event;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -20,12 +20,12 @@ public sealed abstract class PlayerAnimationEvent extends Event {
     @Getter
     public static sealed abstract class Play extends PlayerAnimationEvent {
 
-        private final Identifier animation;
+        private final ResourceLocation animation;
 
         private Play(
                 final @NonNull Player player,
                 final @NonNull PlayerAnimationController controller,
-                final @NonNull Identifier animation
+                final @NonNull ResourceLocation animation
         ) {
             super(player, controller);
             this.animation = animation;
@@ -36,7 +36,7 @@ public sealed abstract class PlayerAnimationEvent extends Event {
             public Pre(
                     final @NonNull Player player,
                     final @NonNull PlayerAnimationController controller,
-                    final @NonNull Identifier animation
+                    final @NonNull ResourceLocation animation
             ) {
                 super(player, controller, animation);
             }
@@ -52,7 +52,7 @@ public sealed abstract class PlayerAnimationEvent extends Event {
             public Post(
                     final @NonNull Player player,
                     final @NonNull PlayerAnimationController controller,
-                    final @NonNull Identifier animation
+                    final @NonNull ResourceLocation animation
             ) {
                 super(player, controller, animation);
             }

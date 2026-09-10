@@ -16,10 +16,12 @@ public record BedrockTimeline(
     }
 
     public static BedrockTimeline of(Vector3fc vector) {
-        var keyframe    = BedrockKeyframe.of(vector);
-        var entry       = Float2ObjectMap.entry(0.0f, keyframe);
+        // 1.20.1 打包的 fastutil 版本没有 Float2ObjectMap.entry / ofEntries，直接建 map
+        final var keyframe = BedrockKeyframe.of(vector);
+        final var map      = new it.unimi.dsi.fastutil.floats.Float2ObjectOpenHashMap<BedrockKeyframe>();
+        map.put(0.0f, keyframe);
 
-        return          new BedrockTimeline(Float2ObjectMap.ofEntries(entry));
+        return          new BedrockTimeline(map);
     }
 
 }

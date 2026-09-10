@@ -2,9 +2,9 @@ package net.quepierts.thatskyinteractions.feature.animation;
 
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.quepierts.thatskyinteractions.core.animation.DefaultMinecraftChannelFormat;
 import net.quepierts.thatskyinteractions.core.animation.DefaultMinecraftSkeletonLayout;
 import net.quepierts.thatskyinteractions.core.animation.model.PlayerAnimationDefinition;
@@ -32,7 +32,7 @@ public final class AnimationLayer implements Comparable<AnimationLayer> {
 
     private final int                       priority;
 
-    private Identifier                      animationId;
+    private ResourceLocation                      animationId;
     private PlayerAnimation                 animation;
     private PlayerAnimationDefinition       definition;
     private float                           speed = 1.0f;
@@ -67,7 +67,7 @@ public final class AnimationLayer implements Comparable<AnimationLayer> {
     }
 
     public void play(
-            Identifier                      animationId,
+            ResourceLocation                      animationId,
             PlayerAnimation                 animation,
             PlayerAnimationDefinition       definition,
             PlayerMask                      mask
@@ -311,8 +311,8 @@ public final class AnimationLayer implements Comparable<AnimationLayer> {
     }
 
     public record Serialized(
-            Identifier          type,
-            Identifier          animation,
+            ResourceLocation          type,
+            ResourceLocation          animation,
             float               alpha,
             float               speed,
 
@@ -352,9 +352,9 @@ public final class AnimationLayer implements Comparable<AnimationLayer> {
 
     public static final StreamCodec<ByteBuf, Serialized> STREAM_CODEC
             = StreamCodec.composite(
-                    Identifier.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION,
                     Serialized::type,
-                    Identifier.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION,
                     Serialized::animation,
                     ByteBufCodecs.FLOAT,
                     Serialized::alpha,

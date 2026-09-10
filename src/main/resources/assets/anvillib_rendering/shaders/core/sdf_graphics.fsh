@@ -1,17 +1,10 @@
-#version                330
+#version 150
 
-#define MAX_SDFS        256
-
-struct Sdf {
-    vec4                Shared;
-    vec4                Shape;
-    vec4                Rect;
-    ivec4               Types;
-};
-
-layout(std140) uniform SDFParameters {
-    Sdf[MAX_SDFS]       SDFs;
-};
+// 1.20.1：ShaderInstance 不支持 UBO/uniform 数组，形状参数改为逐形状 uniform
+uniform vec4            SdfShared;
+uniform vec4            SdfShape;
+uniform vec4            SdfRect;
+uniform ivec4           SdfTypes;
 
 #define RT_BOX          0
 #define RT_CIRCLE       1
@@ -29,18 +22,17 @@ layout(std140) uniform SDFParameters {
 
 in      vec2            vPosition;
 in      vec4            vColor;
-flat in int             vIndex;
 
 out     vec4            fragColor;
 
-#define uSmoothRadius   (params.Shared.x)
-#define uStrokeWidth    (params.Shared.y)
-#define uCornerRadius   (params.Shared.z)
-#define uLightDecay     (params.Shared.w)
+#define uSmoothRadius   (SdfShared.x)
+#define uStrokeWidth    (SdfShared.y)
+#define uCornerRadius   (SdfShared.z)
+#define uLightDecay     (SdfShared.w)
 
-#define uPassType       (params.Types.x)
-#define uRenderType     (params.Types.y)
-#define uOnion          (params.Types.z)
+#define uPassType       (SdfTypes.x)
+#define uRenderType     (SdfTypes.y)
+#define uOnion          (SdfTypes.z)
 
 // from https://iquilezles.org/articles/distfunctions2d/
 float sdRect( in vec2 p, in vec2 b ) {
@@ -135,8 +127,7 @@ float sdIsoscelesTriangle( in vec2 p, in vec2 q )
 }
 
 void main() {
-    Sdf     params          = SDFs[vIndex];
-    vec4    shape           = params.Shape;
+    vec4    shape           = SdfShape;
     vec2    p               = vPosition;
     float   alpha           = 0.0;
 

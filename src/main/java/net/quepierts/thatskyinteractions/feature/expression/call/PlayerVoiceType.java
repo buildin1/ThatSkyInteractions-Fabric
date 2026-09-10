@@ -7,10 +7,10 @@ import it.unimi.dsi.fastutil.ints.IntImmutableList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import lombok.Getter;
 import net.minecraft.core.Holder;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
@@ -21,8 +21,8 @@ public final class PlayerVoiceType implements Comparable<PlayerVoiceType> {
 
     //                                                                   C  D   E  G   A
     public static final IntList         DEFAULT_NOTES   = IntList.of(6, 8, 10, 13, 15);
-    public static final Identifier      DEFAULT_ID      = ThatSkyInteractions.location("none");
-    public static final Identifier      DEFAULT_ICON    = ThatSkyInteractions.location("voice/none");
+    public static final ResourceLocation      DEFAULT_ID      = ThatSkyInteractions.location("none");
+    public static final ResourceLocation      DEFAULT_ICON    = ThatSkyInteractions.location("voice/none");
     public static final PlayerVoiceType DEFAULT         = new PlayerVoiceType(
                                                                 DEFAULT_NOTES,
                                                                 DEFAULT_ICON,
@@ -32,22 +32,21 @@ public final class PlayerVoiceType implements Comparable<PlayerVoiceType> {
 
     public static final Codec<PlayerVoiceType> CODEC
             = RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.INT.listOf(1, 16).<IntList>xmap(
+                    Codec.INT.listOf().<IntList>xmap(
                             IntImmutableList::new,
                             i -> i
                     ).optionalFieldOf("notes", DEFAULT_NOTES).forGetter(PlayerVoiceType::getNoteList),
-                    Identifier.CODEC.fieldOf("icon").forGetter(PlayerVoiceType::getIcon),
+                    ResourceLocation.CODEC.fieldOf("icon").forGetter(PlayerVoiceType::getIcon),
                     net.quepierts.thatskyinteractions.internal.SoundEventCompat.CODEC.fieldOf("sound").forGetter(PlayerVoiceType::getSound),
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(PlayerVoiceType::getPriority)
             ).apply(instance, PlayerVoiceType::new));
-
     public static final StreamCodec<RegistryFriendlyByteBuf, PlayerVoiceType> STREAM_CODEC
             = StreamCodec.composite(
                     ByteBufCodecs.collection(IntArrayList::new, ByteBufCodecs.INT),
                     PlayerVoiceType::getNoteList,
-                    Identifier.STREAM_CODEC,
+                    ByteBufCodecs.RESOURCE_LOCATION,
                     PlayerVoiceType::getIcon,
-                    SoundEvent.STREAM_CODEC,
+                    net.quepierts.thatskyinteractions.internal.SoundEventCompat.STREAM_CODEC,
                     PlayerVoiceType::getSound,
                     ByteBufCodecs.VAR_INT,
                     PlayerVoiceType::getPriority,
@@ -57,7 +56,7 @@ public final class PlayerVoiceType implements Comparable<PlayerVoiceType> {
     private final IntList               notes;
 
     @Getter
-    private final Identifier            icon;
+    private final ResourceLocation            icon;
 
     @Getter
     private final Holder<SoundEvent>    sound;
@@ -73,7 +72,7 @@ public final class PlayerVoiceType implements Comparable<PlayerVoiceType> {
 
     private PlayerVoiceType(
             final @NonNull IntList              notes,
-            final @NonNull Identifier           icon,
+            final @NonNull ResourceLocation           icon,
             final @NonNull Holder<SoundEvent>   sound,
             final          int                  priority
     ) {

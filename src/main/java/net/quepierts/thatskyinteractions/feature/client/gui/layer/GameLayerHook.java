@@ -2,9 +2,8 @@ package net.quepierts.thatskyinteractions.feature.client.gui.layer;
 
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -93,8 +92,8 @@ public class GameLayerHook {
 
 
     public static void onRenderLayer(
-            final @NonNull GuiGraphicsExtractor graphics,
-            final @NonNull DeltaTracker         tracker
+            final @NonNull GuiGraphics graphics,
+            final float tracker
     ) {
 
         final var minecraft = Minecraft.getInstance();

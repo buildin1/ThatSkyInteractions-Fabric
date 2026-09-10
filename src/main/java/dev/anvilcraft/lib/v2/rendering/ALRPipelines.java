@@ -1,86 +1,61 @@
 package dev.anvilcraft.lib.v2.rendering;
 
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.ColorTargetState;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.shaders.UniformType;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
+import net.fabricmc.fabric.api.client.rendering.v1.CoreShaderRegistrationCallback;
+import net.minecraft.client.renderer.ShaderInstance;
+import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 
+/**
+ * AnvilLib API 兼容层：SDF 着色器持有者。
+ *
+ * <p>26.x 分支用的是 {@code RenderPipeline} + UBO；1.20.1 没有那套 GPU 抽象，
+ * 这里退回到原版的 {@link ShaderInstance}，由 Fabric 的
+ * {@code CoreShaderRegistrationCallback} 在资源重载时创建。
+ */
+public final class ALRPipelines {
 
+    private static @Nullable ShaderInstance sdfGraphics;
 
-import org.jetbrains.annotations.ApiStatus;
+    /** 回调只挂一次。 */
+    private static boolean registered;
 
+    /**
+     * Fabric API 0.92 的 {@code CoreShaderRegistrationCallback} 每次资源重载会把监听器调用
+     * 一次<b>每个原版核心着色器</b>（1.20.1 实测 59 次），而不是一次。若在监听器里无条件
+     * {@code context.register(...)}，同一个着色器会被编译 59 份、泄漏 GL 程序对象，
+     * 且最终留在字段里的是哪一份不确定。同一次重载传进来的 context 是同一个对象，
+     * 据此做「每轮重载只注册一次」的守卫。
+     */
+    private static @Nullable Object lastContext;
 
-public class ALRPipelines {
-    public static final RenderPipeline.Snippet POST_PASS = RenderPipeline.builder()
-        .withVertexShader(AnvilLibRendering.location("core/blit"))
-        .withUniform("Transforms", UniformType.UNIFORM_BUFFER)
-        .withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS)
-        .withSampler("DiffuseSampler")
-        .withCull(false)
-        .buildSnippet();
+    private ALRPipelines() {}
 
-    public static final RenderPipeline GLITCH = RenderPipeline.builder(POST_PASS)
-        .withLocation(AnvilLibRendering.location("glitch"))
-        .withFragmentShader(AnvilLibRendering.location("core/glitch"))
-        .withUniform("GlitchParameters", UniformType.UNIFORM_BUFFER)
-        .build();
+    /** 由客户端引导在 mod 初始化阶段调用一次。 */
+    public static void register() {
+        if (registered) {
+            return;
+        }
+        registered = true;
 
-    public static final RenderPipeline BLUR = RenderPipeline.builder(POST_PASS)
-        .withLocation(AnvilLibRendering.location("blur"))
-        .withFragmentShader(AnvilLibRendering.location("core/blur"))
-        .withUniform("BlurParameters", UniformType.UNIFORM_BUFFER)
-        .build();
+        CoreShaderRegistrationCallback.EVENT.register(context -> {
+            if (context == lastContext) {
+                return;
+            }
+            lastContext = context;
+            try {
+                context.register(
+                        AnvilLibRendering.location("sdf_graphics"),
+                        com.mojang.blaze3d.vertex.DefaultVertexFormat.POSITION_COLOR_TEX,
+                        shader -> ALRPipelines.sdfGraphics = shader
+                );
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to register SDF core shader", e);
+            }
+        });
+    }
 
-    public static final RenderPipeline APPLY_BLOOM = RenderPipeline.builder(POST_PASS)
-        .withLocation(AnvilLibRendering.location("apply_bloom"))
-        .withFragmentShader(AnvilLibRendering.location("core/apply_bloom"))
-        .withSampler("GameSampler")
-        .withUniform("BloomParameters", UniformType.UNIFORM_BUFFER)
-        .build();
-
-    public static final RenderPipeline DOWNSAMPLE = RenderPipeline.builder(POST_PASS)
-        .withLocation(AnvilLibRendering.location("down_sample"))
-        .withFragmentShader(AnvilLibRendering.location("core/down_sample"))
-        .withSampler("DiffuseSampler")
-        .withUniform("BloomParameters", UniformType.UNIFORM_BUFFER)
-        .build();
-
-    public static final RenderPipeline UPSAMPLE = RenderPipeline.builder(POST_PASS)
-        .withLocation(AnvilLibRendering.location("up_sample"))
-        .withFragmentShader(AnvilLibRendering.location("core/up_sample"))
-        .withSampler("DiffuseSampler")
-        .withSampler("PreviousSampler")
-        .withUniform("BloomParameters", UniformType.UNIFORM_BUFFER)
-        .build();
-
-    public static final VertexFormat SDF_GRAPHICS_FORMAT = VertexFormat.builder()
-        .add("Position", VertexFormatElement.POSITION)
-        .add("Color", VertexFormatElement.COLOR)
-        .add("UV0", VertexFormatElement.UV)
-        .add("UV1", VertexFormatElement.UV1)
-        .build();
-
-    public static final RenderPipeline SDF_GRAPHICS = RenderPipeline.builder()
-        .withLocation(AnvilLibRendering.location("sdf_graphics"))
-        .withVertexShader(AnvilLibRendering.location("core/sdf_graphics"))
-        .withFragmentShader(AnvilLibRendering.location("core/sdf_graphics"))
-        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-        .withVertexFormat(SDF_GRAPHICS_FORMAT, VertexFormat.Mode.QUADS)
-        .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
-        .withUniform("Projection", UniformType.UNIFORM_BUFFER)
-        .withUniform("SDFParameters", UniformType.UNIFORM_BUFFER)
-        .withCull(false)
-        .build();
-
-
-
-
-    public static void on(java.util.function.Consumer<com.mojang.blaze3d.pipeline.RenderPipeline> registrar) {
-        // 本 mod 仅使用 SDF 图形管线；bloom/blur 等未使用（其着色器资源未随移植打包）
-        registrar.accept(SDF_GRAPHICS);
+    public static @Nullable ShaderInstance sdfGraphics() {
+        return sdfGraphics;
     }
 }

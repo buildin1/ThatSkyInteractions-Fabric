@@ -1,6 +1,6 @@
 package net.quepierts.thatskyinteractions.feature.client.gui.component.visual;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.quepierts.thatskyinteractions.feature.client.gui.ColorStack;
 import net.quepierts.thatskyinteractions.feature.client.gui.ExtendedGuiGraphics;
 import org.jspecify.annotations.NonNull;

@@ -6,8 +6,8 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.PriorityQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import lombok.Getter;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.feature.expression.runtime.ExpressionState;
 import net.quepierts.thatskyinteractions.feature.network.StreamCodecUtils;
@@ -21,7 +21,7 @@ import java.lang.ref.WeakReference;
 public final class PlayerExpressionAttachment {
 
     public static final Codec<PlayerExpressionAttachment> CODEC
-            = MapCodec.unitCodec(PlayerExpressionAttachment::new);
+            = MapCodec.unit(PlayerExpressionAttachment::new).codec();
 
     public static final StreamCodec<ByteBuf, PlayerExpressionAttachment> STREAM_CODEC
             = StreamCodecUtils.unit(PlayerExpressionAttachment::new);
@@ -32,7 +32,7 @@ public final class PlayerExpressionAttachment {
     private @Nullable   Pending                     pending;
 
     private @NonNull    WeakReference<Expression>   reference   = NULL;
-    private @Nullable   Identifier                  current;
+    private @Nullable   ResourceLocation                  current;
     private @Nullable   ExpressionState             state;
 
     public static PlayerExpressionAttachment getAttachment(@NonNull Player player) {
@@ -42,13 +42,13 @@ public final class PlayerExpressionAttachment {
     public PlayerExpressionAttachment() { }
 
     public void enqueue(
-            final @NonNull Identifier   identifier
+            final @NonNull ResourceLocation   identifier
     ) {
         this.enqueue(identifier, 0);
     }
 
     public void enqueue(
-            final @NonNull Identifier   identifier,
+            final @NonNull ResourceLocation   identifier,
             final          int          level
     ) {
         this.pending = Pending.of(identifier, level);
@@ -62,7 +62,7 @@ public final class PlayerExpressionAttachment {
 
     public void start(
             final @NonNull Expression   expression,
-            final @NonNull Identifier   identifier
+            final @NonNull ResourceLocation   identifier
     ) {
         this.current    = identifier;
         this.reference  = new WeakReference<>(expression);
@@ -80,18 +80,18 @@ public final class PlayerExpressionAttachment {
     }
 
     public record Pending(
-            @NonNull Identifier identifier,
+            @NonNull ResourceLocation identifier,
                      int        level
     ) {
 
         private static Pending of(
-                @NonNull Identifier identifier
+                @NonNull ResourceLocation identifier
         ) {
             return new Pending(identifier, 0);
         }
 
         private static Pending of(
-                @NonNull Identifier identifier,
+                @NonNull ResourceLocation identifier,
                          int        level
         ) {
             return new Pending(identifier, level);

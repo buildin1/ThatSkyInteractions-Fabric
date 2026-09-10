@@ -53,7 +53,7 @@ public final class FriendshipTreeLayout extends Pane {
     public void layout() {
 
         final var center    = width / 2 - NODE_SIZE / 2;
-        final var first     = this.buttons.getFirst();
+        final var first     = this.buttons.get(0);
 
         final var dx        = first.getX() - center;
         final var dy        = first.getY() - this.getContentBottom();

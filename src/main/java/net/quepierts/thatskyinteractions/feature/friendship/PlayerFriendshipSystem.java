@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.friendship;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -22,7 +22,7 @@ import org.jspecify.annotations.NonNull;
 @EventBusSubscriber(modid = ThatSkyInteractions.MODID)
 public class PlayerFriendshipSystem {
 
-    public static final Identifier INTERACTION
+    public static final ResourceLocation INTERACTION
             = ThatSkyInteractions.location("unlock");
 
     public static void invite(

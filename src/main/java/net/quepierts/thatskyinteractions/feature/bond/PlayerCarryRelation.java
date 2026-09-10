@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
@@ -119,9 +119,9 @@ public class PlayerCarryRelation {
 
         public static final StreamCodec<ByteBuf, Serialized> STREAM_CODEC
                 = StreamCodec.composite(
-                    ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC),
+                    ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID),
                     Serialized::carried,
-                    ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC),
+                    ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID),
                     Serialized::carrier,
                     Serialized::new
                 );

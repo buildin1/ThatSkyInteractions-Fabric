@@ -2,8 +2,8 @@ package net.quepierts.thatskyinteractions.feature.interaction;
 
 import com.mojang.serialization.MapCodec;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.feature.animation.PlayerAnimationSystem;
@@ -15,7 +15,7 @@ import org.jspecify.annotations.Nullable;
 
 public final class HoldingHandsInteraction implements Interaction {
 
-    public static final Identifier                  INVITE      = ThatSkyInteractions.location("holding_hands_invite");
+    public static final ResourceLocation                  INVITE      = ThatSkyInteractions.location("holding_hands_invite");
     private static final HoldingHandsInteraction    INSTANCE    = new HoldingHandsInteraction();
 
     public static final MapCodec<HoldingHandsInteraction> MAP_CODEC

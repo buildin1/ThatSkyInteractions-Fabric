@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.interaction.event;
 
 import lombok.Getter;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -15,13 +15,13 @@ public abstract sealed class PlayerInteractionEvent extends Event {
     private final Player        requester;
     private final Player        receiver;
     private final boolean       isClient;
-    private final Identifier    identifier;
+    private final ResourceLocation    identifier;
     private final Interaction   interaction;
 
     protected PlayerInteractionEvent(
             final @NonNull Player requester,
             final @NonNull Player receiver,
-            final Identifier interaction
+            final ResourceLocation interaction
     ) {
         this.requester      = requester;
         this.receiver       = receiver;
@@ -37,7 +37,7 @@ public abstract sealed class PlayerInteractionEvent extends Event {
         protected Invite(
                 final @NonNull Player       requester,
                 final @NonNull Player       receiver,
-                final @NonNull Identifier   interaction
+                final @NonNull ResourceLocation   interaction
         ) {
             super(requester, receiver, interaction);
         }
@@ -47,7 +47,7 @@ public abstract sealed class PlayerInteractionEvent extends Event {
             public Pre(
                     final @NonNull Player       requester,
                     final @NonNull Player       receiver,
-                    final @NonNull Identifier   interaction
+                    final @NonNull ResourceLocation   interaction
             ) {
                 super(requester, receiver, interaction);
             }
@@ -64,7 +64,7 @@ public abstract sealed class PlayerInteractionEvent extends Event {
             public Post(
                     final @NonNull Player       requester,
                     final @NonNull Player       receiver,
-                    final @NonNull Identifier   interaction
+                    final @NonNull ResourceLocation   interaction
             ) {
                 super(requester, receiver, interaction);
             }
@@ -78,7 +78,7 @@ public abstract sealed class PlayerInteractionEvent extends Event {
         public Accept(
                 final @NonNull Player       requester,
                 final @NonNull Player       receiver,
-                final @NonNull Identifier   interaction
+                final @NonNull ResourceLocation   interaction
         ) {
             super(requester, receiver, interaction);
         }
@@ -88,7 +88,7 @@ public abstract sealed class PlayerInteractionEvent extends Event {
             public Pre(
                     final @NonNull Player       requester,
                     final @NonNull Player       receiver,
-                    final @NonNull Identifier   interaction
+                    final @NonNull ResourceLocation   interaction
             ) {
                 super(requester, receiver, interaction);
             }
@@ -105,7 +105,7 @@ public abstract sealed class PlayerInteractionEvent extends Event {
             public Post(
                     final @NonNull Player       requester,
                     final @NonNull Player       receiver,
-                    final @NonNull Identifier   interaction
+                    final @NonNull ResourceLocation   interaction
             ) {
                 super(requester, receiver, interaction);
             }
@@ -119,7 +119,7 @@ public abstract sealed class PlayerInteractionEvent extends Event {
         public Cancel(
                 final @NonNull Player       requester,
                 final @NonNull Player       receiver,
-                final @NonNull Identifier   interaction
+                final @NonNull ResourceLocation   interaction
         ) {
             super(requester, receiver, interaction);
         }

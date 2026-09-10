@@ -4,7 +4,7 @@ import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 
 import java.util.Map;
@@ -31,7 +31,9 @@ public final class RegistryBuilder<R> {
     }
 
     public Registry<R> create() {
-        FabricRegistryBuilder<R, MappedRegistry<R>> builder = FabricRegistryBuilder.create(this.key);
+        // 1.20.1 的 FabricRegistryBuilder 需要显式给出注册表实例
+        FabricRegistryBuilder<R, MappedRegistry<R>> builder =
+                FabricRegistryBuilder.from(new MappedRegistry<R>(this.key, com.mojang.serialization.Lifecycle.stable(), false));
         if (this.sync) {
             builder.attribute(RegistryAttribute.SYNCED);
         }
@@ -45,7 +47,7 @@ public final class RegistryBuilder<R> {
         return (Registry<R>) CUSTOM_REGISTRIES.get(key);
     }
 
-    public static Identifier defaultId() {
-        return Identifier.fromNamespaceAndPath("minecraft", "default");
+    public static ResourceLocation defaultId() {
+        return new ResourceLocation("minecraft", "default");
     }
 }

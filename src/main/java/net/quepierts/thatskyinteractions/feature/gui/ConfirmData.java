@@ -1,11 +1,11 @@
 package net.quepierts.thatskyinteractions.feature.gui;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.NonNull;
 
 public record ConfirmData(
-        @NonNull Identifier     icon,
+        @NonNull ResourceLocation     icon,
         @NonNull Component[]    message,
 
         Runnable                confirm,

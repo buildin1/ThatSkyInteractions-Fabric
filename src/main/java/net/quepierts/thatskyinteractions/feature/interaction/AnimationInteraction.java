@@ -8,9 +8,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -38,7 +38,7 @@ import java.util.Optional;
 public final class AnimationInteraction implements Interaction, Expressional {
 
     public  static final String     AUTO    = "auto";
-    private static final Identifier EMPTY   = ThatSkyInteractions.location("empty");
+    private static final ResourceLocation EMPTY   = ThatSkyInteractions.location("empty");
 
     public static final MapCodec<AnimationInteraction> MAP_CODEC
             = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -59,12 +59,12 @@ public final class AnimationInteraction implements Interaction, Expressional {
     private final String        receiver;
 
     @Getter
-    private Identifier          requesterExpression = DEFAULT_EXPRESSION_REQUESTER;
+    private ResourceLocation          requesterExpression = DEFAULT_EXPRESSION_REQUESTER;
     @Getter
-    private Identifier          receiverExpression  = DEFAULT_EXPRESSION_RECEIVER;
+    private ResourceLocation          receiverExpression  = DEFAULT_EXPRESSION_RECEIVER;
 
-    private Identifier          requesterAnimation  = EMPTY;
-    private Identifier          receiverAnimation   = EMPTY;
+    private ResourceLocation          requesterAnimation  = EMPTY;
+    private ResourceLocation          receiverAnimation   = EMPTY;
 
     @Override
     public @NonNull InteractionType<? extends Interaction> getType() {
@@ -99,7 +99,7 @@ public final class AnimationInteraction implements Interaction, Expressional {
     @Override // todo: delegate by expression in future
     public void onRegisterPlayerAnimation(
             final @NonNull RegisterPlayerAnimationEvent event,
-            final @NonNull Identifier                   identifier,
+            final @NonNull ResourceLocation                   identifier,
             final          int                          level
     ) {
 
@@ -123,7 +123,7 @@ public final class AnimationInteraction implements Interaction, Expressional {
 
     @Override
     public void onGenerateData(
-            final @NonNull Identifier                   identifier,
+            final @NonNull ResourceLocation                   identifier,
             final          int                          level
     ) {
         final var subfix = level != 0 ? ("_" + level) : "";
@@ -145,7 +145,7 @@ public final class AnimationInteraction implements Interaction, Expressional {
     @Override
     public void onRegisterExpression(
             final @NonNull  RegisterExpressionEvent     event,
-            final @NonNull  Identifier                  identifier,
+            final @NonNull  ResourceLocation                  identifier,
             final           int                         level
     ) {
         if (this.requesterExpression != DEFAULT_EXPRESSION_REQUESTER) {
@@ -168,7 +168,7 @@ public final class AnimationInteraction implements Interaction, Expressional {
     @Override
     public void onExpressionFinished(
             final @NonNull ServerPlayer     player,
-            final @NonNull Identifier       expression
+            final @NonNull ResourceLocation       expression
     ) {
         final var attachment                = PlayerInteractionSystem.getInteractionAttachment(player);
         final var ongoing                   = attachment.getOngoing();
@@ -193,8 +193,8 @@ public final class AnimationInteraction implements Interaction, Expressional {
 
     private static void parseRequester(
             RegisterPlayerAnimationEvent                event,
-            Identifier                                  typename,
-            Identifier                                  identifier,
+            ResourceLocation                                  typename,
+            ResourceLocation                                  identifier,
             boolean                                     generate
     ) {
 
@@ -235,8 +235,8 @@ public final class AnimationInteraction implements Interaction, Expressional {
 
     private static void parseReceiver(
             RegisterPlayerAnimationEvent                event,
-            Identifier                                  typename,
-            Identifier                                  identifier,
+            ResourceLocation                                  typename,
+            ResourceLocation                                  identifier,
             boolean                                     generate
     ) {
         if (!generate) {

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ServerLevelTickMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
-    private void tsi$beforeLevelTick(CallbackInfo ci) {
+    private void tsi$beforeLevelTick(java.util.function.BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         NeoForge.EVENT_BUS.post(new LevelTickEvent.Pre((ServerLevel) (Object) this));
     }
 }

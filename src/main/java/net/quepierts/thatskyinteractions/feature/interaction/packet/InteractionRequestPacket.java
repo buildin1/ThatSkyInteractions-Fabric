@@ -4,10 +4,10 @@ import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public record InteractionRequestPacket(
         Operation               operation,
         UUID                    uuid,
-        Optional<Identifier>    identifier
+        Optional<ResourceLocation>    identifier
 ) implements IServerboundPacket {
 
     public static final Type<InteractionRequestPacket> TYPE
@@ -33,9 +33,9 @@ public record InteractionRequestPacket(
                             Operation::encode
                     ),
                     InteractionRequestPacket::operation,
-                    UUIDUtil.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID,
                     InteractionRequestPacket::uuid,
-                    ByteBufCodecs.optional(Identifier.STREAM_CODEC),
+                    ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION),
                     InteractionRequestPacket::identifier,
                     InteractionRequestPacket::new
             );
@@ -44,7 +44,7 @@ public record InteractionRequestPacket(
 
     public static InteractionRequestPacket invite(
             final @NonNull Player       target,
-            final @NonNull Identifier   type
+            final @NonNull ResourceLocation   type
     ) {
         return new InteractionRequestPacket(
                 Operation.INVITE,
@@ -89,11 +89,11 @@ public record InteractionRequestPacket(
         }
 
         switch (this.operation()) {
-            case Operation.INVITE: {
+            case INVITE: {
                 PlayerInteractionSystem.invite(sender, other, this.identifier().get());
                 break;
             }
-            case Operation.ACCEPT: {
+            case ACCEPT: {
                 PlayerInteractionSystem.accept(other, sender, false);
                 break;
             }

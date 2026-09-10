@@ -165,7 +165,7 @@ public class FloatingControl extends Control {
                 this.getPositionProperty(),
                 new Vector2f(this.getPositionProperty()),
                 new Vector2f(x, y),
-                Math.clamp(distance * 0.01f, 0.1f, 0.2f),
+                net.minecraft.util.Mth.clamp(distance * 0.01f, 0.1f, 0.2f),
                 Interpolators.FLOAT2,
                 ease
         );

@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
 public final class PayloadRegistrar {
 
     private final String version;
-    final List<BiConsumer<net.minecraft.network.RegistryFriendlyByteBuf, ?>> entries = new ArrayList<>();
+    final List<BiConsumer<dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf, ?>> entries = new ArrayList<>();
 
     public PayloadRegistrar(String version) {
         this.version = version;

@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.network;
 
 import io.netty.buffer.ByteBuf;
 import lombok.experimental.UtilityClass;
-import net.minecraft.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
 import org.jspecify.annotations.NonNull;
 
 import java.util.function.Supplier;

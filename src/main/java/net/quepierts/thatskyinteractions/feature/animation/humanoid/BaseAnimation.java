@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.animation.humanoid;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.quepierts.thatskyinteractions.core.animation.model.SourceDefinition;
 import net.quepierts.thatskyinteractions.feature.animation.bedrock.BedrockAnimationCompiler;
 import net.quepierts.thatskyinteractions.feature.animation.bedrock.BedrockAnimationManager;
@@ -83,7 +83,7 @@ public abstract class BaseAnimation implements PlayerAnimation {
             return null;
         }
 
-        final var identifier    = Identifier.parse(definition.source());
+        final var identifier    = new ResourceLocation(definition.source());
         final var animation     = manager.getAnimation(identifier);
 
         if (animation == null) {

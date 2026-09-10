@@ -3,13 +3,12 @@ package net.quepierts.thatskyinteractions.feature.animation.packet;
 import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.Avatar;
-import net.minecraft.world.entity.LivingEntity;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.feature.animation.PlayerAnimationSystem;
 import net.quepierts.thatskyinteractions.feature.registry.TsiRegistries;
@@ -20,8 +19,8 @@ import java.util.Optional;
 public record ClientboundAnimationControlPacket(
         Operation               operation,
         int                     id,
-        Optional<Identifier>    layer,
-        Optional<Identifier>    identifier
+        Optional<ResourceLocation>    layer,
+        Optional<ResourceLocation>    identifier
 ) implements IClientboundPacket {
 
     public static final Type<ClientboundAnimationControlPacket> TYPE
@@ -35,16 +34,16 @@ public record ClientboundAnimationControlPacket(
             ClientboundAnimationControlPacket::operation,
             ByteBufCodecs.VAR_INT,
             ClientboundAnimationControlPacket::id,
-            ByteBufCodecs.optional(Identifier.STREAM_CODEC),
+            ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION),
             ClientboundAnimationControlPacket::layer,
-            ByteBufCodecs.optional(Identifier.STREAM_CODEC),
+            ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION),
             ClientboundAnimationControlPacket::identifier,
             ClientboundAnimationControlPacket::new
     );
 
     public static ClientboundAnimationControlPacket play(
             @NonNull LivingEntity   player,
-            @NonNull Identifier     animation
+            @NonNull ResourceLocation     animation
     ) {
         return new ClientboundAnimationControlPacket(
                 Operation.PLAY,
@@ -56,8 +55,8 @@ public record ClientboundAnimationControlPacket(
 
     public static ClientboundAnimationControlPacket play(
             @NonNull LivingEntity   player,
-            @NonNull Identifier     animation,
-            @NonNull Identifier     layer
+            @NonNull ResourceLocation     animation,
+            @NonNull ResourceLocation     layer
     ) {
         return new ClientboundAnimationControlPacket(
                 Operation.PLAY,
@@ -80,7 +79,7 @@ public record ClientboundAnimationControlPacket(
 
     public static ClientboundAnimationControlPacket abort(
             @NonNull LivingEntity   player,
-            @NonNull Identifier     layer
+            @NonNull ResourceLocation     layer
     ) {
         return new ClientboundAnimationControlPacket(
                 Operation.ABORT,
@@ -103,7 +102,7 @@ public record ClientboundAnimationControlPacket(
 
     public static ClientboundAnimationControlPacket exit(
             @NonNull LivingEntity   player,
-            @NonNull Identifier     layer
+            @NonNull ResourceLocation     layer
     ) {
         return new ClientboundAnimationControlPacket(
                 Operation.EXIT,
@@ -126,7 +125,7 @@ public record ClientboundAnimationControlPacket(
 
     public static ClientboundAnimationControlPacket pause(
             @NonNull LivingEntity   player,
-            @NonNull Identifier     layer
+            @NonNull ResourceLocation     layer
     ) {
         return new ClientboundAnimationControlPacket(
                 Operation.PAUSE,
@@ -149,7 +148,7 @@ public record ClientboundAnimationControlPacket(
 
     public static ClientboundAnimationControlPacket resume(
             @NonNull LivingEntity   player,
-            @NonNull Identifier layer
+            @NonNull ResourceLocation layer
     ) {
         return new ClientboundAnimationControlPacket(
                 Operation.RESUME,
@@ -167,20 +166,20 @@ public record ClientboundAnimationControlPacket(
                 Operation.EVENT,
                 player.getId(),
                 Optional.empty(),
-                Optional.of(Identifier.fromNamespaceAndPath("e", event))
+                Optional.of(new ResourceLocation("e", event))
         );
     }
 
     public static ClientboundAnimationControlPacket event(
             @NonNull LivingEntity   player,
             @NonNull String         event,
-            @NonNull Identifier     layer
+            @NonNull ResourceLocation     layer
     ) {
         return new ClientboundAnimationControlPacket(
                 Operation.EVENT,
                 player.getId(),
                 Optional.of(layer),
-                Optional.of(Identifier.fromNamespaceAndPath("e", event))
+                Optional.of(new ResourceLocation("e", event))
         );
     }
 

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
@@ -30,10 +30,10 @@ public final class PlayerExpressionManager extends DataSyncManager<ExpressionSet
     @Getter
     private static final PlayerExpressionManager instance = new PlayerExpressionManager();
 
-    private Map<Identifier, ExpressionSet>  sets        = Map.of();
-    private List<Identifier>                byOrdinal   = List.of();
-    private Map<Identifier, Expression>     generated   = Map.of();
-    private Map<Identifier, Expression>     expressions = Map.of();
+    private Map<ResourceLocation, ExpressionSet>  sets        = Map.of();
+    private List<ResourceLocation>                byOrdinal   = List.of();
+    private Map<ResourceLocation, Expression>     generated   = Map.of();
+    private Map<ResourceLocation, Expression>     expressions = Map.of();
 
     PlayerExpressionManager() {
         super(
@@ -69,11 +69,11 @@ public final class PlayerExpressionManager extends DataSyncManager<ExpressionSet
         }
     }
 
-    public @Nullable Expression get(@NonNull Identifier identifier) {
+    public @Nullable Expression get(@NonNull ResourceLocation identifier) {
         return this.expressions.get(identifier);
     }
 
-    public @Nullable Expression get(@NonNull Identifier identifier, int level) {
+    public @Nullable Expression get(@NonNull ResourceLocation identifier, int level) {
 
         if (level == 0) {
             return this.expressions.get(identifier);
@@ -83,16 +83,16 @@ public final class PlayerExpressionManager extends DataSyncManager<ExpressionSet
         return set != null ? set.expressions().get(level - 1) : null;
     }
 
-    public @Nullable ExpressionSet getSet(@NonNull Identifier identifier) {
+    public @Nullable ExpressionSet getSet(@NonNull ResourceLocation identifier) {
         return this.sets.get(identifier);
     }
 
     @Override
-    protected void apply(@NonNull Map<Identifier, ExpressionSet> preparations) {
-        final var builder0 = ImmutableMap.<Identifier, ExpressionSet>builder();
-        final var builder1 = ImmutableMap.<Identifier, Expression>builder();
-        final var builder2 = ImmutableList.<Identifier>builder();
-        final var builder3 = ImmutableMap.<Identifier, Expression>builder();
+    protected void apply(@NonNull Map<ResourceLocation, ExpressionSet> preparations) {
+        final var builder0 = ImmutableMap.<ResourceLocation, ExpressionSet>builder();
+        final var builder1 = ImmutableMap.<ResourceLocation, Expression>builder();
+        final var builder2 = ImmutableList.<ResourceLocation>builder();
+        final var builder3 = ImmutableMap.<ResourceLocation, Expression>builder();
 
         Order.sort(
                 preparations,
@@ -104,7 +104,7 @@ public final class PlayerExpressionManager extends DataSyncManager<ExpressionSet
                     final var leveled = set.leveled();
 
                     if (!leveled) {
-                        final var first = set.expressions().getFirst();
+                        final var first = set.expressions().get(0);
                         first.onGenerateData(identifier, 0);
                         builder1.put(identifier, first);
                     } else {
@@ -135,7 +135,7 @@ public final class PlayerExpressionManager extends DataSyncManager<ExpressionSet
         log.info("Loaded {} expressions", this.expressions.size());
     }
 
-    public List<Identifier> ordinal() {
+    public List<ResourceLocation> ordinal() {
         return this.byOrdinal;
     }
 
@@ -143,7 +143,7 @@ public final class PlayerExpressionManager extends DataSyncManager<ExpressionSet
         return this.expressions.values();
     }
 
-    public Iterable<Identifier> identifiers() {
+    public Iterable<ResourceLocation> identifiers() {
         return this.expressions.keySet();
     }
 }

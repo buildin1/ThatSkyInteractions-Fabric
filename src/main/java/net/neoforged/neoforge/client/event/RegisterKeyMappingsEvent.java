@@ -14,13 +14,8 @@ public class RegisterKeyMappingsEvent extends Event {
         this.keyMappings.add(key);
     }
 
-    /** NeoForge API：注册按键分类（原版 26.1 需显式 register 才会进入分类排序表） */
-    public void registerCategory(KeyMapping.Category category) {
-        try {
-            KeyMapping.Category.register(category.id());
-        } catch (IllegalArgumentException ignored) {
-            // 已注册（例如与其他 mod 共用分类）
-        }
+    /** 1.20.1 的按键分类就是一个字符串，不需要显式注册；保留空实现以维持调用点不变。 */
+    public void registerCategory(String category) {
     }
 
     public List<KeyMapping> getKeyMappings() {

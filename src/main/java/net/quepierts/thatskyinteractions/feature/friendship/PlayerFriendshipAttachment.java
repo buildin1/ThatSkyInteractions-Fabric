@@ -8,14 +8,14 @@ import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.AccessLevel;
 import lombok.Getter;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.attachment.storage.ValueInput;
+import net.neoforged.neoforge.attachment.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -72,7 +72,7 @@ public final class PlayerFriendshipAttachment {
                     PlayerFriendshipAttachment::new
             );
 
-    public static final Identifier FRIEND
+    public static final ResourceLocation FRIEND
             = ThatSkyInteractions.location("friend");
 
     public static PlayerFriendshipAttachment getAttachment(final @NonNull Player player) {
@@ -172,7 +172,7 @@ public final class PlayerFriendshipAttachment {
 
     public @NonNull FriendshipTreeData get(
             final @NonNull UUID         uuid,
-            final @NonNull Identifier   type
+            final @NonNull ResourceLocation   type
     ) {
         final var data = this.byUuid.get(uuid);
         if (data != null && data.getType().equals(type)) {
@@ -220,7 +220,7 @@ public final class PlayerFriendshipAttachment {
 
         final var map       = this.byUuid;
 
-        final var first     = list.getFirst();
+        final var first     = list.get(0);
         final var frl       = first.getRelation();
         final var l         = frl.getLeft();
         final var r         = frl.getRight();

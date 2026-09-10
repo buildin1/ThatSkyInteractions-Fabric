@@ -75,7 +75,7 @@ public class GridPane extends Pane {
 
         final var padding = this.getPadding();
 
-        this.setSize(
+        this.setControlSize(
                 (int) (totalWidth + padding.left + padding.right),
                 (int) (totalHeight + padding.top + padding.bottom)
         );

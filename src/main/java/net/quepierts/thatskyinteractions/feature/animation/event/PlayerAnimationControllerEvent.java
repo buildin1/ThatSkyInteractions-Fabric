@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.animation.event;
 
 import lombok.Getter;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -28,12 +28,12 @@ public abstract sealed class PlayerAnimationControllerEvent extends Event {
     @Getter
     public static abstract sealed class Play extends PlayerAnimationControllerEvent {
 
-        private final Identifier                            animation;
+        private final ResourceLocation                            animation;
 
         public Play(
                 final @NonNull PlayerAnimationController    controller,
                 final @NonNull AnimationLayerType           layer,
-                final @NonNull Identifier                   animation
+                final @NonNull ResourceLocation                   animation
         ) {
             super(controller, layer);
             this.animation = animation;
@@ -46,7 +46,7 @@ public abstract sealed class PlayerAnimationControllerEvent extends Event {
             public Pre(
                     final @NonNull PlayerAnimationController    controller,
                     final @NonNull AnimationLayerType           layer,
-                    final @NonNull Identifier                   animation
+                    final @NonNull ResourceLocation                   animation
             ) {
                 super(controller, layer, animation);
             }
@@ -63,7 +63,7 @@ public abstract sealed class PlayerAnimationControllerEvent extends Event {
             public Post(
                     final @NonNull PlayerAnimationController    controller,
                     final @NonNull AnimationLayerType           layer,
-                    final @NonNull Identifier                   animation
+                    final @NonNull ResourceLocation                   animation
             ) {
                 super(controller, layer, animation);
             }
@@ -74,12 +74,12 @@ public abstract sealed class PlayerAnimationControllerEvent extends Event {
     @Getter
     public static final class Finished extends PlayerAnimationControllerEvent {
 
-        private final Identifier                            animation;
+        private final ResourceLocation                            animation;
 
         public Finished(
                 final @NonNull PlayerAnimationController    controller,
                 final @NonNull AnimationLayerType           layer,
-                final @NonNull Identifier                   animation
+                final @NonNull ResourceLocation                   animation
         ) {
             super(controller, layer);
             this.animation = animation;

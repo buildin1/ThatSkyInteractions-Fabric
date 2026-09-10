@@ -33,17 +33,17 @@ public class ButtonVisualNodes {
             final var hh                    = control.getHeight() / 2f;
             final var hw                    = control.getWidth() / 2f;
 
-            pose                            .translate(control.getX() + hh, control.getY() + hw);
+            pose                            .translate(control.getX() + hh, control.getY() + hw, 0.0f);
 
 
             if (hovering) {
                 final var factor            = 1.0f + cHoverFactor * hover;
-                pose                        .scale(factor, factor);
+                pose                        .scale(factor, factor, 1.0f);
             }
 
             if (pressing) {
                 final var factor            = 1.0f - cPressFactor * press;
-                pose                        .scale(factor, factor);
+                pose                        .scale(factor, factor, 1.0f);
             }
 
             VisualNode.array(
@@ -74,13 +74,13 @@ public class ButtonVisualNodes {
     public static VisualNode spin(
             final @NonNull RenderOp renderOp
     ) {
-        return (control, graphics, colors, _, _, _, _) -> {
+        return (control, graphics, colors, __unused0, __unused1, __unused2, __unused3) -> {
             final var click         = control.getAttribute(Button.ATTRIBUTE_CLICK_TRANSITION).getValue();
 
             if (click > 0) {
                 final var pose = graphics.pose();
                 final var t = Mth.cos(4 * click * Mth.PI);
-                pose.scale(t, 1.0f);
+                pose.scale(t, 1.0f, 1.0f);
             }
             renderOp                .render(
                     graphics,
@@ -94,7 +94,7 @@ public class ButtonVisualNodes {
     public static VisualNode hover(
             final @NonNull RenderOp renderOp
     ) {
-        return (control, graphics, colors, _, _, _, _) -> {
+        return (control, graphics, colors, __unused0, __unused1, __unused2, __unused3) -> {
 
             final var t             = control.getAttribute(Button.ATTRIBUTE_HOVER_TRANSITION).getValue();
             final var alpha         = (int) (255 * t);

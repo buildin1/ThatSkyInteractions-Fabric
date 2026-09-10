@@ -1,11 +1,11 @@
 package net.neoforged.neoforge.attachment;
 
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.attachment.storage.ValueInput;
+import net.neoforged.neoforge.attachment.storage.ValueOutput;
 
 /**
- * NeoForge API 兼容层：attachment 序列化器接口（保留 NeoForge 26.x 的单泛型形式）。
- * 本 mod 的实现由 AttachmentBuilder.serialize 转换为 Fabric 的 Codec。
+ * NeoForge API 兼容层：attachment 序列化器（保留 NeoForge 26.x 的单泛型形式）。
+ * 1.20.1 上 ValueInput/ValueOutput 由本兼容层以 CompoundTag 实现。
  */
 public interface IAttachmentSerializer<T> {
 

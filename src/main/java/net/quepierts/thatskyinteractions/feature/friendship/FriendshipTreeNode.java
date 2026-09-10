@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.friendship;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.quepierts.thatskyinteractions.core.friendship.model.Branch;
 import net.quepierts.thatskyinteractions.core.friendship.model.Cost;
 import net.quepierts.thatskyinteractions.feature.friendship.behaviour.FriendshipBehaviour;

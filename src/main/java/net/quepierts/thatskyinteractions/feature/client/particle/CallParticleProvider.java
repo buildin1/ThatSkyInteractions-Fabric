@@ -5,7 +5,6 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.feature.particle.CallParticleOption;
@@ -30,8 +29,7 @@ public final class CallParticleProvider implements ParticleProvider<CallParticle
             final double                z,
             final double                xAux,
             final double                yAux,
-            final double                zAux,
-            final @NonNull RandomSource random
+            final double                zAux
     ) {
         final var entity = level.getEntity(option.id());
         if (entity instanceof Player player) {
@@ -40,7 +38,7 @@ public final class CallParticleProvider implements ParticleProvider<CallParticle
                     x,
                     y,
                     z,
-                    this.spriteSet.first(),
+                    this.spriteSet.get(0, 1),
                     player
             );
         }

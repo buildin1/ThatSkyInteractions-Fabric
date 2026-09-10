@@ -3,10 +3,10 @@ package net.quepierts.thatskyinteractions.feature.expression.packet;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public record ExpressionRequestPacket(
         Operation               operation,
-        Optional<Identifier>    identifier,
+        Optional<ResourceLocation>    identifier,
         int                     level
 ) implements IServerboundPacket {
 
@@ -28,7 +28,7 @@ public record ExpressionRequestPacket(
             = StreamCodec.composite(
                     ByteBufCodecs.BYTE.map(Operation::decode, Operation::encode),
                     ExpressionRequestPacket::operation,
-                    ByteBufCodecs.optional(Identifier.STREAM_CODEC),
+                    ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION),
                     ExpressionRequestPacket::identifier,
                     ByteBufCodecs.VAR_INT,
                     ExpressionRequestPacket::level,
@@ -36,7 +36,7 @@ public record ExpressionRequestPacket(
             );
 
     public static ExpressionRequestPacket perform(
-            final @NonNull  Identifier  id,
+            final @NonNull  ResourceLocation  id,
             final           int         level
     ) {
         return new ExpressionRequestPacket(Operation.PERFORM, Optional.of(id), level);

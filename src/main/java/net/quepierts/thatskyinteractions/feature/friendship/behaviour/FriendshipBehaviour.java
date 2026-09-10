@@ -2,14 +2,12 @@ package net.quepierts.thatskyinteractions.feature.friendship.behaviour;
 
 import com.mojang.serialization.Codec;
 import lombok.experimental.UtilityClass;
-import net.minecraft.data.AtlasIds;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.contents.objects.AtlasSprite;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -29,17 +27,12 @@ public interface FriendshipBehaviour {
     StreamCodec<RegistryFriendlyByteBuf, FriendshipBehaviour> STREAM_CODEC
             = ByteBufCodecs.registry(TsiRegistries.Keys.FRIENDSHIP_BEHAVIOUR);
 
-    @NonNull Identifier DEFAULT_ICON    = ThatSkyInteractions.location("none");
+    @NonNull ResourceLocation DEFAULT_ICON    = ThatSkyInteractions.location("none");
 
-    @NonNull AtlasSprite SPRITE_CANDLE  = new AtlasSprite(
-                                            AtlasIds.ITEMS,
-                                            Identifier.withDefaultNamespace("item/candle")
-                                        );
+    // 1.20.1 聊天组件没有内联图集精灵（Component.object 属 26.x），退回为文本
+    net.minecraft.network.chat.MutableComponent SPRITE_CANDLE = net.minecraft.network.chat.Component.translatable("item.minecraft.candle");
 
-    @NonNull AtlasSprite SPRITE_ACS     = new AtlasSprite(
-                                            AtlasIds.ITEMS,
-                                            Identifier.withDefaultNamespace("item/red_candle")
-                                        );
+    net.minecraft.network.chat.MutableComponent SPRITE_ACS = net.minecraft.network.chat.Component.translatable("item.minecraft.red_candle");
 
 
     int NORMAL_TEXT_COLOR               = 0xfff4f5e3;
@@ -59,7 +52,7 @@ public interface FriendshipBehaviour {
             final @NonNull  FriendshipTreeNode          node
     );
 
-    default @NonNull Identifier getIcon(
+    default @NonNull ResourceLocation getIcon(
             final @NonNull  Player                      player,
             final @NonNull  FriendshipTreeNode          node,
             final @NonNull  NodeState                   state
@@ -72,18 +65,20 @@ public interface FriendshipBehaviour {
     ) {
         return Component.translatable(
                 "gui.thatskyinteractions.message.unlock.default.request",
-                Component.object(node.getCost().currency() == Currency.WHITE_CANDLE ? SPRITE_CANDLE : SPRITE_ACS)
+                (node.getCost().currency() == Currency.WHITE_CANDLE ? SPRITE_CANDLE : SPRITE_ACS)
+                        .copy()
                         .withStyle(Styles.SHADOWLESS),
                 Component.translatable("node.thatskyinteractions." + node.getId())
-                        .withColor(FriendshipBehaviour.HIGHLIGHT_TEXT_COLOR)
+                        .withStyle(net.minecraft.network.chat.Style.EMPTY.withColor(net.minecraft.network.chat.TextColor.fromRgb(FriendshipBehaviour.HIGHLIGHT_TEXT_COLOR)))
                         .withStyle(Styles.BOLD)
-        ).withColor(FriendshipBehaviour.NORMAL_TEXT_COLOR);
+        ).withStyle(net.minecraft.network.chat.Style.EMPTY.withColor(net.minecraft.network.chat.TextColor.fromRgb(FriendshipBehaviour.NORMAL_TEXT_COLOR)));
     }
 
     @UtilityClass
     class Styles {
         public static final Style BOLD          = Style.EMPTY.withBold(true);
-        public static final Style SHADOWLESS    = Style.EMPTY.withoutShadow();
+        // 1.20.1 的 Style 没有 withoutShadow
+        public static final Style SHADOWLESS    = Style.EMPTY;
     }
 
 }

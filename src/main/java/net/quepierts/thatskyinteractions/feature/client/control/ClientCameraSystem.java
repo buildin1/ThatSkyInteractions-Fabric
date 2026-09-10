@@ -3,7 +3,7 @@ package net.quepierts.thatskyinteractions.feature.client.control;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Input;
+import net.minecraft.client.player.Input;
 import net.minecraft.world.phys.Vec2;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -51,7 +51,7 @@ public class ClientCameraSystem {
             return;
         }
 
-        if (!Minecraft.getInstance().hasAltDown()) {
+        if (!net.minecraft.client.gui.screens.Screen.hasAltDown()) {
             CONTROLLER.turn((float) event.getXo(), (float) event.getYo());
             event.setCanceled(true);
         }
@@ -111,21 +111,23 @@ public class ClientCameraSystem {
         if (Math.abs(difference) > 90.0f) {
             event.setCanceled(true);
         } else {
-            final var origin = event.getInput();
-            final var forward = new Input(
-                    true, false, false, false,
-                    origin.jump(),
-                    origin.shift(),
-                    origin.sprint()
-            );
+            // 1.20.1 的 Input 是可变对象而非记录：直接写冲量字段，只保留前进
+            final var origin  = event.getInput();
+            final var sprint  = net.minecraft.client.Minecraft.getInstance().options.keySprint.isDown();
+
+            final var forward = new Input();
+            forward.up              = true;
+            forward.forwardImpulse  = 1.0f;
+            forward.jumping         = origin.jumping;
+            forward.shiftKeyDown    = origin.shiftKeyDown;
+
             event.redirect(
                     forward,
                     Vec2.UNIT_Y
             );
 
-
             CONTROLLER.onPlayerInput(
-                    origin.sprint(),
+                    sprint,
                     targetYRot
             );
         }
@@ -138,7 +140,7 @@ public class ClientCameraSystem {
             return;
         }
 
-        final var matches = TsiKeys.KEY_UNLOCK_CAMERA.matches(event.getKeyEvent());
+        final var matches = TsiKeys.KEY_UNLOCK_CAMERA.matches(event.getKey(), event.getScanCode());
 
         if (matches && event.getAction() == GLFW.GLFW_PRESS) {
             CONTROLLER.toggle();

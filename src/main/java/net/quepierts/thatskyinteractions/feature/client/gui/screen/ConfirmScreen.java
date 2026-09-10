@@ -1,8 +1,8 @@
 package net.quepierts.thatskyinteractions.feature.client.gui.screen;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.core.model.ui.Alignment;
 import net.quepierts.thatskyinteractions.core.model.ui.HPos;
@@ -25,8 +25,8 @@ import org.jspecify.annotations.NonNull;
 
 public class ConfirmScreen extends AnimatableScreen<ConfirmData, ConfirmScreenController> {
 
-    public static final Identifier ICON_CONFIRM = ThatSkyInteractions.location("textures/gui/confirm.png");
-    public static final Identifier ICON_CANCEL  = ThatSkyInteractions.location("textures/gui/cancel.png");
+    public static final ResourceLocation ICON_CONFIRM = ThatSkyInteractions.location("textures/gui/confirm.png");
+    public static final ResourceLocation ICON_CANCEL  = ThatSkyInteractions.location("textures/gui/cancel.png");
 
     public ConfirmScreen(
             final ConfirmData   data
@@ -169,12 +169,7 @@ public class ConfirmScreen extends AnimatableScreen<ConfirmData, ConfirmScreenCo
     }
 
     @Override
-    public void extractBackground(
-            final @NonNull GuiGraphicsExtractor graphics,
-            final int mouseX,
-            final int mouseY,
-            final float delta
-    ) {
-
+    public void renderBackground(final @NonNull GuiGraphics graphics) {
+        // 1.20.1 没有 extractBackground：等价地屏蔽原版变暗的背景
     }
 }

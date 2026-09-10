@@ -9,7 +9,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.quepierts.thatskyinteractions.feature.expression.PlayerPreferenceSystem;
@@ -19,7 +19,7 @@ import net.quepierts.thatskyinteractions.feature.expression.call.PlayerVoiceType
 public class PreferenceCommand {
 
     static final SuggestionProvider<CommandSourceStack> VOICES
-            = (_, builder)
+            = (__unused0, builder)
             -> SharedSuggestionProvider.suggestResource(
                     PlayerVoiceTypeManager.getInstance().identifiers(), builder
             );
@@ -28,10 +28,10 @@ public class PreferenceCommand {
         return Commands.literal("preference")
                 .then(Commands.literal("voice")
                         .then(Commands.literal("set")
-                                .then(Commands.argument("voice", IdentifierArgument.id()).suggests(VOICES)
+                                .then(Commands.argument("voice", ResourceLocationArgument.id()).suggests(VOICES)
                                         .executes(c -> setVoice(c, c.getSource().getPlayerOrException())))
                                 .then(Commands.argument("target", EntityArgument.player())
-                                        .then(Commands.argument("voice", IdentifierArgument.id()).suggests(VOICES)
+                                        .then(Commands.argument("voice", ResourceLocationArgument.id()).suggests(VOICES)
                                                 .executes(c -> setVoice(c, EntityArgument.getPlayer(c, "target"))))))
                         .then(Commands.literal("get")
                                 .then(Commands.argument("target", EntityArgument.player())
@@ -60,7 +60,7 @@ public class PreferenceCommand {
     ) throws CommandSyntaxException {
 
         final var source    = context.getSource();
-        final var type      = IdentifierArgument.getId(context, "voice");
+        final var type      = ResourceLocationArgument.getId(context, "voice");
 
         if (!PlayerVoiceTypeManager.getInstance().has(type)) {
             source.sendFailure(Component.translatable("command.thatskyinteractions.preference.voice.invalid", type));

@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.interaction.expression;
 
 import com.mojang.serialization.MapCodec;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
 import net.quepierts.thatskyinteractions.feature.expression.Expression;
 import net.quepierts.thatskyinteractions.feature.expression.ExpressionType;
 import net.quepierts.thatskyinteractions.feature.registry.ExpressionTypes;
@@ -10,7 +10,7 @@ import org.jspecify.annotations.NonNull;
 
 public interface InteractionExpression extends Expression {
 
-    @NonNull InteractionExpression DUMMY = _ -> {};
+    @NonNull InteractionExpression DUMMY = __unused0 -> {};
 
     @NonNull MapCodec<InteractionExpression> MAP_CODEC = MapCodec.unit(DUMMY);
 

@@ -6,7 +6,7 @@ import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import net.quepierts.thatskyinteractions.core.model.ui.Alignment;
@@ -76,7 +76,7 @@ public class ExpressionComponentFactory {
             button.setOnClick(() -> {
                 Minecraft.getInstance()
                         .getSoundManager()
-                        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+                        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f));
                 controller.onExpressionClicked(id, button.getSelected());
             });
 
@@ -132,7 +132,7 @@ public class ExpressionComponentFactory {
             button.setOnClick(() -> {
                 Minecraft.getInstance()
                         .getSoundManager()
-                        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+                        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f));
                 controller.onVoiceClicked(identifier);
             });
             group.add(button);
@@ -179,7 +179,7 @@ public class ExpressionComponentFactory {
         return grid;
     }
 
-    private static final Identifier ICON = ThatSkyInteractions.location("none");
+    private static final ResourceLocation ICON = ThatSkyInteractions.location("none");
 
     private static VisualNode vExpressionButton(
             final @NonNull ExpressionSet set
@@ -209,10 +209,10 @@ public class ExpressionComponentFactory {
 
                 if (pressed) {
                     final var scale = 1.0f + press.getValue() * 0.75f;
-                    graphics.pose().scale(scale, scale);
+                    graphics.pose().scale(scale, scale, 1.0f);
                 }
 
-                graphics.pose().translate(left, top);
+                graphics.pose().translate(left, top, 0.0f);
 
                 final var sdf       = SdfGraphics.getInstance();
                 final var colorDef  = colors.argb(0xff, 0x80, 0x80, 0x80);
@@ -283,12 +283,12 @@ public class ExpressionComponentFactory {
     }
 
     private static VisualNode vButton(
-            final @NonNull Identifier   icon,
+            final @NonNull ResourceLocation   icon,
             final @NonNull VisualNode   special
     ) {
 
         final var background    = GeneralVisualNodes.lBase(0x80000000);
-        final var content       = ButtonVisualNodes.spin((graphics, colors, _, _, width, height) -> {
+        final var content       = ButtonVisualNodes.spin((graphics, colors, __unused0, __unused1, width, height) -> {
             graphics.blitIcon(
                     icon,
                     -14,

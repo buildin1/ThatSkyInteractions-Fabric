@@ -16,7 +16,7 @@ public abstract class EntityLevelCallbackMixin {
     private void tsi$onEntityLeaveLevel(EntityInLevelCallback callback, CallbackInfo ci) {
         Entity self = (Entity) (Object) this;
         // 移出 level 时回调被置为 NULL（与 NeoForge 触发点一致）
-        if (callback == EntityInLevelCallback.NULL && self.level() != null && self.level().getEntity(self.getUUID()) != null) {
+        if (callback == EntityInLevelCallback.NULL && self.level() != null) {
             NeoForge.EVENT_BUS.post(new EntityLeaveLevelEvent(self, self.level()));
         }
     }

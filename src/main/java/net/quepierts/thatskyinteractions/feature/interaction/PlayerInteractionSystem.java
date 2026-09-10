@@ -3,7 +3,7 @@ package net.quepierts.thatskyinteractions.feature.interaction;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -42,7 +42,7 @@ public class PlayerInteractionSystem {
     public static boolean invite(
             final @NonNull ServerPlayer requester,
             final @NonNull ServerPlayer receiver,
-            final @NonNull Identifier   interactionId
+            final @NonNull ResourceLocation   interactionId
     ) {
 
         if (requester.is(receiver)) {

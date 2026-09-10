@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.friendship.behaviour;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -15,7 +15,7 @@ public final class BlockBehaviour implements FriendshipBehaviour {
 
     public static final BlockBehaviour  INSTANCE    = new BlockBehaviour();
     public static final String          TYPE        = "block";
-    public static final Identifier      ICON        = ThatSkyInteractions.location("block");
+    public static final ResourceLocation      ICON        = ThatSkyInteractions.location("block");
     
     @Override
     public void execute(
@@ -27,7 +27,7 @@ public final class BlockBehaviour implements FriendshipBehaviour {
     }
     
     @Override
-    public@NonNull Identifier getIcon(
+    public@NonNull ResourceLocation getIcon(
             final @NonNull  Player                      player,
             final @NonNull  FriendshipTreeNode          node,
             final @NonNull  NodeState                   state

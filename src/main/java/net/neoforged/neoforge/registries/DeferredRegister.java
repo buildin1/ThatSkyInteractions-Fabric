@@ -2,7 +2,7 @@ package net.neoforged.neoforge.registries;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
 
@@ -26,7 +26,7 @@ public final class DeferredRegister<T> {
 
     @SuppressWarnings("unchecked")
     public static <T> DeferredRegister<T> create(ResourceKey<Registry<T>> registryKey, String modid) {
-        Registry<T> registry = (Registry<T>) BuiltInRegistries.REGISTRY.getValue(registryKey.identifier());
+        Registry<T> registry = (Registry<T>) BuiltInRegistries.REGISTRY.get(registryKey.location());
         return new DeferredRegister<>(registryKey, registry, modid);
     }
 
@@ -35,7 +35,7 @@ public final class DeferredRegister<T> {
     }
 
     public <I extends T> Supplier<I> register(String name, Supplier<I> supplier) {
-        Identifier id = Identifier.fromNamespaceAndPath(this.modid, name);
+        ResourceLocation id = new ResourceLocation(this.modid, name);
         Registry.register(this.registry, id, supplier.get());
         return supplier;
     }

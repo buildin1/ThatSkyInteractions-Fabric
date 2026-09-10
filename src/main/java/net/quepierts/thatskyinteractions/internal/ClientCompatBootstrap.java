@@ -4,14 +4,11 @@ import dev.anvilcraft.lib.v2.rendering.ALRPipelines;
 import dev.anvilcraft.lib.v2.rendering.sdf.SdfGraphics;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.AtlasRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.minecraft.client.renderer.RenderPipelines;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.neoforged.neoforge.client.event.ClientChatEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -35,34 +32,33 @@ public final class ClientCompatBootstrap {
         var keyEvent = new RegisterKeyMappingsEvent();
         NeoForge.EVENTS.post(keyEvent);
         for (var key : keyEvent.getKeyMappings()) {
-            KeyMappingHelper.registerKeyMapping(key);
+            KeyBindingHelper.registerKeyBinding(key);
         }
 
         var atlasEvent = new RegisterTextureAtlasesEvent();
         NeoForge.EVENTS.post(atlasEvent);
-        for (var config : atlasEvent.getAtlases()) {
-            AtlasRegistry.register(config);
-        }
+        atlasEvent.publish();
 
         var particleEvent = new RegisterParticleProvidersEvent();
         NeoForge.EVENTS.post(particleEvent);
         for (var entry : particleEvent.getProviders()) {
-            ParticleProviderRegistry.getInstance().register(entry.type(), (net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry.PendingParticleProvider) entry.provider()::apply);
+            ParticleFactoryRegistry.getInstance().register(entry.type(), (net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry.PendingParticleFactory) entry.provider()::apply);
         }
 
         var guiLayerEvent = new RegisterGuiLayersEvent();
         NeoForge.EVENTS.post(guiLayerEvent);
         for (var entry : guiLayerEvent.getEntries()) {
             // registerAboveAll 等价：挂在最顶层 vanilla HUD 元素之后
-            HudElementRegistry.attachElementAfter(
-                    VanillaHudElements.MISC_OVERLAYS,
-                    entry.id(),
-                    (graphics, deltaTracker) -> entry.layer().render(graphics, deltaTracker)
-            );
+            // 1.20.1 没有 HUD 元素注册表，用 HudRenderCallback（在原版 HUD 之后绘制）
+            final var layer = entry.layer();
+            HudRenderCallback.EVENT.register((graphics, tickDelta) -> layer.render(graphics, tickDelta));
         }
 
-        // ---- SDF 渲染管线注册 ----
-        ALRPipelines.on(RenderPipelines::register);
+        // 顶层绘制（26.x 挂在 GameRenderer#extractGui 的最后一步，1.20.1 用 HUD 回调）
+        HudRenderCallback.EVENT.register(net.quepierts.thatskyinteractions.feature.client.gui.layer.GameLayerHook::onRenderLayer);
+
+        // ---- SDF 着色器注册 ----
+        ALRPipelines.register();
 
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             SdfGraphics.init();

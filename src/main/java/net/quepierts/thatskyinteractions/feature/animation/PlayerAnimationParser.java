@@ -5,8 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.experimental.UtilityClass;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
 import net.quepierts.thatskyinteractions.core.animation.model.PlayerAnimationDefinition;
 import net.quepierts.thatskyinteractions.core.animation.model.PlayerMask;
 import net.quepierts.thatskyinteractions.core.animation.model.SourceDefinition;
@@ -16,13 +16,17 @@ public class PlayerAnimationParser {
 
     public static final float DEFAULT_TRANSITION = 0.0f;
 
-    public static final Codec<SourceDefinition> SOURCE_CODEC =
+    // 1.20.1 的 Codec 没有实例方法 withAlternative，改用 ExtraCodecs 的静态形式
+    private static final Codec<SourceDefinition> RECORD_CODEC =
             RecordCodecBuilder.<SourceDefinition>create(instance -> instance.group(
                     Codec.STRING.fieldOf("source").forGetter(SourceDefinition::source),
                     Codec.FLOAT.optionalFieldOf("fadeIn", DEFAULT_TRANSITION).forGetter(SourceDefinition::fadeIn),
                     Codec.FLOAT.optionalFieldOf("fadeOut", DEFAULT_TRANSITION).forGetter(SourceDefinition::fadeOut),
                     Codec.STRING.optionalFieldOf("namespace").forGetter(SourceDefinition::namespace)
-            ).apply(instance, SourceDefinition::new)).withAlternative(
+            ).apply(instance, SourceDefinition::new));
+
+    public static final Codec<SourceDefinition> SOURCE_CODEC = dev.anvilcraft.lib.v2.codec.CodecCompat.withAlternative(
+            RECORD_CODEC,
                     Codec.STRING.xmap(
                             SourceDefinition::of,
                             SourceDefinition::source

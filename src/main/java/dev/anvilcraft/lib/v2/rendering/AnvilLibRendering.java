@@ -1,6 +1,6 @@
 package dev.anvilcraft.lib.v2.rendering;
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * AnvilLib API 兼容层：仅保留 SDF 渲染所需的位置工具。
@@ -13,7 +13,7 @@ public final class AnvilLibRendering {
 
     private AnvilLibRendering() {}
 
-    public static Identifier location(String path) {
-        return Identifier.fromNamespaceAndPath(MODID, path);
+    public static ResourceLocation location(String path) {
+        return new ResourceLocation(MODID, path);
     }
 }

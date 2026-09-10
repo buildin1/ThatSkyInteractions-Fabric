@@ -2,7 +2,7 @@ package net.quepierts.thatskyinteractions.feature.client.gui.component.layout;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import net.minecraft.client.input.MouseButtonEvent;
+import dev.anvilcraft.lib.v2.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.quepierts.thatskyinteractions.core.property.BooleanProperty;
 import net.quepierts.thatskyinteractions.feature.client.gui.ColorStack;
@@ -85,7 +85,7 @@ public abstract class Pane
         if (clip) {
             final var left      = this.getY();
             final var top       = this.getX();
-            graphics.original().enableScissor(
+            graphics.enableScissor(
                     left,
                     top,
                     left + this.getWidth(),
@@ -98,7 +98,7 @@ public abstract class Pane
         }
 
         if (clip) {
-            graphics.original().disableScissor();
+            graphics.disableScissor();
         }
     }
 

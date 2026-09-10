@@ -11,7 +11,7 @@ public interface WorldPositionSupplier {
             final @NonNull Vector3f position
     ) {
         final var copy = new Vector3f(position);
-        return (dest) -> dest.set(copy);
+        return (dest) -> dest.set(copy.x(), copy.y(), copy.z());
     }
 
     static WorldPositionSupplier dynamic(
@@ -23,17 +23,17 @@ public interface WorldPositionSupplier {
     static WorldPositionSupplier block(
             final @NonNull BlockPos position
     ) {
-        final var copy = position.toMutable();
-        return (dest) -> dest.set(copy);
+        final var copy = position.mutable();
+        return (dest) -> dest.set(copy.getX(), copy.getY(), copy.getZ());
     }
 
     static WorldPositionSupplier block(
             final @NonNull BlockPos position,
             final @NonNull Vector3f offset
     ) {
-        final var copy0 = position.toMutable();
+        final var copy0 = position.mutable();
         final var copy1 = new Vector3f(offset);
-        return (dest) -> dest.set(copy0).add(copy1);
+        return (dest) -> dest.set(copy0.getX(), copy0.getY(), copy0.getZ()).add(copy1);
     }
 
     static WorldPositionSupplier entity(

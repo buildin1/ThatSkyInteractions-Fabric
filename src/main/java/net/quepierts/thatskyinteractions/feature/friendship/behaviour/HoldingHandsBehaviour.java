@@ -1,6 +1,6 @@
 package net.quepierts.thatskyinteractions.feature.friendship.behaviour;
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -15,9 +15,9 @@ import org.jspecify.annotations.NonNull;
 public final class HoldingHandsBehaviour implements FriendshipBehaviour {
 
     public static final HoldingHandsBehaviour   INSTANCE    = new HoldingHandsBehaviour();
-    public static final Identifier              ICON_HOLD   = ThatSkyInteractions.location("holding_hands");
-    public static final Identifier              ICON_UNHOLD = ThatSkyInteractions.location("unholding_hands");
-    public static final Identifier              INTERACTION = ThatSkyInteractions.location("holding_hands");
+    public static final ResourceLocation              ICON_HOLD   = ThatSkyInteractions.location("holding_hands");
+    public static final ResourceLocation              ICON_UNHOLD = ThatSkyInteractions.location("unholding_hands");
+    public static final ResourceLocation              INTERACTION = ThatSkyInteractions.location("holding_hands");
     public static final String                  TYPE        = "holding_hands";
 
     @Override
@@ -45,7 +45,7 @@ public final class HoldingHandsBehaviour implements FriendshipBehaviour {
     }
 
     @Override
-    public @NonNull Identifier getIcon(
+    public @NonNull ResourceLocation getIcon(
             final @NonNull  Player                      player,
             final @NonNull  FriendshipTreeNode          node,
             final @NonNull  NodeState                   state

@@ -4,9 +4,9 @@ import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import dev.anvilcraft.lib.v2.network.codec.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
 import org.jspecify.annotations.NonNull;
@@ -23,7 +23,7 @@ public record SyncYawPacket(
 
     public static final StreamCodec<ByteBuf, SyncYawPacket> STREAM_CODEC
             = StreamCodec.composite(
-                    UUIDUtil.STREAM_CODEC,
+                    dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.UUID,
                     SyncYawPacket::player,
                     ByteBufCodecs.FLOAT,
                     SyncYawPacket::yaw,
@@ -41,7 +41,8 @@ public record SyncYawPacket(
 
     @Override
     public void handleOnClient(final @NonNull Player player) {
-        if (player.level().getPlayerByUUID(this.player) instanceof Player target) {
+        final Player target = player.level().getPlayerByUUID(this.player);
+        if (target != null) {
             target.setYRot(this.yaw);
             target.setYHeadRot(this.yaw);
         }

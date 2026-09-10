@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -23,7 +23,7 @@ import java.util.Map;
 @EventBusSubscriber(modid = ThatSkyInteractions.MODID)
 public final class ParentOverrideManager extends DataSyncManager<ParentOverrideDefinition> {
 
-    public static final Identifier DISABLED
+    public static final ResourceLocation DISABLED
             = ThatSkyInteractions.location("disabled");
     
     public static final String FOLDER
@@ -33,7 +33,7 @@ public final class ParentOverrideManager extends DataSyncManager<ParentOverrideD
     private static final ParentOverrideManager instance 
             = new ParentOverrideManager();
     
-    private Map<Identifier, Holder> map = Map.of();
+    private Map<ResourceLocation, Holder> map = Map.of();
 
     ParentOverrideManager() {
         super(
@@ -49,8 +49,8 @@ public final class ParentOverrideManager extends DataSyncManager<ParentOverrideD
     }
 
     @Override
-    protected void apply(final @NonNull Map<Identifier, ParentOverrideDefinition> preparations) {
-        var builder = ImmutableMap.<Identifier, Holder>builder();
+    protected void apply(final @NonNull Map<ResourceLocation, ParentOverrideDefinition> preparations) {
+        var builder = ImmutableMap.<ResourceLocation, Holder>builder();
         for (var entry : preparations.entrySet()) {
             var id = entry.getKey();
             var definition = entry.getValue();
@@ -63,7 +63,7 @@ public final class ParentOverrideManager extends DataSyncManager<ParentOverrideD
     }
     
     public ParentOverrideConfiguration get(
-            final @NonNull Identifier       identifier,
+            final @NonNull ResourceLocation       identifier,
             final @NonNull SkeletonLayout   layout
     ) {
 

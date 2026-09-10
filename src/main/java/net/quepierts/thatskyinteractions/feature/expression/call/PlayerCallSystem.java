@@ -24,7 +24,7 @@ public class PlayerCallSystem {
             return;
         }
 
-        final var level         = player.level();
+        final var level         = player.serverLevel();
         final var note          = voiceType.getNote(player.getRandom());
         final var pitch         = NoteBlock.getPitchFromNote(note);
 

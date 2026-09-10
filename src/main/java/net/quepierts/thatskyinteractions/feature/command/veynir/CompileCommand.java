@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
 import net.quepierts.thatskyinteractions.feature.animation.bedrock.BedrockAnimationCompiler;
 import net.quepierts.thatskyinteractions.feature.animation.bedrock.BedrockAnimationManager;
@@ -29,7 +29,7 @@ import java.util.zip.ZipOutputStream;
 public class CompileCommand {
 
     static final SuggestionProvider<CommandSourceStack> BR_ANIMATIONS
-            = (_, builder)
+            = (__unused0, builder)
             -> SharedSuggestionProvider.suggestResource(
             BedrockAnimationManager.getInstance().identifiers(), builder
     );
@@ -38,7 +38,7 @@ public class CompileCommand {
 
         return Commands.literal("compile")
                 .then(Commands.literal("bedrock")
-                        .then(Commands.argument("animation", IdentifierArgument.id()).suggests(BR_ANIMATIONS)
+                        .then(Commands.argument("animation", ResourceLocationArgument.id()).suggests(BR_ANIMATIONS)
                                 .then(Commands.argument("args", StringArgumentType.greedyString())
                                         .executes(CompileCommand::compileBedrockAnimation))
                                 .executes(CompileCommand::compileBedrockAnimation)));
@@ -47,7 +47,7 @@ public class CompileCommand {
 
     private static int compileBedrockAnimation(CommandContext<CommandSourceStack> context) {
 
-        final var animationId   = IdentifierArgument.getId(context, "animation");
+        final var animationId   = ResourceLocationArgument.getId(context, "animation");
         final var animation     = BedrockAnimationManager.getInstance().getAnimation(animationId);
 
         if (animation == null) {

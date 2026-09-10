@@ -3,10 +3,10 @@ package net.quepierts.thatskyinteractions.feature.friendship;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.RegistryFriendlyByteBuf;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.quepierts.thatskyinteractions.core.friendship.model.Branch;
 import net.quepierts.thatskyinteractions.core.friendship.model.Cost;
 import net.quepierts.thatskyinteractions.feature.friendship.behaviour.FriendshipBehaviour;
@@ -18,7 +18,7 @@ import java.util.Optional;
 // todo: construct tree by separated files, like advancement
 public record FriendshipTreeFile(
 
-        Optional<Identifier>        parent,
+        Optional<ResourceLocation>        parent,
         Branch branch,
 
         FriendshipBehaviour         behaviour,
@@ -32,7 +32,7 @@ public record FriendshipTreeFile(
 
     public static final Codec<FriendshipTreeFile> CODEC
             = RecordCodecBuilder.create(instance -> instance.group(
-                    Identifier.CODEC.optionalFieldOf("parent").forGetter(FriendshipTreeFile::parent),
+                    ResourceLocation.CODEC.optionalFieldOf("parent").forGetter(FriendshipTreeFile::parent),
                     FriendshipTreeParser.BRANCH_CODEC.optionalFieldOf("branch", Branch.MIDDLE).forGetter(FriendshipTreeFile::branch),
                     FriendshipBehaviour.CODEC.fieldOf("behaviour").forGetter(FriendshipTreeFile::behaviour),
                     FriendshipTreeParser.COST_CODEC.optionalFieldOf("price", Cost.FREE).forGetter(FriendshipTreeFile::cost),
@@ -42,7 +42,7 @@ public record FriendshipTreeFile(
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FriendshipTreeFile> STREAM_CODEC
             = StreamCodec.composite(
-                    ByteBufCodecs.optional(Identifier.STREAM_CODEC),
+                    ByteBufCodecs.optional(dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs.RESOURCE_LOCATION),
                     FriendshipTreeFile::parent,
             FriendshipTreeParser.BRANCH_STREAM_CODEC,
                     FriendshipTreeFile::branch,

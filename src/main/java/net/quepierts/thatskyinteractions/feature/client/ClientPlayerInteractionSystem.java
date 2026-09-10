@@ -3,7 +3,7 @@ package net.quepierts.thatskyinteractions.feature.client;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -21,7 +21,7 @@ public class ClientPlayerInteractionSystem {
 
     public static void invite(
             @NonNull Player         other,
-            @NonNull Identifier     interaction
+            @NonNull ResourceLocation     interaction
     ) {
         ClientPacketDistributor.sendToServer(
                 InteractionRequestPacket.invite(

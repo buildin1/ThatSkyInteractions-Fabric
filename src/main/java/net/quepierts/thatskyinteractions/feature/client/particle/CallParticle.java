@@ -1,12 +1,14 @@
 package net.quepierts.thatskyinteractions.feature.client.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.entity.player.Player;
 import org.jspecify.annotations.NonNull;
 
-public final class CallParticle extends SingleQuadParticle {
+// 1.20.1 用 TextureSheetParticle（SingleQuadParticle 的 sprite 构造是 26.x 才有的）
+public final class CallParticle extends TextureSheetParticle {
 
     private final @NonNull Player player;
 
@@ -18,7 +20,8 @@ public final class CallParticle extends SingleQuadParticle {
             final TextureAtlasSprite sprite,
             final @NonNull Player player
     ) {
-        super(level, x, y, z, sprite);
+        super(level, x, y, z);
+        this.setSprite(sprite);
         this.quadSize = 0.05f;
         this.player = player;
     }
@@ -48,7 +51,7 @@ public final class CallParticle extends SingleQuadParticle {
     }
 
     @Override
-    protected @NonNull Layer getLayer() {
-        return Layer.TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 }

@@ -26,9 +26,7 @@ public class ClientTickHandler {
     @SubscribeEvent
     public static void onClientTick(final GameRendererUpdateEvent event) {
         final var minecraft = Minecraft.getInstance();
-        final var tracker   = minecraft.getDeltaTracker();
-
-        final var delta     = tracker.getRealtimeDeltaTicks() * 0.05f;
+        final var delta     = minecraft.getDeltaFrameTime() * 0.05f;
 
         for (final var task : ticks) {
             task            .tick(delta);

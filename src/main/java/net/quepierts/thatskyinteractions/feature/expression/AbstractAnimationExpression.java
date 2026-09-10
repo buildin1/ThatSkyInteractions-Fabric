@@ -6,9 +6,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import dev.anvilcraft.lib.v2.network.codec.ByteBufCodecs;
+import dev.anvilcraft.lib.v2.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.ThatSkyInteractions;
@@ -26,10 +26,10 @@ import java.util.function.Function;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractAnimationExpression implements Expression {
     public  static  final   String      AUTO        = "auto";
-    public  static  final   Identifier  EMPTY       = ThatSkyInteractions.location("empty");
+    public  static  final   ResourceLocation  EMPTY       = ThatSkyInteractions.location("empty");
 
     protected       final   String      animation;
-    protected               Identifier  animationId = EMPTY;
+    protected               ResourceLocation  animationId = EMPTY;
 
     protected static <T extends AbstractAnimationExpression> MapCodec<T> codec(
             final @NonNull Function<String, T> constructor
@@ -82,12 +82,12 @@ public abstract class AbstractAnimationExpression implements Expression {
     }
 
     @Override
-    public void onGenerateData(@NonNull Identifier identifier, int level) {
+    public void onGenerateData(@NonNull ResourceLocation identifier, int level) {
 
         if (AUTO.equalsIgnoreCase(this.animation)) {
             this.animationId    = level != 0 ? identifier.withSuffix("_" + level) : identifier;
         } else {
-            this.animationId    = Identifier.tryParse(this.animation);
+            this.animationId    = ResourceLocation.tryParse(this.animation);
         }
 
     }

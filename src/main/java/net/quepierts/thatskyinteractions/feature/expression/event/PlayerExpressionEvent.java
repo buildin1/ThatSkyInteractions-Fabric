@@ -3,7 +3,7 @@ package net.quepierts.thatskyinteractions.feature.expression.event;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
 public sealed abstract class PlayerExpressionEvent extends Event {
 
     private final Player        player;
-    private final Identifier    expression;
+    private final ResourceLocation    expression;
 
     @Getter
     public static sealed abstract class Enqueue extends PlayerExpressionEvent {
@@ -23,7 +23,7 @@ public sealed abstract class PlayerExpressionEvent extends Event {
 
         private Enqueue(
                 final @NonNull  Player      player, 
-                final @NonNull  Identifier  expression,
+                final @NonNull  ResourceLocation  expression,
                 final           int         level
         ) {
             super(player, expression);
@@ -33,7 +33,7 @@ public sealed abstract class PlayerExpressionEvent extends Event {
         public static final class Pre extends Enqueue implements ICancellableEvent {
             public Pre(
                 final @NonNull  Player      player, 
-                final @NonNull  Identifier  expression,
+                final @NonNull  ResourceLocation  expression,
                 final           int         level
             ) {
                 super(player, expression, level);
@@ -43,7 +43,7 @@ public sealed abstract class PlayerExpressionEvent extends Event {
         public static final class Post extends Enqueue {
             public Post(
                 final @NonNull  Player      player, 
-                final @NonNull  Identifier  expression,
+                final @NonNull  ResourceLocation  expression,
                 final           int         level
             ) {
                 super(player, expression, level);
@@ -62,7 +62,7 @@ public sealed abstract class PlayerExpressionEvent extends Event {
 
         private Perform(
                 final @NonNull  Player      player, 
-                final @NonNull  Identifier  expression,
+                final @NonNull  ResourceLocation  expression,
                 final           int         level
         ) {
             super(player, expression);
@@ -72,7 +72,7 @@ public sealed abstract class PlayerExpressionEvent extends Event {
         public static final class Pre extends Perform implements ICancellableEvent {
             public Pre(
                 final @NonNull  Player      player, 
-                final @NonNull  Identifier  expression,
+                final @NonNull  ResourceLocation  expression,
                 final           int         level
             ) {
                 super(player, expression, level);
@@ -82,7 +82,7 @@ public sealed abstract class PlayerExpressionEvent extends Event {
         public static final class Post extends Perform {
             public Post(
                 final @NonNull  Player      player, 
-                final @NonNull  Identifier  expression,
+                final @NonNull  ResourceLocation  expression,
                 final           int         level
             ) {
                 super(player, expression, level);
@@ -93,7 +93,7 @@ public sealed abstract class PlayerExpressionEvent extends Event {
     public static final class Interrupt extends PlayerExpressionEvent {
         public Interrupt(
                 final @NonNull  Player      player, 
-                final @NonNull  Identifier  expression
+                final @NonNull  ResourceLocation  expression
         ) {
             super(player, expression);
         }
@@ -102,7 +102,7 @@ public sealed abstract class PlayerExpressionEvent extends Event {
     public static final class Finished extends PlayerExpressionEvent {
         public Finished(
                 final @NonNull  Player      player, 
-                final @NonNull  Identifier  expression
+                final @NonNull  ResourceLocation  expression
         ) {
             super(player, expression);
         }

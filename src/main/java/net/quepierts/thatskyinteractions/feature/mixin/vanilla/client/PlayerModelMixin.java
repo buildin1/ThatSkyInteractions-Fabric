@@ -1,25 +1,28 @@
 package net.quepierts.thatskyinteractions.feature.mixin.vanilla.client;
 
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.player.PlayerModel;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.quepierts.thatskyinteractions.core.animation.DefaultMinecraftSkeletonLayout;
+import net.quepierts.thatskyinteractions.feature.animation.PlayerAnimationSystem;
 import net.quepierts.thatskyinteractions.feature.bond.PlayerBondAttachment;
 import net.quepierts.thatskyinteractions.feature.client.animation.PlayerAnimationHook;
 import net.quepierts.thatskyinteractions.feature.client.model.MinecraftModelAdaptor;
 import net.quepierts.thatskyinteractions.feature.client.model.MinecraftModelSkeleton;
 import net.quepierts.thatskyinteractions.feature.client.render.EntityModelExtension;
 import net.quepierts.thatskyinteractions.feature.client.renderstate.AnimationStateModifier;
-import net.quepierts.thatskyinteractions.feature.client.renderstate.ClientRenderStateData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * 1.20.1 的 {@code setupAnim} 直接吃实体，没有 26.x 的 EntityRenderState 管线，
+ * 因此动画的每帧推进与姿态应用都在这里完成。
+ */
 @Mixin(PlayerModel.class)
 public class PlayerModelMixin implements EntityModelExtension {
 
@@ -36,27 +39,33 @@ public class PlayerModelMixin implements EntityModelExtension {
     }
 
     @Inject(
-            method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/model/HumanoidModel;setupAnim(Lnet/minecraft/client/renderer/entity/state/HumanoidRenderState;)V",
-                    shift = At.Shift.AFTER
-            )
+            method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V",
+            at = @At("TAIL")
     )
-    public void tsi$setupAnim(final AvatarRenderState state, final CallbackInfo ci) {
-        final var extension = (net.neoforged.neoforge.client.extensions.IRenderStateExtension) state;
-        final var controller = extension.getRenderData(AnimationStateModifier.CONTEXT_KEY);
+    public void tsi$setupAnim(
+            final LivingEntity  entity,
+            final float         limbSwing,
+            final float         limbSwingAmount,
+            final float         ageInTicks,
+            final float         netHeadYaw,
+            final float         headPitch,
+            final CallbackInfo  ci
+    ) {
+        if (PlayerAnimationSystem.tryParseAnimatable(entity) == null) {
+            return;
+        }
+
+        final var partialTick = net.minecraft.client.Minecraft.getInstance().getFrameTime();
+        final var controller  = AnimationStateModifier.INSTANCE.accept(entity, partialTick);
 
         if (controller != null) {
             PlayerAnimationHook.onSetupAnimation(controller, this.a4j$ModelAdaptor);
         }
 
         // 动作细节增强：牵手/背起时头部朝向对方（在动画姿态基础上叠加，不覆盖）
-        final Entity entity = extension.getRenderData(ClientRenderStateData.ENTITY);
         if (entity instanceof Player self) {
             final Player partner = tsi$findPartner(self);
             if (partner != null) {
-                // head 声明在父类 HumanoidModel 中，运行时向上转型获取
                 final var humanoid = (net.minecraft.client.model.HumanoidModel<?>) (Object) this;
                 tsi$lookAt(humanoid.head, self, partner);
             }

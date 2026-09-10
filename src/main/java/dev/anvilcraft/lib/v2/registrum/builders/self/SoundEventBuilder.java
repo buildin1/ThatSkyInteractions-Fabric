@@ -27,9 +27,9 @@ public class SoundEventBuilder<P> extends AbstractBuilder<SoundEvent, SoundEvent
     @Override
     public SoundEventEntry register() {
         SoundEvent sound = this.createEntry();
-        Registry.register(BuiltInRegistries.SOUND_EVENT, sound.location(), sound);
+        Registry.register(BuiltInRegistries.SOUND_EVENT, sound.getLocation(), sound);
         DeferredHolder<SoundEvent, SoundEvent> holder =
-                new DeferredHolder<SoundEvent, SoundEvent>((net.minecraft.resources.ResourceKey) BuiltInRegistries.SOUND_EVENT.key(), sound.location(), () -> sound);
+                new DeferredHolder<SoundEvent, SoundEvent>((net.minecraft.resources.ResourceKey) BuiltInRegistries.SOUND_EVENT.key(), sound.getLocation(), () -> sound);
         return new SoundEventEntry(this.getOwner(), holder);
     }
 

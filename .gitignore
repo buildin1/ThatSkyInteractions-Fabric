@@ -1,6 +1,7 @@
 # 内部工作文档，不进仓库
 HANDOVER.md
 PORT_PLAN.md
+POSTMORTEM.md
 
 # 反编译的 MC 源码：版权 + 体积
 mc-sources/

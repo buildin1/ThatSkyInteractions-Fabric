@@ -1,7 +1,7 @@
 package net.quepierts.thatskyinteractions.feature.expression;
 
 import lombok.experimental.UtilityClass;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.quepierts.thatskyinteractions.feature.expression.call.packet.ChangeVoicePacket;
@@ -12,7 +12,7 @@ public class PlayerPreferenceSystem {
 
     public static void setVoice(
             final @NonNull ServerPlayer player,
-            final @NonNull Identifier   voice
+            final @NonNull ResourceLocation   voice
     ) {
         PlayerPreferenceAttachment.getAttachment(player).setVoice(voice);
         PacketDistributor.sendToPlayer(
@@ -21,7 +21,7 @@ public class PlayerPreferenceSystem {
         );
     }
 
-    public static @NonNull Identifier getVoice(
+    public static @NonNull ResourceLocation getVoice(
             final @NonNull ServerPlayer player
     ) {
         return PlayerPreferenceAttachment.getAttachment(player).getVoice();
