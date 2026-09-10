@@ -1,6 +1,6 @@
 # ThatSkyInteractions — Fabric
 
-[ThatSkyInteractions](https://github.com/LouisQuepierts/ThatSkyInteractions) 的 Fabric 移植版，经原作者授权。移植自 NeoForge 版 2.1.0-rc2。
+[ThatSkyInteractions](https://github.com/LouisQuepierts/ThatSkyInteractions) 的 Fabric 移植版，经原作者授权。移植：YuzuNyaa，基于 NeoForge 版 2.1.0-rc2。
 
 ## 环境要求
 
